@@ -1,0 +1,239 @@
+"use client";
+
+import React, { useState, useMemo } from "react";
+import Link from "next/link";
+import { useDemo } from "@/lib/demo-context";
+import { TemplateCard } from "@/components/template-card";
+import {
+  Bookmark,
+  Heart,
+  Search,
+  ChevronRight,
+  Compass,
+  ArrowRight,
+  SlidersHorizontal,
+} from "lucide-react";
+
+export default function CollectionPage() {
+  const { templates, likedTemplateIds, savedTemplateIds } = useDemo();
+  const [activeTab, setActiveTab] = useState<"all" | "saved" | "liked">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"recent" | "popular" | "alphabetical">("recent");
+
+  // Derived lists
+  const likedTemplates = useMemo(
+    () => templates.filter((t) => likedTemplateIds.includes(t.id)),
+    [templates, likedTemplateIds]
+  );
+
+  const savedTemplates = useMemo(
+    () => templates.filter((t) => savedTemplateIds.includes(t.id)),
+    [templates, savedTemplateIds]
+  );
+
+  const allCollectionTemplates = useMemo(() => {
+    const allIds = Array.from(new Set([...likedTemplateIds, ...savedTemplateIds]));
+    return templates.filter((t) => allIds.includes(t.id));
+  }, [templates, likedTemplateIds, savedTemplateIds]);
+
+  // Filtered and sorted collection
+  const displayedTemplates = useMemo(() => {
+    let list: typeof templates = [];
+
+    if (activeTab === "saved") {
+      list = [...savedTemplates];
+    } else if (activeTab === "liked") {
+      list = [...likedTemplates];
+    } else {
+      list = [...allCollectionTemplates];
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q) ||
+          t.tags.some((tag) => tag.toLowerCase().includes(q)) ||
+          t.categoryName.toLowerCase().includes(q)
+      );
+    }
+
+    if (sortBy === "popular") {
+      list.sort((a, b) => b.likesCount - a.likesCount);
+    } else if (sortBy === "alphabetical") {
+      list.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return list;
+  }, [activeTab, savedTemplates, likedTemplates, allCollectionTemplates, searchQuery, sortBy]);
+
+  return (
+    <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumbs" className="flex items-center gap-2 text-xs text-zinc-400">
+          <Link href="/" className="hover:text-white transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-zinc-600" />
+          <span className="text-zinc-200 font-semibold">My Collection</span>
+        </nav>
+
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-zinc-800">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400">
+                Personal Creative Vault
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-zinc-850 text-[10px] font-mono font-bold text-zinc-300 border border-zinc-700">
+                {allCollectionTemplates.length} Items
+              </span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
+              <span>Saved &amp; Liked Templates</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 max-w-xl leading-relaxed">
+              Your private collection of bookmarked UI templates and appreciated creative prompts.
+            </p>
+          </div>
+
+          <Link
+            href="/"
+            className="px-4 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          >
+            <Compass className="h-4 w-4 text-cyan-400" />
+            <span>Browse Catalog</span>
+          </Link>
+        </div>
+
+        {/* Control Bar: Tabs + Search + Sort */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#121316] p-3 rounded-2xl border border-zinc-800">
+          {/* Tabs */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === "all"
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-850"
+              }`}
+            >
+              All ({allCollectionTemplates.length})
+            </button>
+
+            <button
+              onClick={() => setActiveTab("saved")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === "saved"
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-850"
+              }`}
+            >
+              <Bookmark className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span>Saved ({savedTemplates.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("liked")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === "liked"
+                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-850"
+              }`}
+            >
+              <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+              <span>Liked ({likedTemplates.length})</span>
+            </button>
+          </div>
+
+          {/* Search & Sort */}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search collection..."
+                className="w-full bg-zinc-900/90 border border-zinc-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-700"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500 hover:text-zinc-300"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Sort Filter */}
+            <div className="flex items-center gap-1 text-xs text-zinc-400 shrink-0">
+              <SlidersHorizontal className="h-3.5 w-3.5 text-zinc-500" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-zinc-700 cursor-pointer"
+              >
+                <option value="recent">Recently Added</option>
+                <option value="popular">Most Liked</option>
+                <option value="alphabetical">Alphabetical</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Templates Grid */}
+        {displayedTemplates.length === 0 ? (
+          <div className="p-16 rounded-3xl border border-dashed border-zinc-800 bg-[#121316]/50 text-center space-y-4 max-w-lg mx-auto">
+            <div className="h-16 w-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-500">
+              {activeTab === "saved" ? (
+                <Bookmark className="h-8 w-8 text-amber-400" />
+              ) : activeTab === "liked" ? (
+                <Heart className="h-8 w-8 text-rose-400" />
+              ) : (
+                <Bookmark className="h-8 w-8 text-indigo-400" />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-white">
+                {searchQuery
+                  ? "No matching templates found in your collection"
+                  : activeTab === "saved"
+                  ? "No saved templates yet"
+                  : activeTab === "liked"
+                  ? "No liked templates yet"
+                  : "Your collection is empty"}
+              </h3>
+              <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                {searchQuery
+                  ? "Try resetting your search query to see all items."
+                  : "Browse the catalog and click the bookmark or heart icon on any template to add it to your personal collection."}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black font-bold text-xs hover:bg-zinc-200 transition-all shadow-md shadow-white/10 active:scale-95"
+              >
+                <span>Explore Template Catalog</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {displayedTemplates.map((template) => (
+              <TemplateCard key={`col-page-${template.id}`} template={template} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
