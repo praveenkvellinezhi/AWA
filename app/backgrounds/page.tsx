@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { initialBackgrounds } from "@/lib/mock-data/backgrounds";
-import { Copy, Check, Maximize2, Sparkles, Sliders } from "lucide-react";
+import { Copy, Check, Maximize2, Sliders } from "lucide-react";
 
 export default function BackgroundsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -27,7 +27,6 @@ export default function BackgroundsPage() {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold font-mono">
-            <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
             <span>INTERACTIVE MOTION SYSTEM</span>
           </div>
 
@@ -47,8 +46,8 @@ export default function BackgroundsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedCategory === cat
-                    ? "bg-white text-black font-bold shadow-md"
-                    : "bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-800"
+                    ? "bg-slate-950 text-white dark:bg-white dark:text-black font-bold shadow-md"
+                    : "bg-white text-slate-600 dark:bg-zinc-900 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800"
                 }`}
               >
                 {cat}

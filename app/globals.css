@@ -135,36 +135,174 @@ html:not(.dark) {
     border-color: #CBD5E1 !important;
   }
 
-  /* Text hierarchy in Light Mode */
-  [class*="text-white"]:not([class*="group-hover:"]):not([class*="bg-"]):not(button):not(a) {
+  /* ==========================================================================
+     LIGHT MODE TEXT HIERARCHY & CONTRAST OVERHAUL
+     ========================================================================== */
+
+  /* Dark surfaces preservation (media overlays, category cards, hero 3D cards, lock cards) */
+  .category-card-overlay,
+  .category-card-overlay *,
+  [data-media-overlay],
+  [data-media-overlay] *,
+  .dark-media-overlay,
+  .dark-media-overlay *,
+  .dark-surface {
+    color: #FFFFFF;
+  }
+
+  .dark-surface h1,
+  .dark-surface h2,
+  .dark-surface h3,
+  .dark-surface h4,
+  .dark-surface [class*="text-white"] {
+    color: #FFFFFF !important;
+  }
+
+  /* Explicitly ensure white/light buttons and dark text elements inside .dark-surface maintain pure dark text */
+  .dark-surface [class*="bg-white"],
+  .dark-surface [class*="bg-white"] *,
+  .dark-surface [class*="text-slate-950"],
+  .dark-surface [class*="text-slate-950"] *,
+  .dark-surface [class*="text-black"],
+  .dark-surface [class*="text-black"] * {
     color: #0F172A !important;
   }
 
-  /* Specific typography */
-  h1, h2, h3, h4, h5, h6 {
-    color: #0F172A;
+  .category-card-overlay span,
+  [data-media-overlay] span,
+  .dark-surface span:not([class*="text-"]):not([class*="bg-white"] *):not([class*="text-slate-950"] *):not([class*="text-black"] *) {
+    color: rgba(255, 255, 255, 0.9) !important;
   }
 
-  [class*="text-slate-100"],
-  [class*="text-slate-200"],
-  [class*="text-zinc-100"],
-  [class*="text-zinc-200"] {
-    color: #0F172A !important;
+  .dark-surface [class*="text-zinc-100"],
+  .dark-surface [class*="text-slate-100"] {
+    color: #F1F5F9 !important;
   }
 
-  [class*="text-slate-300"],
-  [class*="text-zinc-300"] {
-    color: #334155 !important;
+  .dark-surface [class*="text-zinc-200"],
+  .dark-surface [class*="text-slate-200"] {
+    color: #E2E8F0 !important;
   }
 
-  [class*="text-slate-400"],
-  [class*="text-zinc-400"] {
+  .dark-surface [class*="text-zinc-300"],
+  .dark-surface [class*="text-slate-300"] {
+    color: #CBD5E1 !important;
+  }
+
+  .dark-surface [class*="text-zinc-400"],
+  .dark-surface [class*="text-slate-400"] {
+    color: #94A3B8 !important;
+  }
+
+  .dark-surface [class*="text-zinc-500"],
+  .dark-surface [class*="text-slate-500"] {
     color: #64748B !important;
   }
 
-  [class*="text-slate-500"],
-  [class*="text-zinc-500"] {
-    color: #94A3B8 !important;
+  .dark-surface [class*="text-amber-400"] {
+    color: #FBBF24 !important;
+  }
+
+  .dark-surface [class*="text-amber-300"],
+  .dark-surface [class*="text-amber-200"] {
+    color: #FDE68A !important;
+  }
+
+  .dark-surface [class*="text-cyan-300"],
+  .dark-surface [class*="text-cyan-400"] {
+    color: #38BDF8 !important;
+  }
+
+  .dark-surface [class*="text-indigo-300"],
+  .dark-surface [class*="text-indigo-400"] {
+    color: #818CF8 !important;
+  }
+
+  .dark-surface [class*="text-purple-300"],
+  .dark-surface [class*="text-purple-400"] {
+    color: #C084FC !important;
+  }
+
+  .dark-surface [class*="text-rose-300"],
+  .dark-surface [class*="text-rose-400"] {
+    color: #FB7185 !important;
+  }
+
+  .dark-surface [class*="text-emerald-300"],
+  .dark-surface [class*="text-emerald-400"] {
+    color: #34D399 !important;
+  }
+
+  /* Specific typography headings on light canvas */
+  h1:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *),
+  h2:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *),
+  h3:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *),
+  h4:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *),
+  h5:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *),
+  h6:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *) {
+    color: #0F172A;
+  }
+
+  /* Text hierarchy on light canvas */
+  [class*="text-slate-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-slate-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-zinc-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-zinc-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+    color: #0F172A !important;
+  }
+
+  [class*="text-slate-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-zinc-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+    color: #1E293B !important;
+  }
+
+  [class*="text-slate-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-zinc-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+    color: #475569 !important;
+  }
+
+  [class*="text-slate-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
+  [class*="text-zinc-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+    color: #64748B !important;
+  }
+
+  /* White text on light canvas: convert to dark slate unless on solid dark/colored buttons */
+  [class*="text-white"]:not([class*="group-hover:"]):not([class~="bg-indigo-600"] *):not([class~="bg-indigo-700"] *):not([class~="bg-purple-600"] *):not([class~="bg-purple-700"] *):not([class~="bg-emerald-500"] *):not([class~="bg-emerald-600"] *):not([class~="bg-rose-500"] *):not([class~="bg-rose-600"] *):not([class~="bg-blue-600"] *):not([class~="bg-black"] *):not([class*="bg-indigo-600"]):not([class*="bg-purple-600"]):not([class*="bg-emerald-600"]):not([class*="bg-rose-600"]):not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+    color: #0F172A !important;
+  }
+
+  /* Pastel accents on light canvas: map to deep high-contrast tones */
+  [class*="text-amber-200"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *),
+  [class*="text-amber-300"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #B45309 !important;
+  }
+
+  [class*="text-amber-400"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #92400E !important;
+  }
+
+  [class*="text-cyan-200"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *),
+  [class*="text-cyan-300"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #0284C7 !important;
+  }
+
+  [class*="text-cyan-400"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #0369A1 !important;
+  }
+
+  [class*="text-purple-200"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *),
+  [class*="text-purple-300"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #7E22CE !important;
+  }
+
+  [class*="text-rose-200"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *),
+  [class*="text-rose-300"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #BE123C !important;
+  }
+
+  [class*="text-emerald-200"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *),
+  [class*="text-emerald-300"]:not(.dark-surface *):not([data-media-overlay] *):not(.category-card-overlay *):not(.demo-controls-console *) {
+    color: #047857 !important;
   }
 
   /* Inputs, Search fields, & Textareas */
@@ -185,27 +323,29 @@ html:not(.dark) {
   }
 
   /* Buttons: Ensure solid action buttons maintain white text */
-  [class*="bg-indigo-600"],
-  [class*="bg-purple-600"],
-  [class*="bg-emerald-500"],
-  [class*="bg-emerald-600"],
-  [class*="bg-rose-500"],
-  [class*="bg-rose-600"],
-  [class*="bg-blue-600"] {
+  [class~="bg-indigo-600"],
+  [class~="bg-indigo-700"],
+  [class~="bg-purple-600"],
+  [class~="bg-purple-700"],
+  [class~="bg-emerald-500"],
+  [class~="bg-emerald-600"],
+  [class~="bg-rose-500"],
+  [class~="bg-rose-600"],
+  [class~="bg-blue-600"],
+  [class~="bg-black"] {
     color: #FFFFFF !important;
   }
 
-
   /* Dropdown filter buttons in Light Mode */
   [class*="bg-zinc-900/90"],
-  [class*="bg-zinc-900"]:not([class*="group-hover:"]) {
+  [class*="bg-zinc-900"]:not([class*="group-hover:"]):not(.dark-surface *) {
     background-color: #FFFFFF !important;
     border-color: #E2E8F0 !important;
     color: #334155 !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   }
 
-  /* Overlays on images, dark scrims, and gradients must keep light/white text */
+  /* Overlays on images and dark scrims must keep light/white text */
   [class*="from-black"] [class*="text-white"],
   [class*="from-black"] [class*="text-zinc-"],
   [class*="from-black"] h3,
@@ -214,9 +354,7 @@ html:not(.dark) {
   [class*="bg-black/"] [class*="text-white"],
   [class*="bg-black/"] [class*="text-zinc-"],
   [class*="bg-black/"] span,
-  [class*="bg-black/"] p,
-  [class*="bg-gradient"] [class*="text-white"],
-  [class*="bg-gradient"] [class*="text-zinc-"] {
+  [class*="bg-black/"] p {
     color: #FFFFFF !important;
   }
 
@@ -256,6 +394,85 @@ html:not(.dark) {
 
   ::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
+  }
+
+  /* ==========================================================================
+     DEMO CONTROLS FLOATING CONSOLE (ISOLATED FROM LIGHT-MODE DESTRUCTIVE STYLES)
+     ========================================================================== */
+  .demo-controls-console button.group {
+    background-color: #0F172A !important;
+    border: 2px dashed #F59E0B !important;
+    color: #FCD34D !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.3) !important;
+  }
+
+  .demo-controls-console button.group:hover {
+    background-color: #1E293B !important;
+    border-color: #FBBF24 !important;
+  }
+
+  .demo-controls-console button.group span {
+    color: #FCD34D !important;
+  }
+
+  .demo-controls-console button.group span.rounded-full {
+    background-color: rgba(245, 158, 11, 0.25) !important;
+    color: #FDE68A !important;
+  }
+
+  .demo-controls-console button.group svg {
+    color: #F59E0B !important;
+  }
+
+  /* Expanded Panel */
+  .demo-controls-console > div {
+    background-color: #0F172A !important;
+    border: 2px dashed rgba(245, 158, 11, 0.8) !important;
+    color: #E2E8F0 !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.25) !important;
+  }
+
+  .demo-controls-console [class*="bg-slate-950"] {
+    background-color: #020617 !important;
+    border-color: #1E293B !important;
+  }
+
+  .demo-controls-console [class*="bg-slate-900"] {
+    background-color: #0F172A !important;
+  }
+
+  .demo-controls-console [class*="bg-slate-800"] {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F8FAFC !important;
+  }
+
+  .demo-controls-console [class*="text-amber-"] {
+    color: #FCD34D !important;
+  }
+
+  .demo-controls-console [class*="text-slate-400"] {
+    color: #94A3B8 !important;
+  }
+
+  .demo-controls-console [class*="text-slate-300"] {
+    color: #CBD5E1 !important;
+  }
+
+  .demo-controls-console [class*="text-slate-200"] {
+    color: #E2E8F0 !important;
+  }
+
+  .demo-controls-console [class*="text-white"] {
+    color: #FFFFFF !important;
+  }
+
+  .demo-controls-console [class*="border-amber-"] {
+    border-color: #F59E0B !important;
+  }
+
+  .demo-controls-console [class*="border-slate-800"] {
+    border-color: #1E293B !important;
   }
 }
 

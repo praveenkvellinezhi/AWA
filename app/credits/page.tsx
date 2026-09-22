@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useDemo } from "@/lib/demo-context";
 import {
   Coins,
-  Sparkles,
   CreditCard,
   CheckCircle2,
   ArrowRight,
@@ -85,7 +84,7 @@ export default function CreditsPage() {
               onClick={() => setSelectedPackId(pack.id)}
               className={`cursor-pointer rounded-2xl border p-6 flex flex-col justify-between transition-all relative ${
                 isSelected
-                  ? "bg-gradient-to-b from-indigo-950/40 via-awa-card to-slate-950 border-indigo-500 shadow-xl shadow-indigo-500/15 scale-105"
+                  ? "bg-gradient-to-b from-indigo-50/80 via-white to-white dark:from-indigo-950/40 dark:via-awa-card dark:to-slate-950 border-indigo-500 shadow-xl shadow-indigo-500/15 scale-105"
                   : "bg-awa-card border-awa-border hover:border-slate-700"
               }`}
             >
@@ -120,7 +119,7 @@ export default function CreditsPage() {
                   className={`w-full py-2.5 rounded-xl font-bold text-xs text-center border transition-colors ${
                     isSelected
                       ? "bg-indigo-600 border-indigo-500 text-white"
-                      : "bg-slate-900 border-slate-800 text-slate-300"
+                      : "bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300"
                   }`}
                 >
                   {isSelected ? "Selected" : "Select Pack"}

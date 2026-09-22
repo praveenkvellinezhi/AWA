@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 
 export function DesignRocketCard() {
   return (
-    <div className="relative flex flex-col justify-between rounded-2xl border border-zinc-800 bg-[#111215] p-6 shadow-xl overflow-hidden min-h-[280px]">
+    <div className="dark-surface relative flex flex-col justify-between rounded-2xl border border-zinc-800 bg-[#111215] p-6 shadow-xl overflow-hidden min-h-[280px]">
       {/* Radiant Electric Blue/Cyan Glow on center-right */}
       <div className="absolute -top-10 -right-10 w-60 h-60 rounded-full bg-gradient-to-br from-blue-500/35 via-cyan-400/20 to-purple-500/10 blur-3xl pointer-events-none" />
 
@@ -32,10 +32,10 @@ export function DesignRocketCard() {
       <div className="relative z-10 pt-2">
         <Link
           href="/academy"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black font-bold text-xs sm:text-sm hover:bg-zinc-200 transition-all shadow-lg active:scale-95 group"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-950 hover:bg-zinc-100 transition-all shadow-lg active:scale-95 group font-bold text-xs sm:text-sm"
         >
-          <span>Start Learning for Free</span>
-          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <span className="text-slate-950 font-bold">Start Learning for Free</span>
+          <ArrowUpRight className="h-4 w-4 text-slate-950 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </Link>
       </div>
     </div>

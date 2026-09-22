@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useDemo } from "@/lib/demo-context";
 import { Template } from "@/lib/types";
+import { getTemplatePrompts, combinePrompts } from "@/lib/prompt-utils";
 import {
   FileText,
   Plus,
@@ -10,7 +11,6 @@ import {
   Trash2,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   X,
   Search,
   Eye,
@@ -64,7 +64,10 @@ export default function AdminTemplatesPage() {
     setFormName(template.name);
     setFormCategoryId(template.categoryId);
     setFormDescription(template.description);
-    setFormPromptText(template.promptText);
+    const prompts = getTemplatePrompts(template);
+    setFormPromptText(
+      template.promptText || combinePrompts(prompts.uiPrompt, prompts.contextPrompt)
+    );
     setFormTags(template.tags.join(", "));
     setFormDifficulty(template.difficulty);
     setFormStyle(template.style);
@@ -94,6 +97,14 @@ export default function AdminTemplatesPage() {
       },
     ];
 
+    const resolvedPrompts = getTemplatePrompts({
+      promptText: formPromptText.trim(),
+      name: formName.trim(),
+      description: formDescription.trim(),
+      style: formStyle.trim(),
+      tags,
+    });
+
     if (editingTemplateId) {
       updateTemplate(editingTemplateId, {
         name: formName.trim(),
@@ -101,6 +112,8 @@ export default function AdminTemplatesPage() {
         categoryName,
         description: formDescription.trim(),
         promptText: formPromptText.trim(),
+        uiPrompt: resolvedPrompts.uiPrompt,
+        contextPrompt: resolvedPrompts.contextPrompt,
         tags,
         difficulty: formDifficulty,
         style: formStyle.trim(),
@@ -116,6 +129,8 @@ export default function AdminTemplatesPage() {
         categoryName,
         description: formDescription.trim(),
         promptText: formPromptText.trim(),
+        uiPrompt: resolvedPrompts.uiPrompt,
+        contextPrompt: resolvedPrompts.contextPrompt,
         tags,
         difficulty: formDifficulty,
         style: formStyle.trim(),
@@ -166,7 +181,7 @@ export default function AdminTemplatesPage() {
 
       {/* Authoring Guidelines Notice (FEAT-030 Rule) */}
       <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 flex items-center gap-3 text-xs text-indigo-200">
-        <Sparkles className="h-5 w-5 text-indigo-400 shrink-0" />
+        <FileText className="h-5 w-5 text-indigo-400 shrink-0" />
         <span>
           <strong>Strict Authoring Standard:</strong> All AWA prompts must be 100% complete and ready-to-run verbatim. Never use placeholder brackets like &quot;[Insert Brand Name Here]&quot; or guided blanks.
         </span>

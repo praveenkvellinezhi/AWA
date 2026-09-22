@@ -14,7 +14,6 @@ import {
   Shield,
   ArrowRight,
   TrendingUp,
-  Sparkles,
   Sliders,
 } from "lucide-react";
 

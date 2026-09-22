@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useDemo } from "@/lib/demo-context";
-import { Languages, Plus, CheckCircle2, Globe, Sparkles } from "lucide-react";
+import { Languages, Plus, CheckCircle2, Globe } from "lucide-react";
 
 export default function AdminLanguagesPage() {
   const { adminConfig, updateAdminConfig } = useDemo();

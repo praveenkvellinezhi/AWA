@@ -33,19 +33,28 @@ export function CategoryCard({ category }: CategoryCardProps) {
       />
 
       {/* Dark Gradient Overlay Scrim for Crisp Contrast (Matching Reference) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-black/15 group-hover:bg-black/0 transition-colors duration-300 pointer-events-none" />
 
-      {/* Overlay Text at Bottom Left (Matching '18 PRODUCTS \n SKINCARE' Reference Layout) */}
-      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4 flex flex-col justify-end">
+      {/* Overlay Text at Bottom Left */}
+      <div
+        className="category-card-overlay absolute inset-x-0 bottom-0 p-3.5 sm:p-4 flex flex-col justify-end z-10"
+        data-media-overlay
+      >
         {/* Template Count (e.g. '5 TEMPLATES') */}
-        <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-zinc-300/90 drop-shadow-sm">
+        <span
+          className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider !text-white/85 drop-shadow-sm"
+          style={{ color: "rgba(255, 255, 255, 0.85)" }}
+        >
           {category.templateCount}{" "}
           {category.templateCount === 1 ? "TEMPLATE" : "TEMPLATES"}
         </span>
 
         {/* Category Name (e.g. 'IMAGE GENERATION') */}
-        <h3 className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-wide text-white drop-shadow-md mt-0.5 leading-tight transition-colors">
+        <h3
+          className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-wide !text-white drop-shadow-md mt-0.5 leading-tight transition-colors"
+          style={{ color: "#FFFFFF" }}
+        >
           {category.name}
         </h3>
       </div>

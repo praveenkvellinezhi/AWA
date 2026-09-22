@@ -52,7 +52,7 @@ export const initialCategories: Category[] = [
     description: "Motion-tuned prompts tailored for Runway, Sora, and Pika with camera direction, lighting, and pacing.",
     iconName: "Film",
     accentColor: "from-purple-500/20 to-indigo-500/20 text-purple-400 border-purple-500/30",
-    templateCount: 4,
+    templateCount: 10,
     imageUrl: "/images/categories/video-gen.jpg",
     subcategories: [
       {
@@ -61,7 +61,7 @@ export const initialCategories: Category[] = [
         slug: "cinematic-b-roll",
         description: "Slow-motion drone sweeps, cinematic camera pans, and documentary depth of field.",
         categoryId: "cat-video-gen",
-        templateCount: 2,
+        templateCount: 5,
       },
       {
         id: "sub-vid-commercial",
@@ -69,7 +69,7 @@ export const initialCategories: Category[] = [
         slug: "commercial-product-motion",
         description: "Dynamic product reveals, 360 spins, and advertising liquid splashes.",
         categoryId: "cat-video-gen",
-        templateCount: 1,
+        templateCount: 3,
       },
       {
         id: "sub-vid-fashion",
@@ -77,7 +77,7 @@ export const initialCategories: Category[] = [
         slug: "fashion-pacing",
         description: "High fashion transitions, slow walk movements, and editorial spotlighting.",
         categoryId: "cat-video-gen",
-        templateCount: 1,
+        templateCount: 2,
       },
     ],
   },
@@ -124,7 +124,7 @@ export const initialCategories: Category[] = [
     description: "Slide narrative, layout architecture, and visual styling prompts for Gamma, Tome, and Beautiful.ai.",
     iconName: "Presentation",
     accentColor: "from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30",
-    templateCount: 4,
+    templateCount: 7,
     imageUrl: "/images/categories/slides.jpg",
     subcategories: [
       {
@@ -141,7 +141,7 @@ export const initialCategories: Category[] = [
         slug: "executive-qbr-briefings",
         description: "Quarterly review data visualizers, corporate strategy, and KPI scorecards.",
         categoryId: "cat-slides-presentations",
-        templateCount: 1,
+        templateCount: 4,
       },
       {
         id: "sub-slides-keynote",
@@ -160,7 +160,7 @@ export const initialCategories: Category[] = [
     description: "Graphic design prompts covering Swiss typography, music event flyers, brand identity, and packaging.",
     iconName: "Palette",
     accentColor: "from-rose-500/20 to-pink-500/20 text-rose-400 border-rose-500/30",
-    templateCount: 4,
+    templateCount: 8,
     imageUrl: "/images/categories/poster.jpg",
     subcategories: [
       {
@@ -169,7 +169,7 @@ export const initialCategories: Category[] = [
         slug: "music-cultural-events",
         description: "Electronic music festival posters, vintage typography, and modern grid compositions.",
         categoryId: "cat-poster-design",
-        templateCount: 2,
+        templateCount: 4,
       },
       {
         id: "sub-poster-branding",
@@ -177,7 +177,7 @@ export const initialCategories: Category[] = [
         slug: "brandboards-visual-identity",
         description: "Logo lockups, packaging mockups, and corporate stationery layouts.",
         categoryId: "cat-poster-design",
-        templateCount: 1,
+        templateCount: 3,
       },
       {
         id: "sub-poster-retro",

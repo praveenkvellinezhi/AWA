@@ -6,38 +6,24 @@ import { useDemo } from "@/lib/demo-context";
 import { CategoryCard } from "@/components/category-card";
 import { TemplateCard } from "@/components/template-card";
 import { DesignRocketCard } from "@/components/design-rocket-card";
+import { LandingHero } from "@/components/landing-hero";
 import {
   Search,
   ChevronDown,
   Flame,
   Check,
   ArrowRight,
-  Sparkles,
   Lock,
 } from "lucide-react";
 
-// Exact categories tabs for AWA
+// Category tabs for AWA template catalog
 const CATEGORY_TABS = [
   "All",
-  "Recent",
   "Image Generation",
-  "Poster",
-  "Slides",
   "Video Generation",
-  "Website",
-  "Landing Page",
-  "Hero",
-  "Portfolio",
-  "Apps",
-  "Sections",
-  "Saas",
-  "Agency",
-  "Ai",
-  "Creative",
-  "Technology",
-  "Travel",
-  "Fintech",
-  "Wellness",
+  "Website Making",
+  "Slides & Presentations",
+  "Poster & Design",
 ];
 
 const SORT_OPTIONS = [
@@ -75,6 +61,21 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState("popular");
   const [pricingFilter, setPricingFilter] = useState("all");
 
+  const handleHeroExplore = () => {
+    const el = document.getElementById("catalog");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleHeroFree = () => {
+    setPricingFilter("free");
+    const el = document.getElementById("catalog");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   // Dropdown controls
   const [sortOpen, setSortOpen] = useState(false);
   const [pricingOpen, setPricingOpen] = useState(false);
@@ -103,9 +104,6 @@ export default function HomePage() {
     if (selectedTab !== "All") {
       const lowerTab = selectedTab.toLowerCase();
       result = result.filter((t) => {
-        if (selectedTab === "Recent") {
-          return t.tags.includes("Recent") || new Date(t.createdAt).getFullYear() >= 2026;
-        }
         if (selectedTab === "Image Generation") {
           return (
             t.categoryId === "cat-image-gen" ||
@@ -120,66 +118,30 @@ export default function HomePage() {
             t.tags.some((tag) => tag.toLowerCase().includes("video"))
           );
         }
-        if (selectedTab === "Poster") {
+        if (selectedTab === "Website Making" || selectedTab === "Website") {
           return (
-            t.categoryId === "cat-poster-design" ||
-            t.categoryName.toLowerCase().includes("poster") ||
-            t.tags.some((tag) => tag.toLowerCase().includes("poster"))
+            t.categoryId === "cat-website-making" ||
+            t.categoryId === "cat-web-code" ||
+            t.categoryName.toLowerCase().includes("website") ||
+            t.tags.some((tag) => tag.toLowerCase().includes("website") || tag.toLowerCase() === "web") ||
+            t.description.toLowerCase().includes("website") ||
+            t.description.toLowerCase().includes("landing page") ||
+            t.categoryName === "Saas" ||
+            t.categoryName === "Portfolio"
           );
         }
-        if (selectedTab === "Slides") {
+        if (selectedTab === "Slides & Presentations" || selectedTab === "Slides") {
           return (
             t.categoryId === "cat-slides-presentations" ||
             t.categoryName.toLowerCase().includes("slide") ||
             t.tags.some((tag) => tag.toLowerCase().includes("slide"))
           );
         }
-        if (selectedTab === "Website") {
+        if (selectedTab === "Poster & Design" || selectedTab === "Poster") {
           return (
-            t.categoryId === "cat-website-making" ||
-            t.categoryName.toLowerCase().includes("website") ||
-            t.tags.some((tag) => tag.toLowerCase().includes("website") || tag.toLowerCase() === "web") ||
-            t.description.toLowerCase().includes("website") ||
-            t.description.toLowerCase().includes("landing page")
-          );
-        }
-        if (selectedTab === "Landing Page") {
-          return (
-            t.tags.some((tag) => tag.toLowerCase().includes("landing page")) ||
-            t.subcategoryName?.toLowerCase().includes("landing page") ||
-            t.name.toLowerCase().includes("landing page") ||
-            t.description.toLowerCase().includes("landing page")
-          );
-        }
-        if (selectedTab === "Hero") {
-          return (
-            t.tags.some((tag) => tag.toLowerCase() === "hero") ||
-            t.subcategoryName?.toLowerCase().includes("hero") ||
-            t.name.toLowerCase().includes("hero") ||
-            t.description.toLowerCase().includes("hero")
-          );
-        }
-        if (selectedTab === "Portfolio") {
-          return (
-            t.tags.some((tag) => tag.toLowerCase() === "portfolio") ||
-            t.categoryName.toLowerCase().includes("portfolio") ||
-            t.subcategoryName?.toLowerCase().includes("portfolio") ||
-            t.name.toLowerCase().includes("portfolio")
-          );
-        }
-        if (selectedTab === "Ai") {
-          return (
-            t.tags.some((tag) => tag.toLowerCase() === "ai") ||
-            t.categoryName.toLowerCase().includes("ai") ||
-            (t.subcategoryName && t.subcategoryName.toLowerCase().includes("ai")) ||
-            t.name.toLowerCase().includes("ai")
-          );
-        }
-        if (selectedTab === "Sections") {
-          return (
-            t.tags.some((tag) => tag.toLowerCase() === "sections") ||
-            t.subcategoryName?.toLowerCase().includes("sections") ||
-            t.description.toLowerCase().includes("section")
+            t.categoryId === "cat-poster-design" ||
+            t.categoryName.toLowerCase().includes("poster") ||
+            t.tags.some((tag) => tag.toLowerCase().includes("poster"))
           );
         }
         return (
@@ -239,12 +201,26 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 pb-24">
-      {/* 1. Top Section: Explore the 5 Core Disciplines */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
-        <div className="text-center max-w-2xl mx-auto space-y-1.5">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400 block">
-            Core Creation Categories
-          </h3>
+      {/* 1. Hero Section */}
+      <LandingHero
+        onExploreClick={handleHeroExplore}
+        onFreeClick={handleHeroFree}
+      />
+
+      {/* 4. Core Creation Categories */}
+      <section id="disciplines" className="w-full px-4 sm:px-6 lg:px-8 pt-16 space-y-6 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-zinc-800">
+          <div>
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-indigo-600 dark:text-cyan-400 block mb-1">
+              Core Disciplines
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Explore the 5 Creative Tracks
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-md">
+            Specialized prompt engineering and tool matching tailored for each distinct creative discipline.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 xl:gap-4">
@@ -254,8 +230,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Category Tabs & Controls Bar (Sticky for Template Browsing) */}
-      <section className="sticky top-16 z-30 w-full border-y border-zinc-800/80 bg-[#0c0d0f]/95 backdrop-blur-md mt-10">
+      {/* 5. Category Tabs & Controls Bar (Sticky for Template Browsing) */}
+      <section id="catalog" className="sticky top-16 z-30 w-full border-y border-zinc-800/80 bg-[#0c0d0f]/95 backdrop-blur-md mt-16 scroll-mt-20">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-4">
             {/* Horizontal Scrollable Tabs */}
@@ -419,7 +395,7 @@ export default function HomePage() {
                 setSearchQuery("");
                 setPricingFilter("all");
               }}
-              className="mt-4 px-4 py-2 rounded-full bg-white text-black text-xs font-bold hover:bg-zinc-200 transition-colors"
+              className="mt-4 px-4 py-2 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black text-xs font-bold hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors"
             >
               Show All Templates
             </button>
@@ -443,9 +419,9 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* 4. Featured Flagship Walkthrough Spotlight (Bottom of page above footer) */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 pt-16">
-        <div className="relative rounded-3xl border border-zinc-800 bg-gradient-to-r from-[#121316] via-[#15171e] to-indigo-950/30 p-6 sm:p-10 shadow-2xl overflow-hidden">
+      {/* 6. Featured Flagship Walkthrough Spotlight */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-16 max-w-7xl mx-auto">
+        <div className="dark-surface relative rounded-3xl border border-zinc-800 bg-gradient-to-r from-[#121316] via-[#15171e] to-indigo-950/30 p-6 sm:p-10 shadow-2xl overflow-hidden">
           {/* Ambient Glows */}
           <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
           <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
@@ -464,7 +440,7 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
-                  href="/templates/product-photography-handmade-candle"
+                  href="/templates/template-candle-photo"
                   className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-md flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95 group/btn"
                 >
                   <span>Launch Flagship Demo</span>
@@ -484,7 +460,7 @@ export default function HomePage() {
             {/* Quick Teaser Box */}
             <div className="lg:col-span-5">
               <Link
-                href="/templates/product-photography-handmade-candle"
+                href="/templates/template-candle-photo"
                 className="block relative rounded-2xl border border-zinc-800 bg-[#0e0f12] p-3 overflow-hidden group/preview hover:border-amber-500/40 transition-all shadow-xl"
               >
                 <div className="relative h-44 sm:h-52 rounded-xl overflow-hidden">
@@ -509,6 +485,54 @@ export default function HomePage() {
                     </span>
                   </div>
                 </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. High-Converting Bottom CTA Banner */}
+      <section className="w-full px-4 sm:px-6 lg:px-8 pt-16 max-w-7xl mx-auto">
+        <div className="dark-surface relative rounded-3xl overflow-hidden border border-indigo-500/30 bg-gradient-to-br from-indigo-950/80 via-[#111318] to-purple-950/60 p-8 sm:p-14 text-center space-y-6 shadow-2xl">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/15 via-transparent to-transparent pointer-events-none" />
+
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold font-mono">
+              <span>START BUILDING PRODUCTION ASSETS</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+              Ready to 10x Your AI Creative Output?
+            </h2>
+
+            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
+              Join 12,000+ creators, designers, and engineers using AWA to deploy websites, generate slide decks, render cinematic video, and craft high-res graphics without prompt guesswork.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4">
+              {isSubscriber ? (
+                <button
+                  onClick={handleHeroExplore}
+                  className="px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                >
+                  <span>Explore Workflow Catalog</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <Link
+                  href="/unlimited"
+                  className="px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                >
+                  <span>Get Unlimited Access</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
+
+              <Link
+                href="/academy"
+                className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/20 font-semibold text-sm sm:text-base transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+              >
+                <span>Explore Design Rocket Academy</span>
               </Link>
             </div>
           </div>

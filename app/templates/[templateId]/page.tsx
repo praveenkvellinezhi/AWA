@@ -8,6 +8,7 @@ import { PromptPanel } from "@/components/prompt-panel";
 import { CustomizePanel } from "@/components/customize-panel";
 import { FeedbackWidget } from "@/components/feedback-widget";
 import { getTemplateSlides } from "@/lib/template-images";
+import { getTemplatePrompts } from "@/lib/prompt-utils";
 import {
   ChevronRight,
   Heart,
@@ -24,18 +25,50 @@ import {
   Crown,
   Smartphone,
   ShieldCheck,
-  Sparkles,
   ExternalLink,
   Layers,
   Code,
   CheckCircle2,
   X,
   Lightbulb,
+  Film,
+  Video,
+  Image as ImageIcon,
+  Copy,
+  Globe,
+  Presentation,
+  Palette,
 } from "lucide-react";
 import {
   generateImageGuide,
   isImageGenerationTemplate,
 } from "@/lib/image-guide-generator";
+import {
+  generateVideoGuide,
+  isVideoGenerationTemplate,
+  resolveVideoWorkflow,
+  getWorkflowTitle,
+  getWorkflowDescription,
+} from "@/lib/video-guide-generator";
+import {
+  generateWebsiteGuide,
+  isWebsiteGenerationTemplate,
+  resolveWebsiteWorkflow,
+} from "@/lib/website-guide-generator";
+import {
+  generatePresentationGuide,
+  isPresentationGenerationTemplate,
+  resolvePresentationWorkflow,
+} from "@/lib/presentation-guide-generator";
+import {
+  generateDesignGuide,
+  isDesignGenerationTemplate,
+  resolveDesignWorkflow,
+} from "@/lib/design-guide-generator";
+import { WebsiteGenerationGuide } from "@/components/website-generation-guide";
+import { PresentationGenerationGuide } from "@/components/presentation-generation-guide";
+import { DesignGenerationGuide } from "@/components/design-generation-guide";
+import { VisualStepGuide } from "@/components/visual-step-guide";
 import { UsageStep } from "@/lib/types";
 
 interface TemplatePageProps {
@@ -79,6 +112,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
   if (!template) {
     notFound();
   }
+
+  const templatePrompts = useMemo(() => {
+    return getTemplatePrompts(template);
+  }, [template]);
 
   const liked = isLiked(template.id);
   const saved = isSaved(template.id);
@@ -202,49 +239,433 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     []
   );
 
-  // Tool selection for dynamic step-by-step guide
+  // Dynamic step-by-step guide detection
+  const isVideoGen = useMemo(() => isVideoGenerationTemplate(template), [template]);
+  const isWebsiteGen = useMemo(() => isWebsiteGenerationTemplate(template), [template]);
+  const isPresentationGen = useMemo(() => isPresentationGenerationTemplate(template), [template]);
+  const isDesignGen = useMemo(() => isDesignGenerationTemplate(template), [template]);
   const isImageGen = useMemo(() => isImageGenerationTemplate(template), [template]);
+
+  // Video generation tools specifically associated with this template
+  const videoGenTools = useMemo(() => {
+    return (template.recommendedTools || []).filter((t) => {
+      const lower = t.toolName.toLowerCase();
+      return (
+        lower.includes("runway") ||
+        lower.includes("sora") ||
+        lower.includes("pika") ||
+        lower.includes("kling") ||
+        lower.includes("luma") ||
+        lower.includes("veo") ||
+        lower.includes("hailuo") ||
+        lower.includes("minimax") ||
+        lower.includes("kaiber") ||
+        lower.includes("video")
+      );
+    });
+  }, [template.recommendedTools]);
+
+  // Website generation tools specifically associated with this template
+  const websiteGenTools = useMemo(() => {
+    return (template.recommendedTools || []).filter((t) => {
+      const lower = t.toolName.toLowerCase();
+      return (
+        lower.includes("v0") ||
+        lower.includes("lovable") ||
+        lower.includes("bolt") ||
+        lower.includes("framer") ||
+        lower.includes("stitch") ||
+        lower.includes("replit") ||
+        lower.includes("antigravity") ||
+        lower.includes("cursor") ||
+        lower.includes("webflow") ||
+        lower.includes("wix") ||
+        lower.includes("claude") ||
+        lower.includes("chatgpt") ||
+        lower.includes("figma") ||
+        lower.includes("web") ||
+        lower.includes("code")
+      );
+    });
+  }, [template.recommendedTools]);
+
+  // Presentation generation tools specifically associated with this template
+  const presentationGenTools = useMemo(() => {
+    return (template.recommendedTools || []).filter((t) => {
+      const lower = t.toolName.toLowerCase();
+      return (
+        lower.includes("gamma") ||
+        lower.includes("canva") ||
+        lower.includes("beautiful") ||
+        lower.includes("powerpoint") ||
+        lower.includes("copilot") ||
+        lower.includes("slides") ||
+        lower.includes("gemini") ||
+        lower.includes("tome") ||
+        lower.includes("pitch") ||
+        lower.includes("plus") ||
+        lower.includes("prezi") ||
+        lower.includes("presentation")
+      );
+    });
+  }, [template.recommendedTools]);
+
+  // Design generation tools specifically associated with this template
+  const designGenTools = useMemo(() => {
+    return (template.recommendedTools || []).filter((t) => {
+      const lower = t.toolName.toLowerCase();
+      return (
+        lower.includes("canva") ||
+        lower.includes("adobe") ||
+        lower.includes("express") ||
+        lower.includes("firefly") ||
+        lower.includes("ideogram") ||
+        lower.includes("kittl") ||
+        lower.includes("designer") ||
+        lower.includes("figma") ||
+        lower.includes("midjourney") ||
+        lower.includes("stitch") ||
+        lower.includes("poster") ||
+        lower.includes("design")
+      );
+    });
+  }, [template.recommendedTools]);
 
   // Image generation tools specifically associated with this template
   const imageGenTools = useMemo(() => {
     return (template.recommendedTools || []).filter((t) => {
       const lower = t.toolName.toLowerCase();
-      return !lower.includes("figma") && !lower.includes("v0") && !lower.includes("lovable") && !lower.includes("cursor") && !lower.includes("bolt");
+      return (
+        !lower.includes("figma") &&
+        !lower.includes("v0") &&
+        !lower.includes("lovable") &&
+        !lower.includes("cursor") &&
+        !lower.includes("bolt") &&
+        !lower.includes("replit") &&
+        !lower.includes("stitch") &&
+        !lower.includes("antigravity") &&
+        !lower.includes("webflow") &&
+        !lower.includes("wix") &&
+        !lower.includes("gamma") &&
+        !lower.includes("canva") &&
+        !lower.includes("beautiful") &&
+        !lower.includes("powerpoint") &&
+        !lower.includes("tome") &&
+        !lower.includes("pitch") &&
+        !lower.includes("prezi") &&
+        !lower.includes("ideogram") &&
+        !lower.includes("kittl") &&
+        !lower.includes("express") &&
+        !lower.includes("firefly") &&
+        !lower.includes("designer") &&
+        !lower.includes("runway") &&
+        !lower.includes("pika") &&
+        !lower.includes("kling") &&
+        !lower.includes("luma") &&
+        !lower.includes("sora") &&
+        !lower.includes("veo") &&
+        !lower.includes("hailuo") &&
+        !lower.includes("minimax")
+      );
     });
   }, [template.recommendedTools]);
+
+  const guideTools = useMemo(() => {
+    if (isVideoGen) {
+      return videoGenTools.length > 0 ? videoGenTools : (template.recommendedTools || []);
+    }
+    if (isWebsiteGen) {
+      return websiteGenTools.length > 0 ? websiteGenTools : (template.recommendedTools || []);
+    }
+    if (isPresentationGen) {
+      return presentationGenTools.length > 0 ? presentationGenTools : (template.recommendedTools || []);
+    }
+    if (isDesignGen) {
+      return designGenTools.length > 0 ? designGenTools : (template.recommendedTools || []);
+    }
+    if (isImageGen) {
+      return imageGenTools.length > 0 ? imageGenTools : (template.recommendedTools || []);
+    }
+    return template.recommendedTools || [];
+  }, [isVideoGen, isWebsiteGen, isPresentationGen, isDesignGen, isImageGen, videoGenTools, websiteGenTools, presentationGenTools, designGenTools, imageGenTools, template.recommendedTools]);
 
   const [selectedGuideToolIndex, setSelectedGuideToolIndex] = useState(0);
 
   const activeGuideTool = useMemo(() => {
-    if (imageGenTools.length > 0) {
-      return imageGenTools[selectedGuideToolIndex] || imageGenTools[0];
+    if (guideTools.length > 0) {
+      return guideTools[selectedGuideToolIndex] || guideTools[0];
     }
     return template.recommendedTools?.[0] || {
       toolId: "default",
-      toolName: "AI Image Generator",
+      toolName: isVideoGen
+        ? "AI Video Generator"
+        : isWebsiteGen
+          ? "AI Website Builder"
+          : isPresentationGen
+            ? "AI Presentation Creator"
+            : isDesignGen
+              ? "AI Design Tool"
+              : isImageGen
+                ? "AI Image Generator"
+                : "AI Tool",
       modelName: "Latest Model",
-      reason: "General image creation",
+      reason: "General creation",
     };
-  }, [imageGenTools, selectedGuideToolIndex, template.recommendedTools]);
+  }, [guideTools, selectedGuideToolIndex, isVideoGen, isWebsiteGen, isPresentationGen, isDesignGen, isImageGen, template.recommendedTools]);
 
-  // Dynamic 8-10 step tool-adapted guide
+  // Dynamic video workflow resolution
+  const videoWorkflow = useMemo(() => {
+    if (!isVideoGen) return null;
+    return resolveVideoWorkflow(template, activeGuideTool.toolName);
+  }, [isVideoGen, template, activeGuideTool.toolName]);
+
+  // Dynamic website workflow resolution
+  const websiteWorkflow = useMemo(() => {
+    if (!isWebsiteGen) return null;
+    return resolveWebsiteWorkflow(template, activeGuideTool.toolName);
+  }, [isWebsiteGen, template, activeGuideTool.toolName]);
+
+  // Dynamic presentation workflow resolution
+  const presentationWorkflow = useMemo(() => {
+    if (!isPresentationGen) return null;
+    return resolvePresentationWorkflow(template, activeGuideTool.toolName);
+  }, [isPresentationGen, template, activeGuideTool.toolName]);
+
+  // Dynamic design workflow resolution
+  const designWorkflow = useMemo(() => {
+    if (!isDesignGen) return null;
+    return resolveDesignWorkflow(template, activeGuideTool.toolName);
+  }, [isDesignGen, template, activeGuideTool.toolName]);
+
+  // Computed dynamic slides with appropriate demo images for this template
+  const slides = useMemo(() => getTemplateSlides(template), [template]);
+
+  // Dynamic 8-10 step tool-adapted guide with visual guideline checkpoints
   const displaySteps = useMemo(() => {
-    if (isImageGen || imageGenTools.length > 0) {
-      return generateImageGuide(activeGuideTool.toolName, activeGuideTool.modelName, {
+    let rawSteps: UsageStep[] = [];
+    if (isVideoGen && videoWorkflow) {
+      rawSteps = generateVideoGuide(videoWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
+        templateName: template.name,
+        promptText: template.promptText,
+      });
+    } else if (isWebsiteGen && websiteWorkflow) {
+      rawSteps = generateWebsiteGuide(websiteWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
+        templateName: template.name,
+        promptText: template.promptText,
+        style: template.style,
+        categoryId: template.categoryId,
+        assets: websiteWorkflow.assets,
+      });
+    } else if (isPresentationGen && presentationWorkflow) {
+      rawSteps = generatePresentationGuide(presentationWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
+        templateName: template.name,
+        promptText: template.promptText,
+        style: template.style,
+        categoryId: template.categoryId,
+        assets: presentationWorkflow.assets,
+        slideCount: presentationWorkflow.slideCount,
+      });
+    } else if (isDesignGen && designWorkflow) {
+      rawSteps = generateDesignGuide(designWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
+        templateTitle: template.name,
+        promptText: template.promptText,
+        style: template.style,
+        mood: template.mood,
+      });
+    } else if (isImageGen || imageGenTools.length > 0) {
+      rawSteps = generateImageGuide(activeGuideTool.toolName, activeGuideTool.modelName, {
         templateName: template.name,
         promptText: template.promptText,
         style: template.style,
         categoryId: template.categoryId,
       });
+    } else if (template.usageSteps && template.usageSteps.length > 0) {
+      rawSteps = template.usageSteps;
+    } else {
+      rawSteps = defaultSteps;
     }
-    if (template.usageSteps && template.usageSteps.length > 0) {
-      return template.usageSteps;
-    }
-    return defaultSteps;
-  }, [isImageGen, imageGenTools, activeGuideTool, template, defaultSteps]);
 
-  // Computed dynamic slides with appropriate demo images for this template
-  const slides = useMemo(() => getTemplateSlides(template), [template]);
+    // Collect all workflow assets across workflows if available
+    const workflowAssets = [
+      ...(videoWorkflow?.assets || []),
+      ...(websiteWorkflow?.assets || []),
+      ...(presentationWorkflow?.assets || []),
+      ...(designWorkflow?.assets || []),
+    ];
+
+    // Identify candidate steps for visual guideline illustrations (up to 3 high-value checkpoints):
+    // 1. Reference / Setup / Wireframe / Upload step -> slides[1]?.url
+    // 2. Lighting / Styling / Atmosphere / Architecture step -> slides[2]?.url
+    // 3. Output Review / Upscale / Benchmark / Export step -> slides[0]?.url (or template.imageUrl)
+    let refStepIdx = -1;
+    let styleStepIdx = -1;
+    let benchmarkStepIdx = -1;
+
+    rawSteps.forEach((step, idx) => {
+      const text = `${step.title} ${step.instruction}`.toLowerCase();
+
+      // Check for Reference / Input / Upload / Wireframe / Screenshot (steps 0-4)
+      if (
+        refStepIdx === -1 &&
+        idx <= 4 &&
+        (text.includes("reference") ||
+          text.includes("upload") ||
+          text.includes("source") ||
+          text.includes("input") ||
+          text.includes("screenshot") ||
+          text.includes("wireframe") ||
+          text.includes("moodboard") ||
+          text.includes("first frame") ||
+          text.includes("asset") ||
+          text.includes("preview the design") ||
+          text.includes("composition") ||
+          text.includes("canvas"))
+      ) {
+        refStepIdx = idx;
+        return;
+      }
+
+      // Check for Lighting / Style / Atmosphere / Architecture / Palette (mid steps 2-7)
+      if (
+        styleStepIdx === -1 &&
+        idx !== refStepIdx &&
+        idx >= 2 &&
+        idx <= 7 &&
+        (text.includes("lighting") ||
+          text.includes("atmosphere") ||
+          text.includes("style") ||
+          text.includes("camera") ||
+          text.includes("motion") ||
+          text.includes("theme") ||
+          text.includes("component") ||
+          text.includes("typography") ||
+          text.includes("color") ||
+          text.includes("palette") ||
+          text.includes("customize") ||
+          text.includes("feature") ||
+          text.includes("render"))
+      ) {
+        styleStepIdx = idx;
+        return;
+      }
+
+      // Check for Benchmark / Review / Upscale / Final / Quality / Export (late steps)
+      if (
+        benchmarkStepIdx === -1 &&
+        idx !== refStepIdx &&
+        idx !== styleStepIdx &&
+        idx >= Math.max(3, rawSteps.length - 3) &&
+        (text.includes("review") ||
+          text.includes("evaluate") ||
+          text.includes("inspect") ||
+          text.includes("upscale") ||
+          text.includes("quality") ||
+          text.includes("benchmark") ||
+          text.includes("output") ||
+          text.includes("final") ||
+          text.includes("export") ||
+          text.includes("launch") ||
+          text.includes("result"))
+      ) {
+        benchmarkStepIdx = idx;
+      }
+    });
+
+    // Fallbacks if some indices weren't matched for rich templates:
+    if (refStepIdx === -1 && rawSteps.length >= 4) {
+      refStepIdx = 1;
+    }
+    if (benchmarkStepIdx === -1 && rawSteps.length >= 3) {
+      benchmarkStepIdx = rawSteps.length - 1;
+    }
+    if (styleStepIdx === -1 && rawSteps.length >= 6) {
+      const mid = Math.floor(rawSteps.length / 2);
+      if (mid !== refStepIdx && mid !== benchmarkStepIdx) {
+        styleStepIdx = mid;
+      }
+    }
+
+    return rawSteps.map((s, idx) => {
+      // If s already has an explicit imageUrl, preserve it
+      if (s.imageUrl) {
+        return {
+          ...s,
+          stepNumber: idx + 1,
+        };
+      }
+
+      // Check if any workflow asset explicitly matches this step
+      const stepText = `${s.title} ${s.instruction}`.toLowerCase();
+      const matchedAsset = workflowAssets.find((a) => {
+        const lbl = (a.label || "").toLowerCase();
+        return lbl && stepText.includes(lbl);
+      });
+
+      if (matchedAsset && matchedAsset.url) {
+        return {
+          ...s,
+          stepNumber: idx + 1,
+          imageUrl: matchedAsset.url,
+          imageCaption: `${matchedAsset.label} Reference`,
+        };
+      }
+
+      // Assign guideline images based on matched checkpoints
+      if (idx === refStepIdx && slides[1]?.url) {
+        return {
+          ...s,
+          stepNumber: idx + 1,
+          imageUrl: slides[1].url,
+          imageCaption: "Guideline: Composition & Reference Setup",
+        };
+      }
+
+      if (idx === styleStepIdx && slides[2]?.url) {
+        return {
+          ...s,
+          stepNumber: idx + 1,
+          imageUrl: slides[2].url,
+          imageCaption: "Guideline: Lighting & Style Architecture",
+        };
+      }
+
+      if (idx === benchmarkStepIdx && (slides[0]?.url || template.imageUrl)) {
+        return {
+          ...s,
+          stepNumber: idx + 1,
+          imageUrl: slides[0]?.url || template.imageUrl,
+          imageCaption: "Guideline: Expected Output Benchmark",
+        };
+      }
+
+      return {
+        ...s,
+        stepNumber: idx + 1,
+      };
+    });
+  }, [
+    isVideoGen,
+    videoWorkflow,
+    isWebsiteGen,
+    websiteWorkflow,
+    isPresentationGen,
+    presentationWorkflow,
+    isDesignGen,
+    designWorkflow,
+    isImageGen,
+    imageGenTools.length,
+    activeGuideTool.toolName,
+    activeGuideTool.modelName,
+    template.name,
+    template.imageUrl,
+    template.promptText,
+    template.style,
+    template.mood,
+    template.categoryId,
+    template.usageSteps,
+    defaultSteps,
+    slides,
+  ]);
 
   // Render Slide Content with appropriate demo images in the preview window
   const renderSlideContent = (slideIndex: number) => {
@@ -343,11 +764,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                     <button
                       key={s.id}
                       onClick={() => setActiveSlide(idx)}
-                      className={`h-14 w-20 sm:h-16 sm:w-24 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-[#090a0f] ${
-                        isActive
+                      className={`h-14 w-20 sm:h-16 sm:w-24 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-[#090a0f] ${isActive
                           ? "border-cyan-400 shadow-lg shadow-cyan-500/30 ring-1 ring-cyan-400/50 scale-105"
                           : "border-zinc-800 hover:border-zinc-600 opacity-70 hover:opacity-100"
-                      }`}
+                        }`}
                       title={s.label}
                     >
                       <img src={s.url} alt={s.label} className="w-full h-full object-cover" />
@@ -391,11 +811,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                 {/* Like Button */}
                 <button
                   onClick={handleLike}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                    liked
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${liked
                       ? "bg-rose-500/20 border-rose-500/50 text-rose-300 shadow-sm"
                       : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                  }`}
+                    }`}
                   title={liked ? "Unlike" : "Like template"}
                 >
                   <Heart className={`h-3.5 w-3.5 ${liked ? "fill-rose-400 text-rose-400" : ""}`} />
@@ -405,11 +824,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                 {/* Save / Bookmark Button */}
                 <button
                   onClick={handleSave}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                    saved
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${saved
                       ? "bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-sm"
                       : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                  }`}
+                    }`}
                   title={saved ? "Remove from saved" : "Save template"}
                 >
                   <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-amber-400 text-amber-400" : ""}`} />
@@ -452,28 +870,28 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               {template.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs font-medium text-zinc-400 bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-zinc-800"
+                  className="text-xs font-medium text-slate-700 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-zinc-800"
                 >
                   {tag}
                 </span>
               ))}
-              <span className="text-xs font-medium text-zinc-400 bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-zinc-800">
+              <span className="text-xs font-medium text-slate-700 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-zinc-800">
                 {template.style}
               </span>
             </div>
 
             {/* Prompt Access Box (Matching Screenshot Locked/Unlocked state) */}
             {!isSubscriber ? (
-              <div className="rounded-2xl border border-zinc-800 bg-[#121316] p-5 space-y-4 shadow-xl">
+              <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-4 shadow-xl">
                 <div className="flex items-start gap-3.5">
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
                     <Lock className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-amber-200">
+                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-200">
                       Prompt is for Subscribers Only
                     </h4>
-                    <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
                       Upgrade to unlock the full AI prompt, step-by-step guide, and download all assets.
                     </p>
                   </div>
@@ -491,6 +909,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               <div className="space-y-4">
                 <PromptPanel
                   templateId={template.id}
+                  uiPrompt={templatePrompts.uiPrompt}
+                  contextPrompt={templatePrompts.contextPrompt}
                   originalPrompt={template.promptText}
                   isCustomizeOpen={isCustomizeOpen}
                   onCustomizeClick={() => setIsCustomizeOpen(!isCustomizeOpen)}
@@ -501,6 +921,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                   <div className="animate-in fade-in slide-in-from-top-2 duration-200">
                     <CustomizePanel
                       templateId={template.id}
+                      uiPrompt={templatePrompts.uiPrompt}
+                      contextPrompt={templatePrompts.contextPrompt}
                       originalPrompt={template.promptText}
                       onClose={() => setIsCustomizeOpen(false)}
                     />
@@ -511,134 +933,84 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
             {/* Feature Highlights 4-Box Grid (Matching Screenshot) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-              <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-center space-y-1">
-                <div className="h-6 w-6 rounded-lg bg-pink-500/15 text-pink-400 flex items-center justify-center mx-auto text-xs font-bold">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
+                <div className="h-6 w-6 rounded-lg bg-pink-500/15 text-pink-600 dark:text-pink-400 flex items-center justify-center mx-auto text-xs font-bold">
                   ❖
                 </div>
-                <p className="text-xs font-bold text-white">Figma file</p>
-                <span className="text-[10px] text-zinc-500 block">Preview only</span>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">Figma file</p>
+                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Preview only</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-center space-y-1">
-                <div className="h-6 w-6 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center mx-auto text-xs font-bold">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
+                <div className="h-6 w-6 rounded-lg bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center mx-auto text-xs font-bold">
                   v0
                 </div>
-                <p className="text-xs font-bold text-white">v0 compatible</p>
-                <span className="text-[10px] text-zinc-500 block">Ready to use</span>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">v0 compatible</p>
+                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Ready to use</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-center space-y-1">
-                <Smartphone className="h-5 w-5 text-indigo-400 mx-auto" />
-                <p className="text-xs font-bold text-white">Responsive</p>
-                <span className="text-[10px] text-zinc-500 block">All devices</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
+                <Smartphone className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mx-auto" />
+                <p className="text-xs font-bold text-slate-900 dark:text-white">Responsive</p>
+                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">All devices</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-center space-y-1">
-                <ShieldCheck className="h-5 w-5 text-emerald-400 mx-auto" />
-                <p className="text-xs font-bold text-white">Commercial use</p>
-                <span className="text-[10px] text-zinc-500 block">Allowed</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
+                <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
+                <p className="text-xs font-bold text-slate-900 dark:text-white">Commercial use</p>
+                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Allowed</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* 3. Recommended AI Tools Section */}
-        <section id="tools-section" className="space-y-4 pt-6 border-t border-zinc-850">
+        <section id="tools-section" className="space-y-4 pt-6 border-t border-slate-200 dark:border-zinc-850">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                <span className="text-blue-400">⚡</span>
-                <span>Recommended AI Tools</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Recommended AI Tools
               </h2>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1">
                 Admin-curated AI models, tested rationales, and direct launch links for this template.
               </p>
             </div>
 
             <Link
               href="/mcp"
-              className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition-colors self-start sm:self-auto"
             >
               <span>View All Tools</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
             {displayTools.map((tool, idx) => {
               const url = getToolUrl(tool.toolName);
               return (
-                <div
+                <a
                   key={`${tool.toolId}-${idx}`}
-                  className="rounded-2xl border border-zinc-800 bg-[#121316] p-5 flex flex-col justify-between space-y-4 hover:border-zinc-700 hover:bg-[#15161b] transition-all shadow-lg group"
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between p-4 sm:px-5 sm:py-4 rounded-2xl bg-white dark:bg-[#121316] border border-slate-200/90 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      {tool.toolName.toLowerCase().includes("v0") ? (
-                        <div className="h-9 w-9 rounded-xl bg-black border border-zinc-700 flex items-center justify-center font-bold text-white font-mono text-sm tracking-tighter">
-                          v0
-                        </div>
-                      ) : tool.toolName.toLowerCase().includes("figma") ? (
-                        <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center p-2">
-                          <svg className="h-5 w-5" viewBox="0 0 38 57" fill="none">
-                            <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38C23.2533 38 19 33.7467 19 28.5Z" fill="#1ABCFE"/>
-                            <path d="M0 47.5C0 42.2533 4.25329 38 9.5 38H19V47.5C19 52.7467 14.7467 57 9.5 57C4.25329 57 0 52.7467 0 47.5Z" fill="#0ACF83"/>
-                            <path d="M19 0V19H28.5C33.7467 19 38 14.7467 38 9.5C38 4.25329 33.7467 0 28.5 0H19Z" fill="#FF7262"/>
-                            <path d="M0 9.5C0 14.7467 4.25329 19 9.5 19H19V0H9.5C4.25329 0 0 4.25329 0 9.5Z" fill="#F24E1E"/>
-                            <path d="M0 28.5C0 33.7467 4.25329 38 9.5 38H19V19H9.5C4.25329 19 0 23.2533 0 28.5Z" fill="#A259FF"/>
-                          </svg>
-                        </div>
-                      ) : tool.toolName.toLowerCase().includes("chatgpt") || tool.toolName.toLowerCase().includes("gpt") ? (
-                        <div className="h-9 w-9 rounded-xl bg-[#10a37f]/20 border border-[#10a37f]/40 flex items-center justify-center text-[#10a37f]">
-                          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.771-4.204 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.746-7.075zM13.26 22.45a4.5 4.5 0 0 1-2.87-1.026l.16-.09 4.77-2.756a.78.78 0 0 0 .392-.681v-6.733l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.524 4.524 0 0 1-4.51 4.483zm-8.818-4.275a4.506 4.506 0 0 1-.535-3.003l.16.096 4.773 2.756a.776.776 0 0 0 .783 0l5.83-3.368v2.336a.08.08 0 0 1-.033.064l-4.834 2.793a4.524 4.524 0 0 1-6.144-1.674zm-1.572-8.487a4.504 4.504 0 0 1 2.335-1.977v5.7a.78.78 0 0 0 .391.68l5.83 3.368-2.02 1.168a.079.079 0 0 1-.072.007L4.56 13.04a4.523 4.523 0 0 1-1.69-3.351zm15.864 1.835l-5.83-3.368 2.02-1.168a.079.079 0 0 1 .072-.007l4.834 2.791a4.527 4.527 0 0 1-.689 8.163v-5.7a.78.78 0 0 0-.407-.711zm2.012-3.025l-.16-.096-4.773-2.756a.776.776 0 0 0-.783 0l-5.83 3.368V7.68a.08.08 0 0 1 .033-.064l4.834-2.793a4.527 4.527 0 0 1 6.679 4.682zm-10.864 4.214l2.607-1.507 2.607 1.507v3.013l-2.607 1.507-2.607-1.507z"/>
-                          </svg>
-                        </div>
-                      ) : tool.toolName.toLowerCase().includes("midjourney") ? (
-                        <div className="h-9 w-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
-                          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 21h18M12 3v14M6 17l6-14 6 14"/>
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="h-9 w-9 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs flex items-center justify-center">
-                          <Zap className="h-4 w-4 text-amber-500" />
-                        </div>
-                      )}
-
-                      {tool.badge && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 font-mono">
-                          {tool.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">
-                        {tool.toolName}
-                      </h3>
-                      {tool.modelName && (
-                        <span className="text-[11px] font-mono text-cyan-400 block mt-0.5">
-                          {tool.modelName}
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      {tool.reason}
-                    </p>
+                  <div className="min-w-0 pr-3 space-y-0.5">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      {tool.toolName}
+                    </h3>
+                    {tool.modelName && (
+                      <p className="text-xs text-slate-500 dark:text-zinc-400 truncate font-normal">
+                        {tool.modelName}
+                      </p>
+                    )}
                   </div>
 
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-center text-xs font-semibold text-zinc-200 hover:text-white flex items-center justify-center gap-1.5 transition-all group-hover:border-zinc-700"
-                  >
-                    <span>Launch {tool.toolName}</span>
-                    <ExternalLink className="h-3.5 w-3.5 text-zinc-400 group-hover:text-white transition-colors" />
-                  </a>
-                </div>
+                  <div className="text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-white group-hover:translate-x-1 transition-all shrink-0">
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                </a>
               );
             })}
           </div>
@@ -646,174 +1018,295 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
         {/* 4. Step-by-Step Guide */}
         <section id="steps-section" className="space-y-6 pt-6 border-t border-slate-200 dark:border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                <span>Step-by-Step Guide for {activeGuideTool.toolName}</span>
-                {!isSubscriber ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-700 dark:text-amber-300 font-mono tracking-wider uppercase">
-                    <Lock className="h-3 w-3" />
-                    <span>Subscribers Only</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 font-mono tracking-wider uppercase">
-                    <CheckCircle2 className="h-3 w-3" />
-                    <span>
-                      Checklist ({completedSteps.filter((id) => displaySteps.some((s) => s.stepNumber === id)).length}/{displaySteps.length})
+          {isDesignGen && designWorkflow ? (
+            <>
+              {/* Tool Switcher Pills when multiple tools exist */}
+              {guideTools.length > 1 && (
+                <div className="flex items-center justify-between gap-3 flex-wrap pb-3 border-b border-slate-200 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                    <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                      Switch Tool Workflow:
                     </span>
-                  </span>
-                )}
-              </h2>
-              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
-                {isSubscriber
-                  ? `Follow these tailored ${activeGuideTool.toolName} steps to generate, evaluate, and refine this asset. Click any step to mark complete.`
-                  : `Tailored ${activeGuideTool.toolName} step-by-step instructions are protected for active subscribers.`}
-              </p>
-            </div>
-
-            {/* Tool Switcher Pills when multiple tools exist */}
-            {imageGenTools.length > 1 && (
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400">Workflow for:</span>
-                {imageGenTools.map((t, idx) => (
-                  <button
-                    key={t.toolId || idx}
-                    onClick={() => setSelectedGuideToolIndex(idx)}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${
-                      selectedGuideToolIndex === idx
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
-                    }`}
-                  >
-                    {t.toolName}
-                    {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {!isSubscriber ? (
-            <div className="relative rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 sm:p-8 overflow-hidden shadow-xl">
-              {/* Blurred background preview of the actual tool-specific steps */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 filter blur-[5px] opacity-30 pointer-events-none select-none" aria-hidden="true">
-                {displaySteps.slice(0, 6).map((step) => (
-                  <div
-                    key={step.stepNumber}
-                    className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800"
-                  >
-                    <div className="h-9 w-9 rounded-xl bg-slate-200 dark:bg-zinc-800 font-mono text-xs font-bold flex items-center justify-center shrink-0">
-                      {String(step.stepNumber).padStart(2, "0")}
-                    </div>
-                    <div className="space-y-1.5 flex-1">
-                      <div className="h-4 w-48 bg-slate-300 dark:bg-zinc-700 rounded" />
-                      <div className="h-3 w-full max-w-md bg-slate-200 dark:bg-zinc-800 rounded" />
-                    </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Centered Lock Box */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-t from-white/95 via-white/90 to-white/70 dark:from-[#121316] dark:via-[#121316]/95 dark:to-[#121316]/70">
-                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 mb-3 shadow-lg shadow-amber-500/5">
-                  <Lock className="h-6 w-6" />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-amber-200">
-                  {activeGuideTool.toolName} Guide is for Subscribers Only
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1 max-w-md leading-relaxed">
-                  Upgrade to unlock the complete {displaySteps.length}-step {activeGuideTool.toolName} generation guide, recommended parameters, and expert refinement workflows.
-                </p>
-                <Link
-                  href="/unlimited"
-                  className="mt-4 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.99]"
-                >
-                  <span>Subscribe to Unlock</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {displaySteps.map((step) => {
-                const isCompleted = completedSteps.includes(step.stepNumber);
-                const stepNumStr = String(step.stepNumber).padStart(2, "0");
-
-                return (
-                  <div
-                    key={step.stepNumber}
-                    onClick={() => toggleStepCompleted(step.stepNumber)}
-                    className={`flex items-start gap-3.5 sm:gap-4 p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none group h-full ${
-                      isCompleted
-                        ? "bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/30 shadow-sm"
-                        : "bg-white dark:bg-[#121316] border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm"
-                    }`}
-                    title={isCompleted ? "Click to mark incomplete" : "Click to mark completed"}
-                  >
-                    {/* Step Number Button */}
-                    <div
-                      className={`h-9 w-9 rounded-xl font-bold flex items-center justify-center shrink-0 text-xs font-mono transition-all ${
-                        isCompleted
-                          ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-                          : "bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 group-hover:border-slate-400 dark:group-hover:border-zinc-500"
-                      }`}
-                    >
-                      {isCompleted ? <Check className="h-4 w-4 stroke-[3]" /> : stepNumStr}
-                    </div>
-
-                    <div className="flex-1 space-y-1.5 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3
-                          className={`text-sm sm:text-base font-bold transition-colors ${
-                            isCompleted
-                              ? "text-emerald-700 dark:text-emerald-300 line-through decoration-emerald-500/60"
-                              : "text-slate-900 dark:text-white"
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {guideTools.map((t, idx) => (
+                      <button
+                        key={`design-tool-${t.toolId || t.toolName}-${idx}`}
+                        onClick={() => setSelectedGuideToolIndex(idx)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                            ? "bg-rose-600 text-white border-rose-600 shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
-                        >
-                          <span className="font-mono text-slate-400 dark:text-zinc-500 mr-2 text-xs sm:text-sm">
-                            {stepNumStr} —
-                          </span>
-                          {step.title}
-                        </h3>
-                        {isCompleted && (
-                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 shrink-0">
-                            DONE
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Short Instruction */}
-                      <p
-                        className={`text-xs sm:text-sm leading-relaxed transition-colors ${
-                          isCompleted
-                            ? "text-slate-500 dark:text-zinc-500"
-                            : "text-slate-700 dark:text-zinc-300"
-                        }`}
                       >
-                        {step.instruction}
-                      </p>
-
-                      {/* Optional Tip / Note */}
-                      {step.tip && (
-                        <div className="flex items-start gap-2 pt-1 text-xs text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900/60 px-3 py-2 rounded-xl border border-slate-200/80 dark:border-zinc-800/80">
-                          <Lightbulb className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
-                          <span className="leading-relaxed">
-                            <strong className="font-semibold text-slate-800 dark:text-zinc-200">Tip: </strong>
-                            {step.tip}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                        {t.toolName}
+                        {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
+                      </button>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              )}
+
+              <DesignGenerationGuide
+                tool={activeGuideTool.toolName}
+                generationType={designWorkflow.generationType}
+                designType={designWorkflow.designType}
+                assets={designWorkflow.assets}
+                format={designWorkflow.format}
+                dimensions={designWorkflow.dimensions}
+                brandAssets={designWorkflow.brandAssets}
+                requiresTextVerification={designWorkflow.requiresTextVerification}
+                requiresProductAccuracyCheck={designWorkflow.requiresProductAccuracyCheck}
+                requiresBrandCheck={designWorkflow.requiresBrandCheck}
+                requiresMultiFormatResize={designWorkflow.requiresMultiFormatResize}
+                multiFormats={designWorkflow.multiFormats}
+                prompt={template.promptText}
+                steps={displaySteps}
+                isSubscriber={isSubscriber}
+                completedSteps={completedSteps}
+                onToggleStep={toggleStepCompleted}
+              />
+            </>
+          ) : isPresentationGen && presentationWorkflow ? (
+            <>
+              {/* Tool Switcher Pills when multiple tools exist */}
+              {guideTools.length > 1 && (
+                <div className="flex items-center justify-between gap-3 flex-wrap pb-3 border-b border-slate-200 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <Presentation className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                      Switch Tool Workflow:
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {guideTools.map((t, idx) => (
+                      <button
+                        key={`pres-tool-${t.toolId || t.toolName}-${idx}`}
+                        onClick={() => setSelectedGuideToolIndex(idx)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          }`}
+                      >
+                        {t.toolName}
+                        {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <PresentationGenerationGuide
+                tool={activeGuideTool.toolName}
+                generationType={presentationWorkflow.generationType}
+                presentationType={presentationWorkflow.presentationType}
+                assets={presentationWorkflow.assets}
+                slideCount={presentationWorkflow.slideCount}
+                prompt={template.promptText}
+                outline={presentationWorkflow.outline}
+                steps={displaySteps}
+                isSubscriber={isSubscriber}
+                completedSteps={completedSteps}
+                onToggleStep={toggleStepCompleted}
+              />
+            </>
+          ) : isWebsiteGen && websiteWorkflow ? (
+            <>
+              {/* Tool Switcher Pills when multiple tools exist */}
+              {guideTools.length > 1 && (
+                <div className="flex items-center justify-between gap-3 flex-wrap pb-3 border-b border-slate-200 dark:border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                      Switch Tool Workflow:
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {guideTools.map((t, idx) => (
+                      <button
+                        key={`web-tool-${t.toolId || t.toolName}-${idx}`}
+                        onClick={() => setSelectedGuideToolIndex(idx)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          }`}
+                      >
+                        {t.toolName}
+                        {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <WebsiteGenerationGuide
+                tool={activeGuideTool.toolName}
+                generationType={websiteWorkflow.generationType}
+                assets={websiteWorkflow.assets}
+                projectType={websiteWorkflow.projectType}
+                techStack={websiteWorkflow.techStack}
+                pages={websiteWorkflow.pages}
+                features={websiteWorkflow.features}
+                prompt={template.promptText}
+                steps={displaySteps}
+                isSubscriber={isSubscriber}
+                completedSteps={completedSteps}
+                onToggleStep={toggleStepCompleted}
+              />
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      {isVideoGen ? (
+                        <Film className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      ) : (
+                        <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      )}
+                      <span>Step-by-Step Guide for {activeGuideTool.toolName}</span>
+                    </h2>
+
+                    {isVideoGen && videoWorkflow && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-[10px] font-bold text-purple-700 dark:text-purple-300 font-mono tracking-wider uppercase">
+                        <Film className="h-3 w-3" />
+                        <span>{getWorkflowTitle(videoWorkflow.generationType)}</span>
+                      </span>
+                    )}
+
+                    {!isSubscriber ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-700 dark:text-amber-300 font-mono tracking-wider uppercase">
+                        <Lock className="h-3 w-3" />
+                        <span>Subscribers Only</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 font-mono tracking-wider uppercase">
+                        <CheckCircle2 className="h-3 w-3" />
+                        <span>
+                          Checklist ({completedSteps.filter((id) => displaySteps.some((s) => s.stepNumber === id)).length}/{displaySteps.length})
+                        </span>
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+                    {isSubscriber
+                      ? isVideoGen && videoWorkflow
+                        ? getWorkflowDescription(videoWorkflow.generationType, activeGuideTool.toolName)
+                        : `Follow these tailored ${activeGuideTool.toolName} steps to generate, evaluate, and refine this asset. Click any step to mark complete.`
+                      : `Tailored ${activeGuideTool.toolName} step-by-step instructions are protected for active subscribers.`}
+                  </p>
+                </div>
+
+                {/* Tool Switcher Pills when multiple tools exist */}
+                {guideTools.length > 1 && (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400">Workflow for:</span>
+                    {guideTools.map((t, idx) => (
+                      <button
+                        key={`default-tool-${t.toolId || t.toolName}-${idx}`}
+                        onClick={() => setSelectedGuideToolIndex(idx)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                            ? isVideoGen
+                              ? "bg-purple-600 text-white border-purple-600 shadow-sm"
+                              : "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          }`}
+                      >
+                        {t.toolName}
+                        {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Dynamic Asset Checklist for Video Tutorials */}
+              {isVideoGen && videoWorkflow?.assets && videoWorkflow.assets.length > 0 && (
+                <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900/40 p-4 sm:p-5 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
+                        Required Tutorial Assets ({videoWorkflow.assets.length})
+                      </h3>
+                    </div>
+                    <span className="text-[11px] text-slate-500 dark:text-zinc-400">
+                      Prepare these inputs before launching {activeGuideTool.toolName}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {videoWorkflow.assets.map((asset, aIdx) => (
+                      <div
+                        key={`video-asset-${asset.id || aIdx}-${aIdx}`}
+                        className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#121316] border border-slate-200 dark:border-zinc-800 shadow-sm"
+                      >
+                        <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 shrink-0 flex items-center justify-center">
+                          {asset.url ? (
+                            <img
+                              src={asset.url}
+                              alt={asset.label}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="h-6 w-6 text-slate-400 dark:text-zinc-500" />
+                          )}
+                          {asset.role && (
+                            <span className="absolute bottom-0 inset-x-0 bg-black/75 text-[9px] text-white font-mono text-center truncate py-0.5 px-1">
+                              {asset.role}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                              {asset.label}
+                            </h4>
+                            {asset.required ? (
+                              <span className="text-[9px] font-bold font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                REQUIRED
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400">
+                                OPTIONAL
+                              </span>
+                            )}
+                          </div>
+                          {asset.description && (
+                            <p className="text-[11px] text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                              {asset.description}
+                            </p>
+                          )}
+                          {asset.dimensions && (
+                            <span className="inline-block text-[10px] font-mono text-slate-500 dark:text-zinc-500">
+                              📐 {asset.dimensions}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <VisualStepGuide
+                category={isVideoGen ? "video" : "image"}
+                tool={activeGuideTool.toolName}
+                steps={displaySteps}
+                prompt={template.promptText}
+                templateThumbnail={template.imageUrl || template.galleryImages?.[0]}
+                duration={videoWorkflow?.settings?.durationSeconds ? `${videoWorkflow.settings.durationSeconds}s` : "5s"}
+                isSubscriber={isSubscriber}
+                completedSteps={completedSteps}
+                onToggleStep={toggleStepCompleted}
+              />
+            </>
           )}
         </section>
 
-        {/* 5. Bottom Banner: Access Banner */}
-        {!isSubscriber ? (
+        {/* 5. Bottom Banner: Access Banner (Only shown to non-subscribers) */}
+        {!isSubscriber && (
           <section className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-[#121316] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
             <div className="relative z-10 flex items-center gap-4">
               <div className="h-12 w-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-lg">
@@ -834,44 +1327,6 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               <span>Subscribe Now</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </section>
-        ) : (
-          <section className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-[#0d1e19] via-[#11161d] to-[#141221] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-1/4 w-80 h-32 bg-emerald-500/10 blur-3xl pointer-events-none" />
-
-            <div className="relative z-10 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 shadow-lg">
-                <Sparkles className="h-6 w-6" />
-              </div>
-              <div className="space-y-1 text-left">
-                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <span>Premium Active</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold uppercase">
-                    All Features Unlocked
-                  </span>
-                </h3>
-                <p className="text-xs sm:text-sm text-zinc-400">
-                  You have unrestricted access to this template&apos;s prompt, AI tools stack, step-by-step instructions, and customization engine.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative z-10 flex items-center gap-3 shrink-0">
-              <Link
-                href="/collection"
-                className="px-5 py-2.5 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-              >
-                <Bookmark className="h-3.5 w-3.5 text-amber-400" />
-                <span>My Collection</span>
-              </Link>
-              <Link
-                href="/"
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-              >
-                <span>Browse More Templates</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
           </section>
         )}
 

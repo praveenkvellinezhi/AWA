@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ArrowUpRight, ShieldCheck, Heart } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -10,11 +10,20 @@ export function Footer() {
           {/* Brand Column */}
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-black tracking-tight text-white">
-                AWA <span className="text-xs text-indigo-400 font-semibold">GUIDE</span>
+              <Link href="/" className="inline-flex items-center group">
+                <img
+                  src="/logo/logolight.png"
+                  alt="AWA"
+                  className="h-6 w-auto object-contain block dark:hidden"
+                />
+                <img
+                  src="/logo/logodark.png"
+                  alt="AWA"
+                  className="h-6 w-auto object-contain hidden dark:block"
+                />
+              </Link>
+              <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold uppercase tracking-wider font-mono">
+                GUIDE
               </span>
             </div>
             <p className="text-xs text-slate-400 max-w-md leading-relaxed">

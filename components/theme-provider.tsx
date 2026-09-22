@@ -32,14 +32,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const applyTheme = (newTheme: Theme) => {
     const root = document.documentElement;
+    const favicon = document.getElementById("dynamic-favicon") as HTMLLinkElement | null;
     if (newTheme === "dark") {
       root.classList.add("dark");
       root.classList.remove("light");
       root.style.colorScheme = "dark";
+      if (favicon) favicon.href = "/logo/logodark.png";
     } else {
       root.classList.remove("dark");
       root.classList.add("light");
       root.style.colorScheme = "light";
+      if (favicon) favicon.href = "/logo/logolight.png";
     }
   };
 

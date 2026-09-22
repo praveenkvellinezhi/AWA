@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   ArrowRight,
   ChevronRight,
-  Sparkles,
   Check,
   Smartphone,
   RefreshCw,
@@ -278,7 +277,7 @@ function PaymentContent() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Link
                 href="/templates/template-dark-mode-ai-saas"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-black font-bold text-xs sm:text-sm hover:bg-zinc-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black font-bold text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
               >
                 <span>Launch Unlocked Flagship</span>
                 <ArrowRight className="h-4 w-4" />
@@ -762,16 +761,16 @@ function PaymentContent() {
                 type="button"
                 onClick={handleProcessPayment}
                 disabled={isProcessing}
-                className="w-full py-3.5 rounded-full bg-white text-black font-extrabold text-sm hover:bg-zinc-200 transition-all shadow-xl shadow-white/10 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black font-extrabold text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-xl shadow-slate-950/20 dark:shadow-white/10 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isProcessing ? (
                   <>
-                    <RefreshCw className="h-4 w-4 animate-spin text-black" />
+                    <RefreshCw className="h-4 w-4 animate-spin text-white dark:text-black" />
                     <span>Authorizing Payment with Bank...</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="h-4 w-4 text-black" />
+                    <Lock className="h-4 w-4 text-white dark:text-black" />
                     <span>Pay ₹{finalTotal} Securely</span>
                   </>
                 )}

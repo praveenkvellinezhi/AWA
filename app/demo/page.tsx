@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDemo } from "@/lib/demo-context";
 import {
-  Sparkles,
   Play,
   CheckCircle2,
   Shield,
@@ -158,14 +157,14 @@ export default function DemoGuidePage() {
       {/* 10-Step Sequential Script */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-400" />
+          <Play className="h-5 w-5 text-amber-400" />
           Official 10-Step Walkthrough Sequence (14-DEMO.md §6)
         </h2>
 
         <div className="space-y-3">
           {steps.map((step) => (
             <div
-              key={step.number}
+              key={`walkthrough-step-${step.number}`}
               className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-slate-700"
             >
               <div className="flex items-start gap-3.5">

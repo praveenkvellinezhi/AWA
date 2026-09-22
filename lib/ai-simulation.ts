@@ -4,6 +4,8 @@
  * parameter preservation, and optional error simulation.
  */
 
+import { refinePromptsWithAI, splitCombinedPrompt } from "./prompt-utils";
+
 export interface CustomizationResult {
   success: boolean;
   customizedPrompt?: string;
@@ -18,89 +20,18 @@ export async function simulateAIPromptRewrite(
     delayMs?: number;
   }
 ): Promise<CustomizationResult> {
-  const delay = options?.delayMs ?? 1800 + Math.random() * 600;
-  await new Promise((resolve) => setTimeout(resolve, delay));
+  const parsed = splitCombinedPrompt(basePrompt);
+  const uiPrompt = parsed.uiPrompt || basePrompt;
+  const contextPrompt =
+    parsed.contextPrompt ||
+    "Project Context: Production-ready application adhering to modern design system standards, robust feature specifications, and seamless user experience.";
 
-  if (options?.simulateError) {
-    return {
-      success: false,
-      error: "We couldn't customize this prompt. Please check your connection and try again.",
-    };
-  }
-
-  const cleanRequest = userRequest.trim();
-  if (!cleanRequest) {
-    return {
-      success: false,
-      error: "Please enter instructions for how you'd like to modify the prompt.",
-    };
-  }
-
-  // Preserve technical parameters at the end (e.g. --ar 4:5 --v 6.1 --style raw)
-  const paramRegex = /(--[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_.:]+)?)+$/;
-  const paramMatch = basePrompt.match(paramRegex);
-  const parameters = paramMatch ? paramMatch[0] : "";
-  const corePrompt = paramMatch
-    ? basePrompt.substring(0, paramMatch.index).trim()
-    : basePrompt.trim();
-
-  // Keyword extraction and smart transformation
-  const lowerReq = cleanRequest.toLowerCase();
-
-  let modifiedCore = corePrompt;
-
-  // Background/surface replacements
-  if (lowerReq.includes("dark") || lowerReq.includes("black") || lowerReq.includes("obsidian") || lowerReq.includes("granite")) {
-    modifiedCore = modifiedCore.replace(
-      /travertine stone pedestal|rough-hewn travertine|limestone pedestal|white surface|cream paper/i,
-      "rough-hewn dark polished black obsidian pedestal"
-    );
-    if (!modifiedCore.toLowerCase().includes("dark") && !modifiedCore.toLowerCase().includes("obsidian")) {
-      modifiedCore += ", set against a deep atmospheric obsidian backdrop";
-    }
-  }
-
-  if (lowerReq.includes("flame") || lowerReq.includes("lit") || lowerReq.includes("smoke") || lowerReq.includes("burning")) {
-    modifiedCore = modifiedCore.replace(
-      /delicate window shadows/i,
-      "delicate window shadows, gently burning warm flickering wick flame with a thin wispy plume of aromatic incense smoke curling upward"
-    );
-    if (!modifiedCore.toLowerCase().includes("flame") && !modifiedCore.toLowerCase().includes("smoke")) {
-      modifiedCore += ", glowing burning wick with delicate wisps of fragrant smoke";
-    }
-  }
-
-  if (lowerReq.includes("luxury") || lowerReq.includes("cosmetics") || lowerReq.includes("premium")) {
-    modifiedCore = modifiedCore.replace(
-      /minimalist handmade/i,
-      "ultra-luxurious bespoke apothecary"
-    );
-    modifiedCore += ", high-end luxury cosmetic campaign aesthetic with subtle gold leaf foil accents";
-  }
-
-  if (lowerReq.includes("cyberpunk") || lowerReq.includes("neon") || lowerReq.includes("teal") || lowerReq.includes("magenta")) {
-    modifiedCore += ", bathed in volumetric neon rim lighting with deep teal and electric magenta reflections";
-  }
-
-  if (lowerReq.includes("sunset") || lowerReq.includes("golden hour") || lowerReq.includes("dusk")) {
-    modifiedCore = modifiedCore.replace(
-      /morning sunlight|morning window light|diffused morning/i,
-      "dramatic warm golden hour sunset lighting with long amber cast shadows"
-    );
-  }
-
-  // If no specific keyword triggered a direct replacement, intelligently blend user's exact phrase
-  if (modifiedCore === corePrompt) {
-    const formattedDirective = cleanRequest.replace(/^make\s+(it|this)\s+/i, "");
-    modifiedCore = `${corePrompt}, customized with ${formattedDirective}, maintaining consistent camera depth and exposure`;
-  }
-
-  // Re-attach technical parameters seamlessly
-  const finalPrompt = parameters ? `${modifiedCore} ${parameters}` : modifiedCore;
+  const result = await refinePromptsWithAI(uiPrompt, contextPrompt, userRequest, options);
 
   return {
-    success: true,
-    customizedPrompt: finalPrompt,
+    success: result.success,
+    customizedPrompt: result.customizedPrompt,
+    error: result.error,
   };
 }
 

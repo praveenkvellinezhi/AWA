@@ -10,7 +10,6 @@ import {
   SlidersHorizontal,
   Cpu,
   Layers,
-  Sparkles,
   X,
 } from "lucide-react";
 

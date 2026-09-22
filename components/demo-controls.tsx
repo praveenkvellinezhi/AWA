@@ -8,7 +8,6 @@ import {
   ChevronDown,
   ChevronUp,
   RotateCcw,
-  Sparkles,
   Shield,
   Coins,
   CreditCard,
@@ -140,7 +139,7 @@ export function DemoControls() {
   return (
     <aside
       aria-label="Demo Controls"
-      className="fixed bottom-4 right-4 z-50 flex flex-col items-end print:hidden pointer-events-auto"
+      className="demo-controls-console fixed bottom-4 right-4 z-50 flex flex-col items-end print:hidden pointer-events-auto"
     >
       {/* Collapsed Toggle Pill */}
       {!isDemoControlsExpanded ? (
@@ -261,7 +260,6 @@ export function DemoControls() {
                         : "bg-slate-950/60 border-slate-800 text-slate-400 hover:bg-slate-800/60 hover:text-white"
                     }`}
                   >
-                    <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
                     Subscriber
                   </button>
 
@@ -486,7 +484,7 @@ export function DemoControls() {
               <div className="grid grid-cols-5 gap-1 pt-1">
                 {demoScriptSteps.map((s) => (
                   <button
-                    key={s.step}
+                    key={`demo-step-${s.step}`}
                     onClick={() => handleRunScriptStep(s.step)}
                     className={`py-1 rounded text-[11px] font-mono font-bold transition-colors ${
                       guidedDemoStep === s.step

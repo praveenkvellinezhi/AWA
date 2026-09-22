@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useDemo } from "@/lib/demo-context";
 import {
   Check,
-  Sparkles,
   Shield,
   Zap,
   ArrowRight,
@@ -26,7 +25,6 @@ export default function UnlimitedPage() {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/10 via-rose-500/10 to-purple-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold font-mono">
-            <Sparkles className="h-3.5 w-3.5 text-rose-400" />
             <span>AWA UNLIMITED</span>
           </div>
 
@@ -82,14 +80,14 @@ export default function UnlimitedPage() {
 
             <Link
               href="/"
-              className="w-full py-2.5 rounded-xl border border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 text-center text-xs font-bold text-white transition-colors block"
+              className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800/80 hover:bg-slate-200 dark:hover:bg-zinc-700 text-center text-xs font-bold text-slate-800 dark:text-white transition-colors block"
             >
               Current Access
             </Link>
           </div>
 
           {/* Card 2: Unlimited Annual (Popular) */}
-          <div className="relative rounded-2xl border-2 border-rose-500/60 bg-gradient-to-b from-[#18151f] to-[#121316] p-6 flex flex-col justify-between space-y-6 shadow-2xl shadow-rose-950/20">
+          <div className="relative rounded-2xl border-2 border-rose-500/60 bg-gradient-to-b from-rose-50/70 via-white to-white dark:from-[#18151f] dark:to-[#121316] p-6 flex flex-col justify-between space-y-6 shadow-2xl shadow-rose-950/10 dark:shadow-rose-950/20">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 text-[10px] font-black uppercase tracking-wider text-white shadow">
               Most Popular
             </div>
@@ -144,7 +142,7 @@ export default function UnlimitedPage() {
             ) : (
               <Link
                 href="/payment?plan=yearly"
-                className="w-full py-3 rounded-xl bg-white text-black hover:bg-zinc-200 font-bold text-xs transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white hover:from-orange-600 hover:to-rose-700 font-bold text-xs transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group"
               >
                 <span>Upgrade to Annual (₹199)</span>
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -196,7 +194,7 @@ export default function UnlimitedPage() {
             ) : (
               <Link
                 href="/payment?plan=lifetime"
-                className="w-full py-2.5 rounded-xl border border-purple-500/50 bg-purple-950/40 hover:bg-purple-900/50 text-center text-xs font-bold text-purple-200 transition-colors flex items-center justify-center gap-2 group"
+                className="w-full py-2.5 rounded-xl border border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-center text-xs font-bold text-purple-700 dark:text-purple-200 transition-colors flex items-center justify-center gap-2 group"
               >
                 <span>Get Lifetime Pass (₹999)</span>
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

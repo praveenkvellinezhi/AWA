@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Play, CheckCircle2, Rocket, Clock, BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { Play, CheckCircle2, Rocket, Clock, BookOpen, ArrowRight } from "lucide-react";
 
 export default function AcademyPage() {
   const [enrolled, setEnrolled] = useState(false);
@@ -62,7 +62,7 @@ export default function AcademyPage() {
           <div className="pt-2">
             <button
               onClick={() => setEnrolled(true)}
-              className="px-6 py-3 rounded-full bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-all shadow-xl active:scale-95"
+              className="px-6 py-3 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black font-bold text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-xl active:scale-95"
             >
               {enrolled ? "✓ You are Enrolled — Start Lesson 01" : "Start Learning for Free"}
             </button>
@@ -79,7 +79,7 @@ export default function AcademyPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {modules.map((m) => (
               <div
-                key={m.number}
+                key={`academy-module-${m.number}`}
                 className="rounded-2xl border border-zinc-800 bg-[#121316] p-6 space-y-3 shadow-lg hover:border-zinc-700 transition-all"
               >
                 <div className="flex items-center justify-between">

@@ -9,7 +9,7 @@ import {
   Edit2,
   Trash2,
   ChevronRight,
-  Sparkles,
+  Folder,
   Check,
   X,
   Layers,
@@ -26,7 +26,7 @@ export default function AdminCategoriesPage() {
   const [newCatName, setNewCatName] = useState("");
   const [newCatSlug, setNewCatSlug] = useState("");
   const [newCatDesc, setNewCatDesc] = useState("");
-  const [newCatIcon, setNewCatIcon] = useState("Sparkles");
+  const [newCatIcon, setNewCatIcon] = useState("Folder");
 
   const handleCreateCategory = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +198,7 @@ export default function AdminCategoriesPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400 font-bold border border-indigo-500/30">
-                  <Sparkles className="h-4 w-4" />
+                  <Folder className="h-4 w-4" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useDemo } from "@/lib/demo-context";
-import { MessageSquare, ThumbsUp, ThumbsDown, Search, Sparkles, Filter } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, Search, Filter } from "lucide-react";
 
 export default function AdminFeedbackPage() {
   const { feedbackList, templates } = useDemo();

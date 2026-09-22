@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Lock, Sparkles, Shield, CheckCircle2, ArrowRight } from "lucide-react";
+import { Lock, Shield, CheckCircle2, ArrowRight } from "lucide-react";
 import { useDemo } from "@/lib/demo-context";
 
 interface HardLockCardProps {
@@ -14,7 +14,7 @@ export function HardLockCard({ safePreviewText }: HardLockCardProps) {
   const isSafePreview = adminConfig.nonSubscriberVisibility === "safe_preview" && safePreviewText;
 
   return (
-    <div className="relative rounded-2xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-awa-card to-slate-950 p-6 sm:p-8 shadow-2xl overflow-hidden">
+    <div className="relative rounded-2xl border border-amber-500/30 bg-gradient-to-b from-slate-900 via-awa-card to-slate-950 p-6 sm:p-8 shadow-2xl overflow-hidden dark-surface">
       {/* Decorative background ambient glows */}
       <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
       <div className="absolute -right-12 -bottom-12 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />

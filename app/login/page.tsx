@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  Sparkles,
   Zap,
   Crown,
   AlertCircle,
@@ -130,38 +129,17 @@ function LoginContent() {
       <div className="w-full max-w-lg space-y-6 relative z-10">
         {/* Top Branding & Nav */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2.5 group mx-auto mb-1">
-            <svg
-              className="h-9 w-9 transition-transform group-hover:scale-105"
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 24L16 6L26 24M10 18H22"
-                stroke="url(#awa-login-grad)"
-                strokeWidth="3.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <defs>
-                <linearGradient
-                  id="awa-login-grad"
-                  x1="6"
-                  y1="6"
-                  x2="26"
-                  y2="24"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="#F43F5E" />
-                  <stop offset="0.4" stopColor="#F97316" />
-                  <stop offset="1" stopColor="#A855F7" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span className="text-2xl font-black tracking-tight text-white font-sans uppercase">
-              AWA
-            </span>
+          <Link href="/" className="inline-flex items-center group mx-auto mb-2" aria-label="AWA Home">
+            <img
+              src="/logo/logolight.png"
+              alt="AWA"
+              className="h-9 sm:h-10 w-auto object-contain block dark:hidden transition-transform group-hover:scale-105"
+            />
+            <img
+              src="/logo/logodark.png"
+              alt="AWA"
+              className="h-9 sm:h-10 w-auto object-contain hidden dark:block transition-transform group-hover:scale-105"
+            />
           </Link>
 
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -206,7 +184,6 @@ function LoginContent() {
                 : "text-zinc-400 hover:text-white"
             }`}
           >
-            <Sparkles className="h-3.5 w-3.5" />
             <span>Sign Up Free</span>
           </button>
         </div>
@@ -304,7 +281,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs sm:text-sm hover:bg-zinc-200 transition-all shadow-lg shadow-white/10 flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-slate-950 text-white dark:bg-white dark:text-black font-bold text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-lg flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
               >
                 {loading ? (
                   <span>Authenticating...</span>

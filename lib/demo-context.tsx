@@ -153,8 +153,16 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         if (parsed.customizationHistory) setCustomizationHistory(parsed.customizationHistory);
         if (parsed.activeCustomizedPrompts) setActiveCustomizedPrompts(parsed.activeCustomizedPrompts);
         if (parsed.feedbackList) setFeedbackList(parsed.feedbackList);
-        if (parsed.categories) setCategories(parsed.categories);
-        if (parsed.templates) setTemplates(parsed.templates);
+        if (parsed.categories) {
+          const existingCatIds = new Set(parsed.categories.map((c: Category) => c.id));
+          const missingCats = initialCategories.filter((c) => !existingCatIds.has(c.id));
+          setCategories([...parsed.categories, ...missingCats]);
+        }
+        if (parsed.templates) {
+          const existingTplIds = new Set(parsed.templates.map((t: Template) => t.id));
+          const missingTpls = initialTemplates.filter((t) => !existingTplIds.has(t.id));
+          setTemplates([...parsed.templates, ...missingTpls]);
+        }
         if (parsed.aiTools) setAiTools(parsed.aiTools);
         if (parsed.adminConfig) setAdminConfig(parsed.adminConfig);
         if (parsed.simulateAIFailure !== undefined) setSimulateAIFailure(parsed.simulateAIFailure);

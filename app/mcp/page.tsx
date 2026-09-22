@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Terminal, Copy, Check, Sparkles, Cpu, Layers, ExternalLink, ShieldCheck, ArrowRight } from "lucide-react";
+import { Terminal, Copy, Check, Cpu, Layers, ExternalLink, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function McpPage() {
   const [copied, setCopied] = useState(false);
@@ -45,7 +45,6 @@ export default function McpPage() {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold font-mono">
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
             <span>MODEL CONTEXT PROTOCOL</span>
             <span className="text-zinc-600">•</span>
             <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-[10px]">NEW</span>
@@ -76,7 +75,7 @@ export default function McpPage() {
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 bg-black/60 rounded-xl p-3 border border-zinc-800/80 font-mono text-sm">
+          <div className="dark-surface flex flex-col sm:flex-row items-center gap-3 bg-black/60 rounded-xl p-3 border border-zinc-800/80 font-mono text-sm">
             <code className="flex-1 text-cyan-300 select-all overflow-x-auto py-1">
               $ {mcpCommand}
             </code>
@@ -110,8 +109,8 @@ export default function McpPage() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                   activeTab === tab
-                    ? "bg-zinc-800 text-white border border-zinc-700 shadow-sm"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                    ? "bg-slate-900 text-white dark:bg-zinc-800 dark:text-white border border-slate-700 dark:border-zinc-700 shadow-sm"
+                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-900"
                 }`}
               >
                 {tab}
@@ -124,7 +123,7 @@ export default function McpPage() {
               <span className="font-semibold text-white">{clientConfigs[activeTab].title}</span>
               <span className="text-[11px] text-zinc-500">{clientConfigs[activeTab].filePath}</span>
             </div>
-            <pre className="text-xs text-zinc-300 overflow-x-auto p-3 rounded-lg bg-black/50 leading-relaxed">
+            <pre className="dark-surface text-xs text-cyan-300 overflow-x-auto p-3 rounded-lg bg-black/50 leading-relaxed">
               {clientConfigs[activeTab].code}
             </pre>
           </div>

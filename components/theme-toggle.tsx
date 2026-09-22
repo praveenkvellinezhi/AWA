@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Sun, Moon, Sparkles } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { useTheme } from "./theme-provider";
 
 interface ThemeToggleProps {
