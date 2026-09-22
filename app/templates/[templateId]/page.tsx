@@ -899,7 +899,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
                 <Link
                   href="/unlimited"
-                  className="w-full py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.99]"
+                  className="w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
                 >
                   <span>Subscribe to Unlock</span>
                   <ArrowRight className="h-4 w-4" />
@@ -931,34 +931,34 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               </div>
             )}
 
-            {/* Feature Highlights 4-Box Grid (Matching Screenshot) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
-                <div className="h-6 w-6 rounded-lg bg-pink-500/15 text-pink-600 dark:text-pink-400 flex items-center justify-center mx-auto text-xs font-bold">
+            {/* Feature Highlights Spec Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
+                <div className="h-6 w-6 rounded-md bg-slate-200/60 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center mx-auto text-xs font-semibold font-mono">
                   ❖
                 </div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Figma file</p>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Preview only</span>
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">Figma file</p>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Preview only</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
-                <div className="h-6 w-6 rounded-lg bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center mx-auto text-xs font-bold">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
+                <div className="h-6 w-6 rounded-md bg-slate-200/60 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center mx-auto text-xs font-semibold font-mono">
                   v0
                 </div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">v0 compatible</p>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Ready to use</span>
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">v0 compatible</p>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Ready to use</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
-                <Smartphone className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mx-auto" />
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Responsive</p>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">All devices</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
+                <Smartphone className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">Responsive</p>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">All devices</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-center space-y-1">
-                <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Commercial use</p>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-500 block">Allowed</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
+                <ShieldCheck className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />
+                <p className="text-xs font-semibold text-slate-900 dark:text-white">Commercial use</p>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Allowed</span>
               </div>
             </div>
           </div>
@@ -1169,19 +1169,19 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                     </h2>
 
                     {isVideoGen && videoWorkflow && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-[10px] font-bold text-purple-700 dark:text-purple-300 font-mono tracking-wider uppercase">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-xs font-medium text-purple-700 dark:text-purple-300">
                         <Film className="h-3 w-3" />
                         <span>{getWorkflowTitle(videoWorkflow.generationType)}</span>
                       </span>
                     )}
 
                     {!isSubscriber ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-700 dark:text-amber-300 font-mono tracking-wider uppercase">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-800 dark:text-amber-300">
                         <Lock className="h-3 w-3" />
                         <span>Subscribers Only</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 font-mono tracking-wider uppercase">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-800 dark:text-emerald-300">
                         <CheckCircle2 className="h-3 w-3" />
                         <span>
                           Checklist ({completedSteps.filter((id) => displaySteps.some((s) => s.stepNumber === id)).length}/{displaySteps.length})
@@ -1210,7 +1210,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
                             ? isVideoGen
                               ? "bg-purple-600 text-white border-purple-600 shadow-sm"
-                              : "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                              : "bg-blue-600 text-white border-blue-600 shadow-sm"
                             : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
@@ -1228,7 +1228,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <div className="flex items-center gap-2">
                       <Layers className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
+                      <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                         Required Tutorial Assets ({videoWorkflow.assets.length})
                       </h3>
                     </div>
@@ -1307,10 +1307,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
         {/* 5. Bottom Banner: Access Banner (Only shown to non-subscribers) */}
         {!isSubscriber && (
-          <section className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-[#121316] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+          <section className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121316] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm relative overflow-hidden">
             <div className="relative z-10 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-lg">
-                <Crown className="h-6 w-6" />
+              <div className="h-11 w-11 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Crown className="h-5 w-5" />
               </div>
               <div className="space-y-1 text-left">
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Get Full Access</h3>
@@ -1322,7 +1322,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
             <Link
               href="/unlimited"
-              className="relative z-10 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95 shrink-0"
+              className="relative z-10 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 shrink-0"
             >
               <span>Subscribe Now</span>
               <ArrowRight className="h-4 w-4" />

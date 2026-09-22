@@ -143,14 +143,14 @@ export function PromptPanel({
           {isCustomized ? (
             <Badge
               variant="secondary"
-              className="gap-1.5 py-1 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 font-semibold uppercase tracking-wider text-[11px]"
+              className="gap-1.5 py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 text-xs font-medium"
             >
               <span>{isShrunk ? "Customized Prompts" : "Your Customized Prompts"}</span>
             </Badge>
           ) : (
             <Badge
               variant="secondary"
-              className="gap-1.5 py-1 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 font-semibold uppercase tracking-wider text-[11px]"
+              className="gap-1.5 py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 text-xs font-medium"
             >
               <ShieldCheck className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
               <span>{isShrunk ? "Base Prompts" : "Original Expert Prompts"}</span>
@@ -266,7 +266,7 @@ export function PromptPanel({
               onClick={handleCopyCombined}
               variant="default"
               size="sm"
-              className={copiedCombined ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-7" : "bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-7"}
+              className={copiedCombined ? "bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-7" : "bg-blue-600 hover:bg-blue-700 text-white font-semibold h-7"}
               title="Copy combined UI + Context prompt"
             >
               {copiedCombined ? (
@@ -347,7 +347,7 @@ export function PromptPanel({
                   <button
                     type="button"
                     onClick={() => setIsUiExpanded(!isUiExpanded)}
-                    className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                    className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                   >
                     <span>{isUiExpanded ? "Show less" : "Show full UI prompt"}</span>
                     {isUiExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -418,7 +418,7 @@ export function PromptPanel({
                   <button
                     type="button"
                     onClick={() => setIsContextExpanded(!isContextExpanded)}
-                    className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                    className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                   >
                     <span>{isContextExpanded ? "Show less" : "Show full Context prompt"}</span>
                     {isContextExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -430,10 +430,11 @@ export function PromptPanel({
 
           {/* Footer / Primary Copy Combined Action Row */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-zinc-800">
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <span>Combined prompt ready for LLM generation</span>
-              <span>•</span>
-              <span>UI + Context structured</span>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                LLM Ready
+              </span>
+              <span>Combined UI + Context structured output</span>
             </div>
 
             <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -455,10 +456,10 @@ export function PromptPanel({
                 onClick={handleCopyCombined}
                 variant="default"
                 size="default"
-                className={`gap-2 font-semibold shadow-md min-w-[160px] transition-all ${
+                className={`gap-2 font-semibold shadow-sm min-w-[160px] transition-all ${
                   copiedCombined
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
                 }`}
                 aria-live="polite"
               >

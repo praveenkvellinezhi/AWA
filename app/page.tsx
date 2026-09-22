@@ -211,8 +211,8 @@ export default function HomePage() {
       <section id="disciplines" className="w-full px-4 sm:px-6 lg:px-8 pt-16 space-y-6 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-zinc-800">
           <div>
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-indigo-600 dark:text-cyan-400 block mb-1">
-              Core Disciplines
+            <span className="text-xs font-medium text-slate-500 dark:text-zinc-400 block mb-1">
+              Creative Disciplines
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Explore the 5 Creative Tracks
@@ -446,13 +446,13 @@ export default function HomePage() {
                   <span>Launch Flagship Demo</span>
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
-                <div className="flex items-center gap-2 text-xs text-zinc-400 bg-zinc-900/80 px-3 py-2 rounded-full border border-zinc-800">
-                  <span>Matched Tool:</span>
-                  <strong className="text-zinc-200 font-semibold">Midjourney v6.1</strong>
+                <div className="flex items-center gap-2 text-xs text-zinc-300 bg-white/10 px-3.5 py-2 rounded-full border border-white/15 backdrop-blur-xs">
+                  <span className="text-zinc-400">Matched Tool:</span>
+                  <strong className="text-white font-semibold">Midjourney v6.1</strong>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-zinc-400 bg-zinc-900/80 px-3 py-2 rounded-full border border-zinc-800">
-                  <span>Category:</span>
-                  <strong className="text-zinc-200 font-semibold">Image Generation</strong>
+                <div className="flex items-center gap-2 text-xs text-zinc-300 bg-white/10 px-3.5 py-2 rounded-full border border-white/15 backdrop-blur-xs">
+                  <span className="text-zinc-400">Category:</span>
+                  <strong className="text-white font-semibold">Image Generation</strong>
                 </div>
               </div>
             </div>
@@ -478,7 +478,7 @@ export default function HomePage() {
                   <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
                     <div>
                       <p className="text-xs font-bold text-white">Handmade Soy Candle on Travertine</p>
-                      <p className="text-[11px] text-zinc-400 font-mono">Aspect Ratio: 4:5 • Hasselblad 100c</p>
+                      <p className="text-[11px] text-zinc-400 font-mono">Aspect Ratio 4:5, Hasselblad 100c</p>
                     </div>
                     <span className="text-[11px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full whitespace-nowrap">
                       Ready to Copy
@@ -491,48 +491,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. High-Converting Bottom CTA Banner */}
+      {/* 7. Grounded Bottom Production Callout */}
       <section className="w-full px-4 sm:px-6 lg:px-8 pt-16 max-w-7xl mx-auto">
-        <div className="dark-surface relative rounded-3xl overflow-hidden border border-indigo-500/30 bg-gradient-to-br from-indigo-950/80 via-[#111318] to-purple-950/60 p-8 sm:p-14 text-center space-y-6 shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/15 via-transparent to-transparent pointer-events-none" />
-
-          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold font-mono">
-              <span>START BUILDING PRODUCTION ASSETS</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-              Ready to 10x Your AI Creative Output?
+        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-[#121316] p-8 sm:p-12 text-center space-y-5 shadow-xs">
+          <div className="max-w-2xl mx-auto space-y-3">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Production-ready prompts for your next build.
             </h2>
 
-            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
-              Join 12,000+ creators, designers, and engineers using AWA to deploy websites, generate slide decks, render cinematic video, and craft high-res graphics without prompt guesswork.
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
+              Tested on active production models. Copy directly to Cursor, v0, Midjourney, or Figma and start creating immediately.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
               {isSubscriber ? (
                 <button
                   onClick={handleHeroExplore}
-                  className="px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-xs active:scale-[0.99]"
                 >
-                  <span>Explore Workflow Catalog</span>
-                  <ArrowRight className="h-4 w-4" />
+                  Explore Workflow Catalog
                 </button>
               ) : (
                 <Link
                   href="/unlimited"
-                  className="px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-xs active:scale-[0.99]"
                 >
-                  <span>Get Unlimited Access</span>
-                  <ArrowRight className="h-4 w-4" />
+                  Get Unlimited Access
                 </Link>
               )}
 
               <Link
                 href="/academy"
-                className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/20 font-semibold text-sm sm:text-base transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                className="px-5 py-3 rounded-xl border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 font-semibold text-sm transition-colors"
               >
-                <span>Explore Design Rocket Academy</span>
+                Read Academy Playbooks
               </Link>
             </div>
           </div>

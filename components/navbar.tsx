@@ -338,7 +338,7 @@ export function Navbar() {
 
                     {/* Ecosystem Links */}
                     <div className="py-1 text-xs space-y-0.5">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 px-3 py-1 block">
+                      <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 px-3 py-1 block">
                         AWA Ecosystem
                       </span>
 
@@ -514,7 +514,7 @@ export function Navbar() {
 
                   {/* Ecosystem Links */}
                   <div className="py-1 border-t border-zinc-800/80 text-xs space-y-0.5">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 px-3 py-1 block">
+                    <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 px-3 py-1 block">
                       AWA Ecosystem
                     </span>
 

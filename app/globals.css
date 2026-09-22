@@ -96,42 +96,42 @@ html:not(.dark) {
   }
 
   /* Cards & Surface panels */
-  [class*="bg-[#121316]"],
-  [class*="bg-[#141518]"],
-  [class*="bg-[#131B2A]"],
-  .bg-awa-card,
-  [class*="bg-zinc-900"],
-  [class*="bg-slate-900"]:not([class*="hover:"]):not([class*="active:"]) {
+  [class*="bg-[#121316]"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-[#141518]"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-[#131B2A]"]:not(.dark-surface):not(.dark-surface *),
+  .bg-awa-card:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-zinc-900"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-slate-900"]:not([class*="hover:"]):not([class*="active:"]):not(.dark-surface):not(.dark-surface *) {
     background-color: #FFFFFF !important;
     border-color: #E2E8F0 !important;
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
 
   /* Inner dark contrast boxes (e.g. code/prompt display) */
-  [class*="bg-slate-950"],
-  [class*="bg-zinc-950"] {
+  [class*="bg-slate-950"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-zinc-950"]:not(.dark-surface):not(.dark-surface *) {
     background-color: #F1F5F9 !important;
     border-color: #CBD5E1 !important;
   }
 
   /* Secondary surfaces / pills / hover targets */
-  [class*="bg-zinc-800"],
-  [class*="bg-slate-800"] {
+  [class*="bg-zinc-800"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-slate-800"]:not(.dark-surface):not(.dark-surface *) {
     background-color: #F1F5F9 !important;
     border-color: #CBD5E1 !important;
   }
 
   /* Borders */
-  [class*="border-zinc-800"],
-  [class*="border-zinc-750"],
-  [class*="border-zinc-850"],
-  [class*="border-slate-800"],
-  [class*="border-awa-border"] {
+  [class*="border-zinc-800"]:not(.dark-surface):not(.dark-surface *),
+  [class*="border-zinc-750"]:not(.dark-surface):not(.dark-surface *),
+  [class*="border-zinc-850"]:not(.dark-surface):not(.dark-surface *),
+  [class*="border-slate-800"]:not(.dark-surface):not(.dark-surface *),
+  [class*="border-awa-border"]:not(.dark-surface):not(.dark-surface *) {
     border-color: #E2E8F0 !important;
   }
 
-  [class*="border-zinc-700"],
-  [class*="border-slate-700"] {
+  [class*="border-zinc-700"]:not(.dark-surface):not(.dark-surface *),
+  [class*="border-slate-700"]:not(.dark-surface):not(.dark-surface *) {
     border-color: #CBD5E1 !important;
   }
 
@@ -337,8 +337,8 @@ html:not(.dark) {
   }
 
   /* Dropdown filter buttons in Light Mode */
-  [class*="bg-zinc-900/90"],
-  [class*="bg-zinc-900"]:not([class*="group-hover:"]):not(.dark-surface *) {
+  [class*="bg-zinc-900/90"]:not(.dark-surface):not(.dark-surface *),
+  [class*="bg-zinc-900"]:not([class*="group-hover:"]):not(.dark-surface):not(.dark-surface *) {
     background-color: #FFFFFF !important;
     border-color: #E2E8F0 !important;
     color: #334155 !important;
