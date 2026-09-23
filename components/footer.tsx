@@ -1,8 +1,18 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight, ShieldCheck, Heart } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Do not render the public user footer in the Admin Console
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-awa-border bg-awa-dark/95 py-12 text-slate-400 text-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

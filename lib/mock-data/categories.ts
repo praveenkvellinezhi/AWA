@@ -64,6 +64,14 @@ export const initialCategories: Category[] = [
         templateCount: 5,
       },
       {
+        id: "sub-vid-product",
+        name: "Product Videos",
+        slug: "product-videos",
+        description: "Commercial product showcases, macro pans, and high-fidelity 3D motion reveals.",
+        categoryId: "cat-video-gen",
+        templateCount: 4,
+      },
+      {
         id: "sub-vid-commercial",
         name: "Commercial & Product Motion",
         slug: "commercial-product-motion",
@@ -91,6 +99,14 @@ export const initialCategories: Category[] = [
     templateCount: 4,
     imageUrl: "/images/categories/website-making.jpg",
     subcategories: [
+      {
+        id: "sub-web-landing",
+        name: "Landing Pages",
+        slug: "landing-pages",
+        description: "Conversion-focused landing pages, hero layouts, and marketing sites.",
+        categoryId: "cat-website-making",
+        templateCount: 4,
+      },
       {
         id: "sub-web-saas",
         name: "SaaS & Tech Landing Pages",
@@ -163,6 +179,14 @@ export const initialCategories: Category[] = [
     templateCount: 8,
     imageUrl: "/images/categories/poster.jpg",
     subcategories: [
+      {
+        id: "sub-poster-social",
+        name: "Social Media",
+        slug: "social-media",
+        description: "Engaging social media advertisement designs, stories, carousels, and promotional banners.",
+        categoryId: "cat-poster-design",
+        templateCount: 5,
+      },
       {
         id: "sub-poster-events",
         name: "Music & Cultural Events",

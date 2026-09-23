@@ -27,16 +27,16 @@ export default function AdminFeedbackPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-purple-400">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#15803D] dark:text-emerald-400">
             FEAT-020, FEAT-021 • Quality Telemetry
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2 mt-1">
-            <MessageSquare className="h-7 w-7 text-indigo-400" />
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-2 mt-1">
+            <MessageSquare className="h-7 w-7 text-[#15803D] dark:text-emerald-400" />
             User Ratings & External Feedback
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Review thumbs up/down signals, user comments, and verified external AI tools used with AWA prompts.
           </p>
         </div>
@@ -51,14 +51,14 @@ export default function AdminFeedbackPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search feedback by comment, user, or template..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-sm"
           />
         </div>
 
         <select
           value={ratingFilter}
           onChange={(e) => setRatingFilter(e.target.value as any)}
-          className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-sm"
         >
           <option value="all">All Ratings (Up & Down)</option>
           <option value="up">👍 Thumbs Up Only</option>
@@ -68,7 +68,7 @@ export default function AdminFeedbackPage() {
         <select
           value={templateFilter}
           onChange={(e) => setTemplateFilter(e.target.value)}
-          className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white max-w-[220px]"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white max-w-[220px] focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-sm"
         >
           <option value="all">All Templates</option>
           {templates.map((t) => (
@@ -80,10 +80,10 @@ export default function AdminFeedbackPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2A] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/80 text-[11px] uppercase font-mono text-slate-400 border-b border-slate-800">
+          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+            <thead className="bg-slate-50 dark:bg-slate-950/80 text-[11px] uppercase font-mono text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="py-3 px-4">Rating</th>
                 <th className="py-3 px-4">Template & Version</th>
@@ -92,42 +92,42 @@ export default function AdminFeedbackPage() {
                 <th className="py-3 px-4">User</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-medium">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
               {filteredFeedback.map((entry) => (
-                <tr key={entry.id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="py-3 px-4">
                     {entry.rating === "up" ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EAF5ED] dark:bg-emerald-500/15 text-[#15803D] dark:text-emerald-300 font-bold border border-[#D1E7DD] dark:border-emerald-500/30">
                         <ThumbsUp className="h-3 w-3" /> Worked
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 font-bold border border-rose-500/30">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold border border-rose-200 dark:border-rose-500/30">
                         <ThumbsDown className="h-3 w-3" /> Issue
                       </span>
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    <span className="font-bold text-white block">{entry.templateName}</span>
-                    <span className="text-[10px] font-mono text-indigo-400">
+                    <span className="font-bold text-slate-900 dark:text-white block">{entry.templateName}</span>
+                    <span className="text-[10px] font-mono text-[#15803D] dark:text-emerald-400">
                       Type: {entry.promptType === "customized" ? "AI Customized Version" : "Base Expert Prompt"}
                     </span>
                     {entry.customizationRequestText && (
-                      <p className="text-[10px] text-slate-400 italic mt-0.5 line-clamp-1">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 italic mt-0.5 line-clamp-1">
                         &quot;{entry.customizationRequestText}&quot;
                       </p>
                     )}
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-300">
+                  <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
                     {entry.toolUsed || "Not specified"}
                   </td>
                   <td className="py-3 px-4 max-w-sm">
                     {entry.comment ? (
-                      <span className="text-slate-200">{entry.comment}</span>
+                      <span className="text-slate-900 dark:text-slate-200">{entry.comment}</span>
                     ) : (
-                      <span className="text-slate-500 italic">No written comment</span>
+                      <span className="text-slate-400 italic">No written comment</span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-slate-400 text-[11px] font-mono">
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
                     {entry.userEmail}
                   </td>
                 </tr>

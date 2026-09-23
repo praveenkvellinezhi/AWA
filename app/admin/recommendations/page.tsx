@@ -41,23 +41,23 @@ export default function AdminRecommendationsPage() {
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-purple-400">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#15803D] dark:text-emerald-400">
             FEAT-031 • Tagging & Inheritance
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2 mt-1">
-            <Tags className="h-7 w-7 text-indigo-400" />
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-2 mt-1">
+            <Tags className="h-7 w-7 text-[#15803D] dark:text-emerald-400" />
             Tool/Model Assignment & Recommendations
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Assign 1–3 AI tools and specific models to templates, each paired with an expert one-line reason (FEAT-017).
           </p>
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 flex items-center gap-3 text-xs text-indigo-200">
-        <Info className="h-5 w-5 text-indigo-400 shrink-0" />
+      <div className="p-4 rounded-2xl bg-[#F2F8F4] dark:bg-emerald-950/20 border border-[#D1E7DD] dark:border-emerald-500/30 flex items-center gap-3 text-xs text-slate-700 dark:text-slate-300">
+        <Info className="h-5 w-5 text-[#15803D] dark:text-emerald-400 shrink-0" />
         <span>
           <strong>Inheritance Model:</strong> Templates inherit tool recommendations assigned to their parent category unless individually overridden here.
         </span>
@@ -66,11 +66,11 @@ export default function AdminRecommendationsPage() {
       {/* Editor Form */}
       <form
         onSubmit={handleUpdate}
-        className="p-6 rounded-2xl border border-slate-800 bg-slate-900/80 space-y-6"
+        className="p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#131B2A] space-y-6 shadow-xs transition-colors"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Select Template to Configure
             </label>
             <select
@@ -83,7 +83,7 @@ export default function AdminRecommendationsPage() {
                   setReason(t.recommendedTools[0].reason);
                 }
               }}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600"
             >
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -94,13 +94,13 @@ export default function AdminRecommendationsPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Assigned AI Model
             </label>
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600"
             >
               <option value="Midjourney v6.1">Midjourney v6.1</option>
               <option value="Runway Gen-3 Alpha">Runway Gen-3 Alpha</option>
@@ -115,7 +115,7 @@ export default function AdminRecommendationsPage() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
             One-Line Rationale (Displayed directly to users under FEAT-017)
           </label>
           <input
@@ -124,34 +124,34 @@ export default function AdminRecommendationsPage() {
             value={reason || activeTemplate.recommendedTools[0]?.reason || ""}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Best for photorealistic studio lighting and warm waxy textures"
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-600"
           />
         </div>
 
         {/* Current Live Preview */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-          <span className="text-[11px] font-mono font-bold uppercase text-slate-400">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+          <span className="text-[11px] font-mono font-bold uppercase text-slate-500 dark:text-slate-400">
             User-Facing Recommendation Card Preview:
           </span>
-          <div className="p-3.5 rounded-xl bg-slate-900 border border-indigo-500/40 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-[#D1E7DD] dark:border-emerald-500/40 flex items-center justify-between shadow-xs">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-white">Recommended Tool</span>
-                <span className="text-xs font-mono text-indigo-300 px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/40">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">Recommended Tool</span>
+                <span className="text-xs font-mono text-[#15803D] dark:text-emerald-300 px-2 py-0.5 rounded bg-[#EAF5ED] dark:bg-emerald-950/60 border border-[#D1E7DD] dark:border-emerald-800/40 font-semibold">
                   {selectedModel}
                 </span>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-600 dark:text-slate-300">
                 <strong>Why this tool:</strong> {reason || activeTemplate.recommendedTools[0]?.reason}
               </p>
             </div>
-            <Cpu className="h-5 w-5 text-indigo-400 shrink-0" />
+            <Cpu className="h-5 w-5 text-[#15803D] dark:text-emerald-400 shrink-0" />
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
           {isSaved ? (
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-bold">
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold">
               <CheckCircle2 className="h-4 w-4" /> Recommendation saved!
             </span>
           ) : (
@@ -162,7 +162,7 @@ export default function AdminRecommendationsPage() {
 
           <button
             type="submit"
-            className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-[#008235] hover:bg-[#006e2c] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-all"
           >
             <Save className="h-4 w-4" />
             <span>Save Tool Assignment</span>

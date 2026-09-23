@@ -168,6 +168,11 @@ export function Navbar() {
         .toUpperCase()
     : "AC";
 
+  // Do not render the user-side navbar within the Admin Console
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-[#0c0d0f]/95 backdrop-blur-md">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
