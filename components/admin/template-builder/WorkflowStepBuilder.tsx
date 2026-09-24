@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PromptEditor } from "./PromptEditor";
 import { WorkflowStepItem } from "./types";
 
 interface WorkflowStepBuilderProps {
@@ -44,13 +43,17 @@ export function WorkflowStepBuilder({
     const nextNumber = steps.length + 1;
     const newStep: WorkflowStepItem = {
       id: `step-${Date.now()}`,
+      order: nextNumber,
       stepNumber: nextNumber,
-      title: `Step ${nextNumber.toString().padStart(2, "0")} Directive`,
-      description: "Define the specific action and prompt execution for this workflow step.",
-      prompt: `Execute step ${nextNumber}: Focus on [SUBJECT] and refine with [STYLE] parameters.`,
-      inputVariables: ["[SUBJECT]", "[STYLE]"],
-      output: "Expected artifact or generation output.",
-      example: "High-fidelity candidate seed.",
+      step: nextNumber,
+      title: `Step ${nextNumber.toString().padStart(2, "0")} — Action Directive`,
+      shortTitle: `Step ${nextNumber}`,
+      description: "Detailed instructions explaining what action to perform in the tool for this step.",
+      purpose: "Target outcome and objective for this workflow step.",
+      instruction: "Detailed instructions explaining what action to perform in the tool for this step.",
+      instructions: ["Open the tool and configure parameters.", "Execute the action and verify fidelity."],
+      example: { output: "Expected result or benchmark for this step." },
+      tips: ["Pro-tip for optimal execution."],
     };
 
     const nextSteps = [...steps, newStep];
@@ -72,7 +75,12 @@ export function WorkflowStepBuilder({
       ...steps.slice(0, index + 1),
       duplicated,
       ...steps.slice(index + 1),
-    ].map((s, idx) => ({ ...s, stepNumber: idx + 1 }));
+    ].map((s, idx) => ({
+      ...s,
+      order: idx + 1,
+      stepNumber: idx + 1,
+      step: idx + 1,
+    }));
 
     onChange(nextSteps);
     setExpandedStepId(duplicated.id);
@@ -86,7 +94,12 @@ export function WorkflowStepBuilder({
 
     const nextSteps = steps
       .filter((_, idx) => idx !== index)
-      .map((s, idx) => ({ ...s, stepNumber: idx + 1 }));
+      .map((s, idx) => ({
+        ...s,
+        order: idx + 1,
+        stepNumber: idx + 1,
+        step: idx + 1,
+      }));
 
     onChange(nextSteps);
 
@@ -105,7 +118,9 @@ export function WorkflowStepBuilder({
 
     const renumbered = nextSteps.map((s, idx) => ({
       ...s,
+      order: idx + 1,
       stepNumber: idx + 1,
+      step: idx + 1,
     }));
 
     onChange(renumbered);
@@ -116,7 +131,58 @@ export function WorkflowStepBuilder({
     updated: Partial<WorkflowStepItem>
   ) => {
     const nextSteps = [...steps];
-    nextSteps[index] = { ...nextSteps[index], ...updated };
+    const current = nextSteps[index];
+
+    // Maintain backward-compat synchronization between canonical and legacy fields
+    const synced: Partial<WorkflowStepItem> = { ...updated };
+    if (updated.title) {
+      synced.title = updated.title;
+    }
+    if (updated.description) {
+      synced.description = updated.description;
+      synced.instruction = updated.description;
+    }
+    if (updated.prompt) {
+      synced.prompt = updated.prompt;
+      synced.examplePrompt = updated.prompt;
+      // Auto-extract [VARIABLE] tokens if variables not explicitly modified
+      if (!updated.variables && !updated.inputVariables) {
+        const matches = updated.prompt.match(/\[[A-Z0-9_\-\s]{2,}\]/g);
+        if (matches) {
+          const unique = Array.from(new Set(matches.map((m) => m.replace(/[\[\]]/g, ""))));
+          synced.variables = unique.map((name) => ({ name }));
+          synced.inputVariables = unique.map((name) => `[${name}]`);
+        }
+      }
+    }
+    if (updated.imageUrl !== undefined) {
+      synced.imageUrl = updated.imageUrl;
+      synced.image = {
+        url: updated.imageUrl,
+        alt: current.title,
+        caption: current.image?.caption || current.imageCaption,
+      };
+    }
+    if (updated.image !== undefined) {
+      synced.image = updated.image;
+      synced.imageUrl = updated.image.url;
+    }
+    if (updated.notes !== undefined) {
+      synced.notes = updated.notes;
+      synced.tips = updated.notes ? [updated.notes] : [];
+      synced.tip = updated.notes;
+    }
+    if (updated.tips !== undefined) {
+      synced.tips = updated.tips;
+      synced.notes = updated.tips[0];
+      synced.tip = updated.tips[0];
+    }
+    if (updated.example !== undefined) {
+      synced.example = updated.example;
+      synced.output = typeof updated.example === "string" ? updated.example : updated.example.output;
+    }
+
+    nextSteps[index] = { ...current, ...synced };
     onChange(nextSteps);
   };
 
@@ -138,10 +204,10 @@ export function WorkflowStepBuilder({
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Prompt Workflow Builder ({steps.length} Steps)
+              Workflow & Step Execution Guide ({steps.length} Steps)
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Every step holds an actual usable copyable AI prompt representing the creation journey.
+              Detailed step-by-step instructions guiding users on how to perform each step to create this asset.
             </p>
           </div>
         </div>
@@ -190,7 +256,7 @@ export function WorkflowStepBuilder({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                    {step.stepNumber.toString().padStart(2, "0")}
+                    {(step.order || step.stepNumber || index + 1).toString().padStart(2, "0")}
                   </span>
 
                   <div className="min-w-0">
@@ -250,11 +316,11 @@ export function WorkflowStepBuilder({
               {/* Step Expanded Content */}
               {isExpanded && (
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#131B2A] space-y-4 animate-in fade-in duration-200">
-                  {/* Step Title & Directive */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
+                  {/* Step Title, Short Title, Directive, & Purpose */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1 sm:col-span-2">
                       <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Step Title / Objective
+                        Step Title / Primary Directive
                       </label>
                       <Input
                         value={step.title}
@@ -268,40 +334,54 @@ export function WorkflowStepBuilder({
 
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Directive & User Instructions
+                        Short Title (Canvas / Badge)
                       </label>
                       <Input
-                        value={step.description}
+                        value={step.shortTitle || ""}
                         onChange={(e) =>
-                          handleUpdateStep(index, {
-                            description: e.target.value,
-                          })
+                          handleUpdateStep(index, { shortTitle: e.target.value })
                         }
-                        placeholder="Brief instruction on what this prompt generates..."
+                        placeholder="e.g. Concept"
                         className="text-xs"
                       />
                     </div>
                   </div>
 
-                  {/* Reusable PromptEditor for this Step */}
-                  <PromptEditor
-                    label={`Step ${step.stepNumber} Usable AI Prompt`}
-                    value={step.prompt}
-                    onChange={(val) =>
-                      handleUpdateStep(index, { prompt: val })
-                    }
-                    placeholder={`Enter usable copyable prompt for Step ${step.stepNumber}...`}
-                    helperText="This is the actual prompt users copy from AWA to run this workflow step."
-                    suggestedVariables={[
-                      "[SUBJECT]",
-                      "[STYLE]",
-                      "[ENVIRONMENT]",
-                      "[TOPIC]",
-                      "[AUDIENCE]",
-                    ]}
-                    minRows={4}
-                    highlightCategory={`Step ${step.stepNumber}`}
-                  />
+                  {/* Detailed Step Instructions */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                      <span>Detailed Step Instructions / How to Perform This Step</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Actionable step-by-step guidance</span>
+                    </label>
+                    <Textarea
+                      value={step.description || step.instruction || ""}
+                      onChange={(e) =>
+                        handleUpdateStep(index, {
+                          description: e.target.value,
+                          instruction: e.target.value,
+                        })
+                      }
+                      placeholder="Write detailed, step-by-step instructions explaining exactly what the user needs to do in the tool for this step..."
+                      rows={4}
+                      className="text-xs leading-relaxed font-normal"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                      Strategic Purpose / Objective (Optional)
+                    </label>
+                    <Input
+                      value={step.purpose || ""}
+                      onChange={(e) =>
+                        handleUpdateStep(index, {
+                          purpose: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. Anchor the visual foundation before adding camera and motion parameters..."
+                      className="text-xs"
+                    />
+                  </div>
 
                   {/* Output & Example */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -324,9 +404,16 @@ export function WorkflowStepBuilder({
                         Output Example / Demonstration
                       </label>
                       <Input
-                        value={step.example}
+                        value={
+                          typeof step.example === "object"
+                            ? step.example?.output || ""
+                            : step.example || step.output || ""
+                        }
                         onChange={(e) =>
-                          handleUpdateStep(index, { example: e.target.value })
+                          handleUpdateStep(index, {
+                            example: { output: e.target.value },
+                            output: e.target.value,
+                          })
                         }
                         placeholder="e.g. Ceramic espresso cup on volcanic rock"
                         className="text-xs"

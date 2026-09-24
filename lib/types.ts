@@ -41,20 +41,94 @@ export interface RecommendedTool {
   badge?: string;
 }
 
+export interface TemplateVariable {
+  name: string;
+  description?: string;
+  defaultValue?: string;
+}
+
+export interface TemplateStepImage {
+  url: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface TemplateStepExample {
+  input?: string;
+  output?: string;
+}
+
+/**
+ * CANONICAL SINGLE SOURCE OF TRUTH STEP MODEL
+ * Used identically across Admin Template Builder, Guide Creation,
+ * Workflow Canvas, Template Preview, and User Template Detail Page.
+ */
+export interface TemplateStep {
+  id: string;
+  order: number;
+
+  title: string;
+  shortTitle?: string;
+
+  description?: string;
+
+  prompt?: string;
+
+  purpose?: string;
+
+  instructions?: string[];
+
+  variables?: TemplateVariable[];
+
+  image?: TemplateStepImage;
+
+  example?: TemplateStepExample | string;
+
+  tips?: string[];
+
+  metadata?: Record<string, unknown>;
+
+  // Backward compatibility aliases
+  stepNumber: number;
+  step?: number;
+  instruction?: string;
+  tip?: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  promptCategory?: string;
+  promptVariables?: { name: string; description?: string; defaultValue?: string }[];
+  slideNumber?: number;
+  slideTitle?: string;
+  visualDirection?: string;
+  layout?: string;
+  output?: string;
+  notes?: string;
+  asset?: VideoAsset | WebsiteAsset | PresentationAsset | DesignAsset;
+  examplePrompt?: string;
+  [key: string]: any;
+}
+
+export interface TemplateWorkflow {
+  steps: TemplateStep[];
+  layout?: string;
+  config?: Record<string, unknown>;
+}
+
 export interface UsageStep {
   stepNumber: number;
   title: string;
-  instruction: string;
+  instruction?: string;
   tip?: string;
   asset?: VideoAsset | WebsiteAsset | PresentationAsset | DesignAsset;
   examplePrompt?: string;
   prompt?: string;
   promptCategory?: string;
-  promptVariables?: { name: string; description: string; defaultValue?: string }[];
+  promptVariables?: { name: string; description?: string; defaultValue?: string }[];
   slideNumber?: number;
   slideTitle?: string;
   imageUrl?: string;
   imageCaption?: string;
+  [key: string]: any;
 }
 
 export interface GuideStep {
@@ -67,9 +141,10 @@ export interface GuideStep {
   imageCaption?: string;
   prompt?: string;
   promptCategory?: string;
-  promptVariables?: { name: string; description: string; defaultValue?: string }[];
+  promptVariables?: { name: string; description?: string; defaultValue?: string }[];
   slideNumber?: number;
   slideTitle?: string;
+  [key: string]: any;
 }
 
 export type VideoGenerationType =
@@ -361,6 +436,7 @@ export interface Template {
   style: string;
   mood: string;
   recommendedTools: RecommendedTool[];
+  workflow?: TemplateWorkflow;
   usageSteps?: UsageStep[];
   videoUrl?: string;
   videoWorkflow?: VideoWorkflowConfig;

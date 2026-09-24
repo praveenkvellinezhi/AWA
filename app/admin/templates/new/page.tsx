@@ -4,7 +4,8 @@ import React, { useState, useEffect, useTransition, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDemo } from "@/lib/demo-context";
-import { Template, UsageStep, SlidePrompt } from "@/lib/types";
+import { Template, UsageStep, SlidePrompt, TemplateStep, TemplateWorkflow } from "@/lib/types";
+import { normalizeTemplateStep, combineFullTemplatePrompt } from "@/lib/template-workflow";
 import {
   ArrowLeft,
   Save,
@@ -153,20 +154,14 @@ function TemplateBuilderContent() {
       }));
     }
 
-    if (existing.usageSteps && existing.usageSteps.length > 0) {
+    // CANONICAL SINGLE SOURCE OF TRUTH: Load template.workflow.steps first!
+    if (existing.workflow?.steps && existing.workflow.steps.length > 0) {
       setWorkflowSteps(
-        existing.usageSteps.map((us, idx) => ({
-          id: `step-${idx + 1}`,
-          stepNumber: us.stepNumber,
-          title: us.title,
-          description: us.instruction,
-          prompt: us.prompt || us.examplePrompt || "",
-          inputVariables: (us.promptVariables || []).map((v) => `[${v.name}]`),
-          output: "Workflow execution output",
-          example: us.tip || "",
-          imageUrl: us.imageUrl,
-          notes: us.tip,
-        }))
+        existing.workflow.steps.map((ws, idx) => normalizeTemplateStep(ws, idx))
+      );
+    } else if (existing.usageSteps && existing.usageSteps.length > 0) {
+      setWorkflowSteps(
+        existing.usageSteps.map((us, idx) => normalizeTemplateStep(us, idx))
       );
     }
   }, [editId, templates]);
@@ -262,20 +257,17 @@ function TemplateBuilderContent() {
       basicInfo.slug ||
       basicInfo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-    // Transform workflow steps to standard UsageStep
-    const usageStepsPayload: UsageStep[] = workflowSteps.map((ws) => ({
-      stepNumber: ws.stepNumber,
-      title: ws.title,
-      instruction: ws.description,
-      tip: ws.notes || ws.example,
-      prompt: ws.prompt,
-      examplePrompt: ws.prompt,
-      imageUrl: ws.imageUrl,
-      promptVariables: ws.inputVariables.map((v) => ({
-        name: v.replace(/[\[\]]/g, ""),
-        description: `Variable ${v}`,
-      })),
-    }));
+    // CANONICAL SINGLE SOURCE OF TRUTH: All surfaces consume template.workflow.steps
+    const canonicalSteps: TemplateStep[] = workflowSteps.map((ws, idx) =>
+      normalizeTemplateStep(ws, idx)
+    );
+
+    const workflowPayload: TemplateWorkflow = {
+      steps: canonicalSteps,
+    };
+
+    // Backward-compatibility mirror
+    const usageStepsPayload: UsageStep[] = canonicalSteps;
 
     // Slide Prompts
     const slidePromptsPayload: SlidePrompt[] =
@@ -351,6 +343,7 @@ function TemplateBuilderContent() {
           ? slidesData.tone
           : "Professional High-Conversion",
       recommendedTools,
+      workflow: workflowPayload,
       usageSteps: usageStepsPayload,
       slidePrompts: slidePromptsPayload.length > 0 ? slidePromptsPayload : undefined,
       thumbnailGradient: "from-slate-900 via-emerald-950 to-slate-900",

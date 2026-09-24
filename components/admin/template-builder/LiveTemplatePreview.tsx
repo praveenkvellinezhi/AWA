@@ -344,55 +344,36 @@ export function LiveTemplatePreview({
           </div>
         )}
 
-        {/* Prompt Workflow Steps Section */}
+        {/* Execution Steps Section */}
         <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Prompt Workflow ({workflowSteps.length} Steps)</span>
+              <span>Execution Steps ({workflowSteps.length} Steps)</span>
             </span>
             <span className="text-[10px] text-slate-400">
-              Copyable pipeline
+              How-to guide
             </span>
           </div>
 
           <div className="space-y-2">
-            {workflowSteps.map((step, idx) => (
+            {workflowSteps.map((step) => (
               <div
                 key={step.id}
                 className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2A] space-y-1.5"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
-                      {step.stepNumber}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
-                      {step.title}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleCopyStep(step.prompt, idx)}
-                    className="p-1 rounded text-slate-400 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
-                    title="Copy this step prompt"
-                  >
-                    {copiedStepIndex === idx ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                    {step.stepNumber}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                    {step.title}
+                  </span>
                 </div>
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight">
-                  {step.description}
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                  {step.description || step.instruction}
                 </p>
-
-                <div className="p-1.5 rounded bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-mono text-[10px] line-clamp-2">
-                  {step.prompt}
-                </div>
               </div>
             ))}
           </div>

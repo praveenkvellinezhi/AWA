@@ -23,6 +23,7 @@ import {
   DesignGenerationType,
   DesignDimensions,
   UsageStep,
+  TemplateStep,
 } from "@/lib/types";
 import {
   getDesignWorkflowTitle,
@@ -51,7 +52,7 @@ interface DesignGenerationGuideProps {
   requiresMultiFormatResize?: boolean;
   multiFormats?: string[];
   prompt?: string;
-  steps: UsageStep[];
+  steps: (UsageStep | TemplateStep)[];
   isSubscriber: boolean;
   completedSteps: number[];
   onToggleStep: (stepNumber: number) => void;

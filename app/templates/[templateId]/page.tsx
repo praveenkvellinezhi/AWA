@@ -81,7 +81,12 @@ import { WebsiteGenerationGuide } from "@/components/website-generation-guide";
 import { PresentationGenerationGuide } from "@/components/presentation-generation-guide";
 import { DesignGenerationGuide } from "@/components/design-generation-guide";
 import { VisualStepGuide } from "@/components/visual-step-guide";
-import { UsageStep } from "@/lib/types";
+import { UsageStep, TemplateStep } from "@/lib/types";
+import {
+  combineFullTemplatePrompt,
+  getTemplateWorkflowSteps,
+  normalizeTemplateStep,
+} from "@/lib/template-workflow";
 
 interface TemplatePageProps {
   params: Promise<{
@@ -127,6 +132,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
   const templatePrompts = useMemo(() => {
     return getTemplatePrompts(template);
+  }, [template]);
+
+  const fullCanonicalPrompt = useMemo(() => {
+    return combineFullTemplatePrompt(template);
   }, [template]);
 
   const liked = isLiked(template.id);
@@ -391,7 +400,11 @@ export default function TemplatePage({ params }: TemplatePageProps) {
       activeGuideTool.toolName,
       activeGuideTool.modelName
     );
-    let rawSteps: UsageStep[] = resolved.steps;
+    // CANONICAL SINGLE SOURCE OF TRUTH: Prioritize template.workflow.steps
+    const rawSteps: (UsageStep | TemplateStep)[] =
+      template.workflow?.steps && template.workflow.steps.length > 0
+        ? template.workflow.steps
+        : resolved.steps;
 
     // Collect all workflow assets across workflows if available
     const workflowAssets = [
@@ -494,16 +507,22 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     }
 
     return rawSteps.map((s, idx) => {
-      // If s already has an explicit imageUrl, preserve it
-      if (s.imageUrl) {
+      const canonical = normalizeTemplateStep(s, idx);
+      const existingImg = canonical.image?.url || canonical.imageUrl;
+
+      // If step already has an explicit image or imageUrl, preserve it
+      if (existingImg) {
         return {
-          ...s,
+          ...canonical,
+          order: idx + 1,
           stepNumber: idx + 1,
+          imageUrl: existingImg,
+          image: canonical.image || { url: existingImg },
         };
       }
 
       // Check if any workflow asset explicitly matches this step
-      const stepText = `${s.title} ${s.instruction}`.toLowerCase();
+      const stepText = `${canonical.title} ${canonical.description || canonical.instruction || ""}`.toLowerCase();
       const matchedAsset = workflowAssets.find((a) => {
         const lbl = (a.label || "").toLowerCase();
         return lbl && stepText.includes(lbl);
@@ -511,9 +530,11 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
       if (matchedAsset && matchedAsset.url) {
         return {
-          ...s,
+          ...canonical,
+          order: idx + 1,
           stepNumber: idx + 1,
           imageUrl: matchedAsset.url,
+          image: { url: matchedAsset.url, caption: `${matchedAsset.label} Reference` },
           imageCaption: `${matchedAsset.label} Reference`,
         };
       }
@@ -521,33 +542,41 @@ export default function TemplatePage({ params }: TemplatePageProps) {
       // Assign guideline images based on matched checkpoints
       if (idx === refStepIdx && slides[1]?.url) {
         return {
-          ...s,
+          ...canonical,
+          order: idx + 1,
           stepNumber: idx + 1,
           imageUrl: slides[1].url,
+          image: { url: slides[1].url, caption: "Guideline: Composition & Reference Setup" },
           imageCaption: "Guideline: Composition & Reference Setup",
         };
       }
 
       if (idx === styleStepIdx && slides[2]?.url) {
         return {
-          ...s,
+          ...canonical,
+          order: idx + 1,
           stepNumber: idx + 1,
           imageUrl: slides[2].url,
+          image: { url: slides[2].url, caption: "Guideline: Lighting & Style Architecture" },
           imageCaption: "Guideline: Lighting & Style Architecture",
         };
       }
 
       if (idx === benchmarkStepIdx && (slides[0]?.url || template.imageUrl)) {
+        const fallbackUrl = slides[0]?.url || template.imageUrl!;
         return {
-          ...s,
+          ...canonical,
+          order: idx + 1,
           stepNumber: idx + 1,
-          imageUrl: slides[0]?.url || template.imageUrl,
+          imageUrl: fallbackUrl,
+          image: { url: fallbackUrl, caption: "Guideline: Expected Output Benchmark" },
           imageCaption: "Guideline: Expected Output Benchmark",
         };
       }
 
       return {
-        ...s,
+        ...canonical,
+        order: idx + 1,
         stepNumber: idx + 1,
       };
     });
@@ -874,7 +903,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                   templateId={template.id}
                   uiPrompt={templatePrompts.uiPrompt}
                   contextPrompt={templatePrompts.contextPrompt}
-                  originalPrompt={template.promptText}
+                  originalPrompt={fullCanonicalPrompt || template.promptText}
                   isCustomizeOpen={isCustomizeOpen}
                   onCustomizeClick={() => setIsCustomizeOpen(!isCustomizeOpen)}
                   onCopySuccess={() => setHasCopiedPrompt(true)}
@@ -886,7 +915,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                       templateId={template.id}
                       uiPrompt={templatePrompts.uiPrompt}
                       contextPrompt={templatePrompts.contextPrompt}
-                      originalPrompt={template.promptText}
+                      originalPrompt={fullCanonicalPrompt || template.promptText}
                       onClose={() => setIsCustomizeOpen(false)}
                     />
                   </div>

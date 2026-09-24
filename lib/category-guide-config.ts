@@ -1,4 +1,12 @@
-import { UsageStep, GuideStep, PresentationWorkflowPrompts, SlidePrompt } from "./types";
+import {
+  UsageStep,
+  GuideStep,
+  PresentationWorkflowPrompts,
+  SlidePrompt,
+  TemplateStep,
+  TemplateWorkflow,
+} from "./types";
+import { normalizeTemplateStep } from "./template-workflow";
 import { buildPresentationPromptSteps } from "./presentation-guide-generator";
 
 export type CategoryKey =
@@ -53,6 +61,7 @@ export interface TemplateGuideContext {
     reason?: string;
     badge?: string;
   }>;
+  workflow?: TemplateWorkflow;
   usageSteps?: UsageStep[];
 }
 
@@ -1684,6 +1693,21 @@ export function resolveTemplateGuide(
     )?.modelName ||
     "";
 
+  // 1. CANONICAL SINGLE SOURCE OF TRUTH:
+  // If template has explicit workflow.steps created by the admin builder, USE THEM DIRECTLY!
+  if (template.workflow?.steps && template.workflow.steps.length > 0) {
+    const canonicalSteps = template.workflow.steps.map((s, idx) =>
+      normalizeTemplateStep(s, idx)
+    );
+    return {
+      categoryKey,
+      config,
+      toolName: effectiveToolName,
+      modelName: effectiveModelName,
+      steps: canonicalSteps,
+    };
+  }
+
   // Check if template has custom usageSteps defined
   // Only use template.usageSteps if it exists AND does NOT contain leaked website steps for non-website categories
   let steps: UsageStep[];
@@ -1731,7 +1755,7 @@ export function resolveTemplateGuide(
       });
 
     if (!isLeakedWebsiteStep && !isGenericEducationalSlideStep) {
-      steps = template.usageSteps;
+      steps = template.usageSteps.map((s, idx) => normalizeTemplateStep(s, idx));
     } else {
       steps = generateCategoryToolSteps(
         categoryKey,
@@ -1759,21 +1783,28 @@ export function resolveTemplateGuide(
 }
 
 /**
- * Transforms an array of UsageStep objects into standard GuideStep objects for the animated workflow.
+ * Transforms an array of UsageStep or TemplateStep objects into standard GuideStep objects
+ * for the animated workflow canvas, strictly preserving ALL prompt directives and metadata.
  */
-export function mapToGuideSteps(steps: UsageStep[]): GuideStep[] {
-  return steps.map((s, idx) => ({
-    id: `step-${s.stepNumber || idx + 1}`,
-    step: s.stepNumber || idx + 1,
-    title: s.title,
-    description: s.instruction,
-    tip: s.tip,
-    image: s.imageUrl,
-    imageCaption: s.imageCaption,
-    prompt: s.prompt || s.examplePrompt,
-    promptCategory: s.promptCategory,
-    promptVariables: s.promptVariables,
-    slideNumber: s.slideNumber,
-    slideTitle: s.slideTitle,
-  }));
+export function mapToGuideSteps(steps: (UsageStep | TemplateStep)[]): GuideStep[] {
+  return steps.map((s: any, idx) => {
+    const canonical = normalizeTemplateStep(s, idx);
+    return {
+      ...canonical,
+      id: canonical.id,
+      step: canonical.order,
+      order: canonical.order,
+      stepNumber: canonical.order,
+      title: canonical.title,
+      description: canonical.description || canonical.instruction || "",
+      tip: canonical.tips?.[0] || canonical.tip,
+      image: canonical.image?.url || canonical.imageUrl,
+      imageCaption: canonical.image?.caption || canonical.imageCaption,
+      prompt: canonical.prompt,
+      promptCategory: canonical.promptCategory,
+      promptVariables: canonical.variables || canonical.promptVariables,
+      slideNumber: canonical.slideNumber,
+      slideTitle: canonical.slideTitle,
+    };
+  });
 }

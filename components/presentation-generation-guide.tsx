@@ -26,6 +26,7 @@ import {
   PresentationGenerationType,
   UsageStep,
   SlidePrompt,
+  TemplateStep,
 } from "@/lib/types";
 import {
   getPresentationWorkflowTitle,
@@ -43,7 +44,7 @@ interface PresentationGenerationGuideProps {
   prompt?: string;
   outline?: string[];
   slides?: SlidePrompt[];
-  steps: UsageStep[];
+  steps: (UsageStep | TemplateStep)[];
   isSubscriber: boolean;
   completedSteps: number[];
   onToggleStep: (stepNumber: number) => void;

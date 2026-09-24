@@ -22,6 +22,7 @@ import {
   WebsiteAsset,
   WebsiteGenerationType,
   UsageStep,
+  TemplateStep,
 } from "@/lib/types";
 import {
   getWebsiteWorkflowTitle,
@@ -38,7 +39,7 @@ interface WebsiteGenerationGuideProps {
   pages?: string[];
   features?: string[];
   prompt?: string;
-  steps: UsageStep[];
+  steps: (UsageStep | TemplateStep)[];
   isSubscriber: boolean;
   completedSteps: number[];
   onToggleStep: (stepNumber: number) => void;

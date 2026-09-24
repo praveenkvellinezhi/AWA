@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   X,
   Check,
@@ -10,9 +10,6 @@ import {
   Lightbulb,
   Sparkles,
   BookOpen,
-  Copy,
-  Terminal,
-  Sliders,
 } from "lucide-react";
 import { GuideStep } from "@/lib/types";
 
@@ -66,32 +63,6 @@ function FormattedStepText({ text }: { text?: string }) {
   );
 }
 
-/**
- * Formats AI prompt template text with highlighted bracketed variable tokens [VARIABLE]
- */
-function FormattedPromptText({ text }: { text: string }) {
-  if (!text) return null;
-  const parts = text.split(/(\[[A-Z0-9\s/_\-–—]+\])/g);
-
-  return (
-    <pre className="font-mono text-xs text-slate-200 leading-relaxed whitespace-pre-wrap select-text break-words font-normal">
-      {parts.map((part, i) => {
-        if (part.startsWith("[") && part.endsWith("]")) {
-          return (
-            <span
-              key={i}
-              className="px-1.5 py-0.5 mx-0.5 rounded-md bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 font-semibold text-[11px] inline-block my-0.5"
-            >
-              {part}
-            </span>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </pre>
-  );
-}
-
 export function StepDetailModal({
   step,
   stepIndex,
@@ -108,14 +79,6 @@ export function StepDetailModal({
   toolName = "AI Tool",
   onImageClick,
 }: StepDetailModalProps) {
-  const [isCopied, setIsCopied] = useState(false);
-
-  const handleCopyPrompt = () => {
-    if (!step?.prompt) return;
-    navigator.clipboard.writeText(step.prompt);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
 
   // Handle keyboard shortcuts (Escape to close, Left/Right arrows to navigate)
   const handleKeyDown = useCallback(
@@ -216,82 +179,6 @@ export function StepDetailModal({
 
         {/* Modal Body (Scrollable) */}
         <div className="p-5 overflow-y-auto space-y-4">
-          {/* USABLE AI PROMPT SECTION (When prompt is available) */}
-          {step.prompt && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-900 dark:text-white">
-                  <Terminal className="h-4 w-4 text-cyan-500" />
-                  <span>USABLE AI PROMPT</span>
-                  {step.promptCategory && (
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
-                      {step.promptCategory}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleCopyPrompt}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 transition-all shadow-sm ${
-                    isCopied
-                      ? "bg-emerald-600 text-white shadow-emerald-600/30"
-                      : "bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-600/20 ring-1 ring-cyan-500/30 active:scale-95"
-                  }`}
-                  title="Copy prompt to clipboard"
-                >
-                  {isCopied ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-100" />
-                      <span>Copied to Clipboard!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5 text-cyan-100" />
-                      <span>Copy Full Prompt</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Code block with syntax styling */}
-              <div className="relative rounded-xl bg-slate-950 p-4 border border-slate-800 dark:border-cyan-500/30 shadow-inner group/code">
-                <FormattedPromptText text={step.prompt} />
-              </div>
-
-              {/* Variables breakdown list */}
-              {step.promptVariables && step.promptVariables.length > 0 && (
-                <div className="mt-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-                    <Sliders className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-                    <span>Prompt Variables & Parameters ({step.promptVariables.length})</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {step.promptVariables.map((v, vIdx) => (
-                      <div
-                        key={`var-${v.name}-${vIdx}`}
-                        className="p-2 rounded-lg bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs flex flex-col sm:flex-row sm:items-baseline justify-between gap-1"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <code className="px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 font-mono text-[11px] font-bold">
-                            {v.name}
-                          </code>
-                          <span className="text-slate-600 dark:text-slate-400 text-[11px]">
-                            {v.description}
-                          </span>
-                        </div>
-                        {v.defaultValue && (
-                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 italic truncate max-w-[260px]">
-                            Default: {v.defaultValue}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Detailed Instruction Section */}
           <div className="space-y-2">

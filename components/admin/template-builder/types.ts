@@ -1,4 +1,12 @@
-import { UsageStep, SlidePrompt, VideoWorkflowConfig, WebsiteWorkflowConfig, PresentationWorkflowConfig, DesignWorkflowConfig } from "@/lib/types";
+import {
+  UsageStep,
+  SlidePrompt,
+  VideoWorkflowConfig,
+  WebsiteWorkflowConfig,
+  PresentationWorkflowConfig,
+  DesignWorkflowConfig,
+  TemplateStep,
+} from "@/lib/types";
 
 export type TemplateCategoryKey = "image" | "video" | "website" | "slides" | "poster";
 
@@ -151,17 +159,8 @@ export interface PosterBuilderData {
   prompt: string;
 }
 
-export interface WorkflowStepItem {
-  id: string;
-  stepNumber: number;
-  title: string;
-  description: string;
-  prompt: string;
-  inputVariables: string[];
-  output: string;
-  example: string;
-  imageUrl?: string;
-  notes?: string;
+export interface WorkflowStepItem extends TemplateStep {
+  inputVariables?: string[];
 }
 
 export interface ValidationErrors {

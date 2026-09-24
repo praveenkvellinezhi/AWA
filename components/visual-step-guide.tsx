@@ -9,7 +9,7 @@ import {
   X,
   Image as ImageIcon,
 } from "lucide-react";
-import { UsageStep } from "@/lib/types";
+import { UsageStep, TemplateStep } from "@/lib/types";
 import { mapToGuideSteps } from "@/lib/category-guide-config";
 import { AnimatedWorkflowGuide } from "@/components/animated-workflow-guide";
 
@@ -25,7 +25,7 @@ export type GuideCategory =
 interface VisualStepGuideProps {
   category?: GuideCategory | string;
   tool: string;
-  steps: UsageStep[];
+  steps: (UsageStep | TemplateStep)[];
   prompt?: string;
   templateThumbnail?: string;
   aspectRatio?: string;

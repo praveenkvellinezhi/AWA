@@ -3,7 +3,7 @@
 import React, { memo, useRef, useEffect, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { motion } from "motion/react";
-import { Check, Maximize2, Sparkles, Copy } from "lucide-react";
+import { Check, Maximize2, Sparkles } from "lucide-react";
 import { GuideStep } from "@/lib/types";
 
 export interface GuideStepNodeData extends Record<string, unknown> {
@@ -78,16 +78,7 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
     nodeWidth,
   } = data;
 
-  const [isCopied, setIsCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleCopyPrompt = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!step.prompt) return;
-    navigator.clipboard.writeText(step.prompt);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
 
   // Measure exact rendered height and observe future dimension changes (e.g. image loads)
   useEffect(() => {
@@ -283,127 +274,47 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
           </div>
         )}
 
-        {/* Usable AI Prompt Preview Box */}
-        {step.prompt && (
-          <div className="mt-3 p-3 rounded-xl bg-slate-900/90 dark:bg-black/60 border border-cyan-500/25 text-left font-mono text-[11px] leading-relaxed group/prompt relative overflow-hidden shadow-inner">
-            <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-800 text-[10px]">
-              <span className="flex items-center gap-1 font-bold text-cyan-400">
-                <Sparkles className="h-3 w-3 text-cyan-400" />
-                <span>{step.promptCategory ? `PROMPT — ${step.promptCategory.toUpperCase()}` : "AI PROMPT"}</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-mono">
-                Click for full prompt
-              </span>
-            </div>
-            <p className="line-clamp-3 text-slate-300 font-mono text-[11px] select-text break-words">
-              {step.prompt}
-            </p>
-          </div>
-        )}
-
-        {/* Interactive Action Bar: Prompt Workflow vs Standard Mode */}
-        {step.prompt ? (
-          <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center gap-2">
+        {/* Action Bar */}
+        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
+          {isCompleted ? (
             <button
               type="button"
-              onClick={handleCopyPrompt}
-              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-[0.98] ${
-                isCopied
-                  ? "bg-emerald-600 text-white shadow-emerald-600/30 ring-1 ring-emerald-400/50"
-                  : "bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-600/25 ring-1 ring-cyan-500/40"
-              }`}
-              title="Copy this AI prompt to clipboard"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleComplete?.(step.step);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group/btn"
+              title="Click to unmark as done"
             >
-              {isCopied ? (
-                <>
-                  <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-100" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5 text-cyan-100" />
-                  <span>Copy Prompt</span>
-                </>
-              )}
+              <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400" />
+              <span>Done</span>
             </button>
-
-            {isCompleted ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleComplete?.(step.step);
-                }}
-                className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm"
-                title="Mark incomplete"
-              >
-                <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400" />
-                <span>Done</span>
-              </button>
-            ) : isRevealed ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCompleteAndConnect?.(stepIndex);
-                }}
-                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all shadow-sm ${
-                  isActive
-                    ? "bg-slate-900 text-white hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700"
-                }`}
-                title="Mark step done and advance"
-              >
-                <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                <span>Done</span>
-              </button>
-            ) : (
-              <div className="py-2 px-2 text-slate-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-slate-400 block" />
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
-            {isCompleted ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleComplete?.(step.step);
-                }}
-                className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group/btn"
-                title="Click to unmark as done"
-              >
-                <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400" />
-                <span>Done</span>
-              </button>
-            ) : isRevealed ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCompleteAndConnect?.(stepIndex);
-                }}
-                className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] group/btn ${isActive
-                    ? "bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-600/25 ring-1 ring-cyan-500/30"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 dark:text-slate-200 dark:border-slate-700 shadow-sm"
-                  }`}
-                title={`Mark Step ${step.step} as done`}
-              >
-                <Check className="h-4 w-4 stroke-[2.5]" />
-                <span>Done</span>
-              </button>
-            ) : (
-              <div className="w-full py-2 flex items-center justify-center">
-                <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-                  Pending Connection
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+          ) : isRevealed ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCompleteAndConnect?.(stepIndex);
+              }}
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] group/btn ${
+                isActive
+                  ? "bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-600/25 ring-1 ring-cyan-500/30"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 dark:text-slate-200 dark:border-slate-700 shadow-sm"
+              }`}
+              title={`Mark Step ${step.step} as done`}
+            >
+              <Check className="h-4 w-4 stroke-[2.5]" />
+              <span>Done</span>
+            </button>
+          ) : (
+            <div className="w-full py-2 flex items-center justify-center">
+              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                Pending Connection
+              </span>
+            </div>
+          )}
+        </div>
       </motion.div>
 
       {/* Source Handle (Output Connection Node) */}
