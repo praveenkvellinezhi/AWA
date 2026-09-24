@@ -452,8 +452,16 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Admin Main Workspace Content - Only this section scrolls */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto w-full">{children}</main>
+        {/* Admin Main Workspace Content - On template builder, allow full-bleed height without outer scroll */}
+        <main
+          className={`flex-1 min-w-0 w-full ${
+            pathname?.startsWith("/admin/templates/new")
+              ? "p-0 overflow-hidden flex flex-col"
+              : "p-4 sm:p-8 overflow-y-auto"
+          }`}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

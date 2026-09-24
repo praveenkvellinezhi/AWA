@@ -257,6 +257,14 @@ export function Navbar() {
           >
             Blog
           </Link>
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 transition-colors border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold"
+            title="AWA Administrator Console"
+          >
+            <Shield className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+            <span>Admin</span>
+          </Link>
         </nav>
 
         {/* 3. Right Actions: Search + Collection + Theme + Sign In / Get Started */}
@@ -565,19 +573,22 @@ export function Navbar() {
                     </Link>
                   </div>
 
-                  {/* Admin Console (if Admin) */}
-                  {isAdmin && (
-                    <div className="py-1 border-t border-zinc-800/80 text-xs">
-                      <Link
-                        href="/admin"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
-                      >
-                        <Shield className="h-4 w-4 text-slate-400" />
-                        <span>Administrator Sign In</span>
-                      </Link>
-                    </div>
-                  )}
+                  {/* Admin Console */}
+                  <div className="py-1 border-t border-zinc-800/80 text-xs">
+                    <Link
+                      href="/admin"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Shield className="h-4 w-4 text-emerald-400" />
+                        <span>Admin Console</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                        {isAdmin ? "Admin Active" : "Portal"}
+                      </span>
+                    </Link>
+                  </div>
 
                   {/* Theme Toggle Row */}
                   <div className="py-1 border-t border-zinc-800/80">

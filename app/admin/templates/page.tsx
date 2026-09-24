@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { useDemo } from "@/lib/demo-context";
 import { Template } from "@/lib/types";
@@ -331,16 +332,28 @@ export default function AdminTemplatesPage() {
             </div>
           </div>
 
-          {/* Shadcn Button: "+ Add New Template" toggles authoring form */}
-          <Button
-            variant="forest"
-            size="default"
-            onClick={openNewEditor}
-            className="gap-2 shrink-0 self-start sm:self-auto"
-          >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-            <span>{isEditorOpen && !editingTemplateId ? "Hide Authoring Form" : "+ Add New Template"}</span>
-          </Button>
+          {/* Actions: Launch Dedicated Visual Builder or Quick Inline */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto flex-wrap">
+            <Button
+              variant="outline"
+              size="default"
+              onClick={openNewEditor}
+              className="gap-1.5 text-xs text-slate-600 dark:text-slate-300"
+            >
+              <span>{isEditorOpen && !editingTemplateId ? "Hide Quick Form" : "Quick Form"}</span>
+            </Button>
+
+            <Link href="/admin/templates/new">
+              <Button
+                variant="forest"
+                size="default"
+                className="gap-2 shadow-xs"
+              >
+                <Plus className="h-4 w-4 stroke-[2.5]" />
+                <span>+ Add Template (Visual Builder)</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -1029,15 +1042,16 @@ export default function AdminTemplatesPage() {
                     {/* Actions using Shadcn Button and DropdownMenu */}
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditEditor(template)}
-                          className="h-8 w-8 text-slate-400 hover:text-[#008235] hover:bg-slate-100 dark:hover:bg-slate-800"
-                          title="Edit template"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
+                        <Link href={`/admin/templates/new?edit=${template.id}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-[#008235] hover:bg-slate-100 dark:hover:bg-slate-800"
+                            title="Edit in Visual Builder"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </Link>
 
                         <Button
                           variant="ghost"
@@ -1069,9 +1083,18 @@ export default function AdminTemplatesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="right">
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href={`/admin/templates/new?edit=${template.id}`}
+                                className="flex items-center cursor-pointer"
+                              >
+                                <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-500" />
+                                <span>Edit in Visual Builder</span>
+                              </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openEditEditor(template)}>
                               <Pencil className="h-3.5 w-3.5 mr-2 text-slate-400" />
-                              <span>Edit Template</span>
+                              <span>Quick Edit Form</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
