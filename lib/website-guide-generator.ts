@@ -6,6 +6,7 @@ import {
   WebsiteGenerationType,
   WebsiteWorkflowConfig,
 } from "./types";
+import { getTemplateCategoryKey, generateCategoryToolSteps } from "./category-guide-config";
 
 /**
  * Normalizes tool name for matching.
@@ -20,96 +21,14 @@ function normalizeTool(name: string): string {
 export function isWebsiteGenerationTemplate(template: {
   categoryId?: string;
   categoryName?: string;
+  category?: string;
   tags?: string[];
   recommendedTools?: { toolName: string }[];
   description?: string;
   name?: string;
+  slug?: string;
 }): boolean {
-  const catId = (template.categoryId || "").toLowerCase();
-  const catName = (template.categoryName || "").toLowerCase();
-  const name = (template.name || "").toLowerCase();
-  const desc = (template.description || "").toLowerCase();
-  const tags = (template.tags || []).map((t) => t.toLowerCase());
-
-  // Category matching
-  if (
-    catId === "cat-web-code" ||
-    catId === "cat-website-making" ||
-    catId.includes("web") ||
-    catName.includes("website") ||
-    catName.includes("saas") ||
-    catName.includes("portfolio") ||
-    catName.includes("apps") ||
-    catName.includes("hero") ||
-    catName.includes("sections")
-  ) {
-    return true;
-  }
-
-  // Tag matching
-  const webKeywords = [
-    "landing page",
-    "website",
-    "web app",
-    "saas",
-    "portfolio",
-    "ecommerce",
-    "e-commerce",
-    "dashboard",
-    "web",
-    "ui",
-    "frontend",
-    "fullstack",
-    "v0",
-    "bolt",
-    "lovable",
-    "framer",
-    "stitch",
-    "cursor",
-    "replit",
-    "antigravity",
-    "webflow",
-    "wix",
-    "figma",
-  ];
-
-  if (tags.some((t) => webKeywords.some((kw) => t.includes(kw)))) {
-    return true;
-  }
-
-  // Tool matching
-  const webTools = [
-    "v0",
-    "lovable",
-    "bolt",
-    "framer",
-    "stitch",
-    "replit",
-    "antigravity",
-    "cursor",
-    "webflow",
-    "wix",
-  ];
-
-  const hasWebTool = (template.recommendedTools || []).some((tool) =>
-    webTools.some((wt) => tool.toolName.toLowerCase().includes(wt))
-  );
-  if (hasWebTool) return true;
-
-  // Name / description matching
-  if (
-    name.includes("landing page") ||
-    name.includes("website") ||
-    name.includes("portfolio") ||
-    name.includes("dashboard") ||
-    name.includes("saas") ||
-    desc.includes("landing page") ||
-    desc.includes("website")
-  ) {
-    return true;
-  }
-
-  return false;
+  return getTemplateCategoryKey(template) === "website-generation";
 }
 
 /**
@@ -386,6 +305,12 @@ export function generateWebsiteGuide(
   modelName?: string,
   context?: GuideContext
 ): UsageStep[] {
+  return generateCategoryToolSteps("website-generation", toolName, modelName, {
+    name: context?.templateName,
+    promptText: context?.promptText || workflow.prompt,
+    style: context?.style,
+    categoryId: context?.categoryId,
+  });
   function buildSteps(): UsageStep[] {
     const norm = normalizeTool(toolName);
   const genType = workflow.generationType;

@@ -14,7 +14,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-awa-border bg-awa-dark/95 py-12 text-slate-400 text-sm">
+    <footer className="border-t border-slate-200 dark:border-zinc-850 bg-slate-50 dark:bg-awa-dark/95 py-12 text-slate-600 dark:text-slate-400 text-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Column */}
@@ -36,11 +36,11 @@ export function Footer() {
                 GUIDE
               </span>
             </div>
-            <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
               The AI Creation Guide Platform. Instant expert-authored prompts, matched AI tools with one-line rationales, and step-by-step guidance for Midjourney, Runway, Sora, and modern creative AI.
             </p>
-            <div className="pt-2 text-[11px] text-slate-400 flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+            <div className="pt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-500 shrink-0" />
               <span>
                 <strong>Product Boundary:</strong> AWA prepares expert prompts and tool workflows. Final rendering is executed on external AI tools by the user.
               </span>
@@ -49,33 +49,33 @@ export function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
               Creation Categories
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/categories/cat-image-gen" className="hover:text-indigo-300 transition-colors">
+                <Link href="/categories/cat-image-gen" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Image Generation
                 </Link>
               </li>
               <li>
-                <Link href="/categories/cat-video-gen" className="hover:text-indigo-300 transition-colors">
+                <Link href="/categories/cat-video-gen" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Video Generation
                 </Link>
               </li>
               <li>
-                <Link href="/categories/cat-website-making" className="hover:text-indigo-300 transition-colors">
+                <Link href="/categories/cat-website-making" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Website Making
                 </Link>
               </li>
               <li>
-                <Link href="/categories/cat-slides-presentations" className="hover:text-indigo-300 transition-colors">
-                  Slides & Presentations
+                <Link href="/categories/cat-slides-presentations" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
+                  Slides &amp; Presentations
                 </Link>
               </li>
               <li>
-                <Link href="/categories/cat-poster-design" className="hover:text-indigo-300 transition-colors">
-                  Poster & Design
+                <Link href="/categories/cat-poster-design" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
+                  Poster &amp; Design
                 </Link>
               </li>
             </ul>
@@ -83,44 +83,44 @@ export function Footer() {
 
           {/* Platform / Demo */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
               Platform Demo
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/login" className="hover:text-indigo-300 transition-colors">
+                <Link href="/login" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Sign In / Sign Up
                 </Link>
               </li>
               <li>
-                <Link href="/unlimited" className="hover:text-indigo-300 transition-colors">
+                <Link href="/unlimited" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Subscription Plans (₹199/yr)
                 </Link>
               </li>
               <li>
-                <Link href="/credits" className="hover:text-indigo-300 transition-colors">
+                <Link href="/credits" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                   Buy AI Credits
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="hover:text-purple-300 transition-colors flex items-center gap-1">
+                <Link href="/admin" className="hover:text-purple-600 dark:hover:text-purple-300 transition-colors flex items-center gap-1">
                   Administrator Portal <ArrowUpRight className="h-3 w-3" />
                 </Link>
               </li>
               <li>
-                <Link href="/profile" className="hover:text-indigo-300 transition-colors">
-                  User Account & Devices
+                <Link href="/profile" className="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
+                  User Account &amp; Devices
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+        <div className="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-4">
           <p>© {new Date().getFullYear()} AWA Platform. UI-Only Demonstration Build.</p>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1 text-slate-400">
-              Built with Next.js & Tailwind CSS
+            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+              Built with Next.js &amp; Tailwind CSS
             </span>
           </div>
         </div>

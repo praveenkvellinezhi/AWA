@@ -6,6 +6,7 @@ import {
   VideoGenerationType,
   VideoWorkflowConfig,
 } from "./types";
+import { getTemplateCategoryKey, generateCategoryToolSteps } from "./category-guide-config";
 
 /**
  * Normalizes tool name for matching.
@@ -20,29 +21,12 @@ function normalizeTool(name: string): string {
 export function isVideoGenerationTemplate(template: {
   categoryId?: string;
   categoryName?: string;
+  category?: string;
+  slug?: string;
   tags?: string[];
   recommendedTools?: { toolName: string }[];
 }): boolean {
-  const catId = (template.categoryId || "").toLowerCase();
-  const catName = (template.categoryName || "").toLowerCase();
-  if (catId.includes("video") || catName.includes("video")) return true;
-
-  const videoTools = [
-    "runway",
-    "sora",
-    "pika",
-    "kling",
-    "luma",
-    "veo",
-    "hailuo",
-    "minimax",
-    "kaiber",
-    "stable video",
-  ];
-
-  return (template.recommendedTools || []).some((tool) =>
-    videoTools.some((vt) => tool.toolName.toLowerCase().includes(vt))
-  );
+  return getTemplateCategoryKey(template) === "video-generation";
 }
 
 /**
@@ -241,6 +225,11 @@ export function generateVideoGuide(
   modelName?: string,
   context?: { templateName?: string; promptText?: string }
 ): UsageStep[] {
+  return generateCategoryToolSteps("video-generation", toolName, modelName, {
+    name: context?.templateName,
+    promptText: context?.promptText || workflow.motionPrompt,
+    tags: [workflow.generationType],
+  });
   const norm = normalizeTool(toolName);
   const type = workflow.generationType;
   const assets = workflow.assets || [];

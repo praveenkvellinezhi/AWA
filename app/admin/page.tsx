@@ -46,10 +46,6 @@ export default function AdminDashboardPage() {
     0
   );
 
-  const spendPercentage = Math.min(
-    Math.round((adminConfig.currentMonthlySpend / (adminConfig.monthlySpendCap || 150)) * 100),
-    100
-  );
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-8">
@@ -63,7 +59,7 @@ export default function AdminDashboardPage() {
             Administrator Overview <span className="text-[#008235] dark:text-emerald-400">Dashboard</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time view of catalog templates, AI model tags, customization engine spend, and user feedback.
+            Real-time view of catalog templates, AI model tags, platform reports, and user feedback.
           </p>
         </div>
 
@@ -173,41 +169,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Monthly AI Customization Spend & Safety Cap (FEAT-037) Banner matching screenshot */}
-      <div className="p-5 rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] shadow-xs space-y-3 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-xl bg-[#EAF5ED] dark:bg-emerald-950/40 text-[#008235] dark:text-emerald-400 flex items-center justify-center font-bold text-lg shrink-0">
-              <DollarSign className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                Monthly AI Customization Spend & Safety Cap (FEAT-037)
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Protects platform against unmetered API costs. If cap is hit, rewrites are safely suspended while base prompts remain accessible.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
-            <span className="text-sm font-mono font-bold text-[#008235] dark:text-emerald-400">
-              ${adminConfig.currentMonthlySpend.toFixed(2)} / ${adminConfig.monthlySpendCap}.00 USD
-            </span>
-            <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#EAF5ED] dark:bg-emerald-950/60 text-[#008235] dark:text-emerald-300 border border-[#D1E7DD] dark:border-emerald-500/30">
-              {spendPercentage}% used
-            </span>
-          </div>
-        </div>
-
-        {/* Progress Bar in crisp green */}
-        <div className="w-full bg-slate-100 dark:bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-200/80 dark:border-slate-800">
-          <div
-            className="bg-[#008235] h-full rounded-full transition-all duration-500"
-            style={{ width: `${spendPercentage}%` }}
-          />
-        </div>
-      </div>
 
       {/* Middle Section: Usage Overview & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -476,9 +437,9 @@ export default function AdminDashboardPage() {
               </div>
             </Link>
 
-            {/* 3. Engine Configuration */}
+            {/* 3. AI Tools Master */}
             <Link
-              href="/admin/engine-config"
+              href="/admin/tools"
               className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:bg-[#EAF5ED]/50 dark:hover:bg-emerald-950/30 hover:border-[#008235]/40 dark:hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group shadow-2xs hover:shadow-xs min-h-[96px]"
             >
               <div className="flex items-center justify-between mb-3">
@@ -491,17 +452,17 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#008235] dark:group-hover:text-emerald-400 transition-colors leading-snug">
-                  Engine Configuration
+                  AI Tools Master
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                  Set spending limits &amp; caps
+                  Configure models &amp; capabilities
                 </div>
               </div>
             </Link>
 
-            {/* 4. View Reports */}
+            {/* 4. Reports & Analytics */}
             <Link
-              href="/admin/insights"
+              href="/admin/reports"
               className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:bg-[#EAF5ED]/50 dark:hover:bg-emerald-950/30 hover:border-[#008235]/40 dark:hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group shadow-2xs hover:shadow-xs min-h-[96px]"
             >
               <div className="flex items-center justify-between mb-3">
@@ -514,10 +475,10 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#008235] dark:group-hover:text-emerald-400 transition-colors leading-snug">
-                  View Reports
+                  Reports &amp; Analytics
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                  Platform usage &amp; insights
+                  Multi-metric platform reports
                 </div>
               </div>
             </Link>
@@ -613,14 +574,14 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="h-8 w-8 rounded-lg bg-[#EAF5ED] dark:bg-emerald-950/40 text-[#008235] dark:text-emerald-400 flex items-center justify-center shrink-0">
-                  <Sliders className="h-4 w-4" />
+                  <BarChart3 className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
                   <div className="font-bold text-slate-900 dark:text-white truncate">
-                    Spend cap adjusted
+                    Platform Reports refreshed
                   </div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                    Monthly cap set to $150.00 USD
+                    Customization insights &amp; template metrics updated
                   </div>
                 </div>
               </div>

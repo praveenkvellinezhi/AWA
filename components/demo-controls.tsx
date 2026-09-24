@@ -145,14 +145,17 @@ export function DemoControls() {
       {!isDemoControlsExpanded ? (
         <button
           onClick={() => setIsDemoControlsExpanded(true)}
-          className="group flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-slate-900/95 border-2 border-dashed border-amber-400 text-amber-300 font-mono text-xs font-bold shadow-2xl shadow-black/80 hover:bg-slate-800 hover:border-amber-300 hover:scale-105 transition-all"
+          className="group flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white dark:bg-slate-900/95 border-2 border-dashed border-amber-500 dark:border-amber-400 text-amber-700 dark:text-amber-300 font-mono text-xs font-bold shadow-xl shadow-slate-900/10 dark:shadow-black/80 hover:bg-amber-50/50 dark:hover:bg-slate-800 hover:border-amber-600 dark:hover:border-amber-300 hover:scale-105 transition-all"
         >
-          <Sliders className="h-4 w-4 text-amber-400 group-hover:rotate-45 transition-transform" />
-          <span>DEMO CONTROLS</span>
-          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-[10px] text-amber-200 uppercase tracking-wider">
+          <Sliders className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:rotate-45 transition-transform" />
+          <span className="text-amber-700 dark:text-amber-300 font-bold">DEMO CONTROLS</span>
+          <span
+            data-role-badge
+            className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-[10px] text-amber-900 dark:text-amber-200 font-extrabold uppercase tracking-wider border border-amber-300 dark:border-amber-400/40"
+          >
             {role}
           </span>
-          <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+          <ChevronUp className="h-3.5 w-3.5 text-amber-600 dark:text-slate-400" />
         </button>
       ) : (
         /* Expanded Control Panel */

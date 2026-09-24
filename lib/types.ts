@@ -48,8 +48,28 @@ export interface UsageStep {
   tip?: string;
   asset?: VideoAsset | WebsiteAsset | PresentationAsset | DesignAsset;
   examplePrompt?: string;
+  prompt?: string;
+  promptCategory?: string;
+  promptVariables?: { name: string; description: string; defaultValue?: string }[];
+  slideNumber?: number;
+  slideTitle?: string;
   imageUrl?: string;
   imageCaption?: string;
+}
+
+export interface GuideStep {
+  id: string;
+  step: number;
+  title: string;
+  description: string;
+  tip?: string;
+  image?: string;
+  imageCaption?: string;
+  prompt?: string;
+  promptCategory?: string;
+  promptVariables?: { name: string; description: string; defaultValue?: string }[];
+  slideNumber?: number;
+  slideTitle?: string;
 }
 
 export type VideoGenerationType =
@@ -193,6 +213,27 @@ export interface PresentationAsset {
   format?: string;
 }
 
+export interface SlidePrompt {
+  slideNumber: number;
+  title: string;
+  purpose?: string;
+  prompt: string;
+  visualDirection?: string;
+  layout?: string;
+}
+
+export interface PresentationWorkflowPrompts {
+  strategy?: string;
+  structure?: string;
+  slidePlanning?: string;
+  contentGeneration?: string;
+  visualDirection?: string;
+  slideGeneration?: string;
+  dataVisualization?: string;
+  consistency?: string;
+  finalReview?: string;
+}
+
 export interface PresentationWorkflowConfig {
   tool?: string;
   generationType: PresentationGenerationType;
@@ -204,6 +245,8 @@ export interface PresentationWorkflowConfig {
   outline?: string[];
   slideOutline?: string[];
   theme?: string;
+  prompts?: PresentationWorkflowPrompts;
+  slides?: SlidePrompt[];
   brandAssets?:
     | boolean
     | {
@@ -327,6 +370,8 @@ export interface Template {
   thumbnailGradient: string;
   imageUrl?: string;
   galleryImages?: string[];
+  presentationPrompts?: PresentationWorkflowPrompts;
+  slidePrompts?: SlidePrompt[];
   likesCount: number;
   savesCount: number;
   isPublished: boolean;

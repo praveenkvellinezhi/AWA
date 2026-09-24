@@ -38,7 +38,19 @@ import {
   Globe,
   Presentation,
   Palette,
+  Camera,
+  Sparkles,
+  Clock,
+  FileText,
+  Type,
 } from "lucide-react";
+import {
+  getTemplateCategoryKey,
+  categoryGuideConfig,
+  resolveTemplateGuide,
+  generateCategoryToolSteps,
+  CategoryKey,
+} from "@/lib/category-guide-config";
 import {
   generateImageGuide,
   isImageGenerationTemplate,
@@ -162,36 +174,25 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     return `https://www.google.com/search?q=${encodeURIComponent(name + " AI tool")}`;
   };
 
-  const defaultTools = useMemo(
-    () => [
-      {
-        toolId: "tool-v0",
-        toolName: "v0 by Vercel",
-        modelName: "v0 Generative UI",
-        reason: "Generate and customize landing pages with AI.",
-        badge: "Flagship Match",
-      },
-      {
-        toolId: "tool-figma",
-        toolName: "Figma",
-        modelName: "Figma Vector UI",
-        reason: "Edit and design the UI components.",
-      },
-      {
-        toolId: "tool-chatgpt",
-        toolName: "ChatGPT",
-        modelName: "GPT-4o",
-        reason: "Modify the prompt, generate content, and get variations.",
-      },
-      {
-        toolId: "tool-midjourney",
-        toolName: "Midjourney",
-        modelName: "v6 Photoreal",
-        reason: "Create custom visuals, hero images, and illustrations.",
-      },
-    ],
-    []
-  );
+  // Category resolution strictly honoring Category + AI Tool logic
+  const categoryKey = useMemo(() => getTemplateCategoryKey(template), [template]);
+  const currentCategoryConfig = useMemo(() => categoryGuideConfig[categoryKey], [categoryKey]);
+
+  const isVideoGen = categoryKey === "video-generation";
+  const isWebsiteGen = categoryKey === "website-generation";
+  const isPresentationGen = categoryKey === "slides";
+  const isDesignGen = categoryKey === "poster-design";
+  const isImageGen = categoryKey === "image-generation";
+
+  const defaultTools = useMemo(() => {
+    return currentCategoryConfig.defaultTools.map((dt, idx) => ({
+      toolId: `tool-${categoryKey}-${idx}`,
+      toolName: dt.toolName,
+      modelName: dt.modelName,
+      reason: dt.reason,
+      badge: dt.badge,
+    }));
+  }, [currentCategoryConfig, categoryKey]);
 
   const displayTools = useMemo(() => {
     const templateTools = template.recommendedTools || [];
@@ -204,47 +205,9 @@ export default function TemplatePage({ params }: TemplatePageProps) {
   }, [template.recommendedTools, defaultTools]);
 
   const defaultSteps: UsageStep[] = useMemo(
-    () => [
-      {
-        stepNumber: 1,
-        title: "Preview the Design",
-        instruction: "Explore the preview images to understand the layout, sections, and style.",
-      },
-      {
-        stepNumber: 2,
-        title: "Choose Your Tool",
-        instruction: "Use v0, Figma, or your preferred tool to start building.",
-      },
-      {
-        stepNumber: 3,
-        title: "Customize Content",
-        instruction: "Replace text, images, and branding with your own.",
-      },
-      {
-        stepNumber: 4,
-        title: "Implement Features",
-        instruction: "Add interactive elements like pricing toggle, animations, and forms.",
-      },
-      {
-        stepNumber: 5,
-        title: "Make it Responsive",
-        instruction: "Ensure the design works well on all devices.",
-      },
-      {
-        stepNumber: 6,
-        title: "Launch Your Project",
-        instruction: "Export or deploy to your preferred platform (Vercel, Netlify, etc.).",
-      },
-    ],
-    []
+    () => currentCategoryConfig.defaultSteps,
+    [currentCategoryConfig]
   );
-
-  // Dynamic step-by-step guide detection
-  const isVideoGen = useMemo(() => isVideoGenerationTemplate(template), [template]);
-  const isWebsiteGen = useMemo(() => isWebsiteGenerationTemplate(template), [template]);
-  const isPresentationGen = useMemo(() => isPresentationGenerationTemplate(template), [template]);
-  const isDesignGen = useMemo(() => isDesignGenerationTemplate(template), [template]);
-  const isImageGen = useMemo(() => isImageGenerationTemplate(template), [template]);
 
   // Video generation tools specifically associated with this template
   const videoGenTools = useMemo(() => {
@@ -371,23 +334,14 @@ export default function TemplatePage({ params }: TemplatePageProps) {
   }, [template.recommendedTools]);
 
   const guideTools = useMemo(() => {
-    if (isVideoGen) {
-      return videoGenTools.length > 0 ? videoGenTools : (template.recommendedTools || []);
+    const templateTools = template.recommendedTools || [];
+    if (templateTools.length >= 3) {
+      return templateTools;
     }
-    if (isWebsiteGen) {
-      return websiteGenTools.length > 0 ? websiteGenTools : (template.recommendedTools || []);
-    }
-    if (isPresentationGen) {
-      return presentationGenTools.length > 0 ? presentationGenTools : (template.recommendedTools || []);
-    }
-    if (isDesignGen) {
-      return designGenTools.length > 0 ? designGenTools : (template.recommendedTools || []);
-    }
-    if (isImageGen) {
-      return imageGenTools.length > 0 ? imageGenTools : (template.recommendedTools || []);
-    }
-    return template.recommendedTools || [];
-  }, [isVideoGen, isWebsiteGen, isPresentationGen, isDesignGen, isImageGen, videoGenTools, websiteGenTools, presentationGenTools, designGenTools, imageGenTools, template.recommendedTools]);
+    const existingNames = new Set(templateTools.map((t) => t.toolName.toLowerCase()));
+    const remaining = defaultTools.filter((dt) => !existingNames.has(dt.toolName.toLowerCase()));
+    return [...templateTools, ...remaining].slice(0, 4);
+  }, [template.recommendedTools, defaultTools]);
 
   const [selectedGuideToolIndex, setSelectedGuideToolIndex] = useState(0);
 
@@ -397,21 +351,11 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     }
     return template.recommendedTools?.[0] || {
       toolId: "default",
-      toolName: isVideoGen
-        ? "AI Video Generator"
-        : isWebsiteGen
-          ? "AI Website Builder"
-          : isPresentationGen
-            ? "AI Presentation Creator"
-            : isDesignGen
-              ? "AI Design Tool"
-              : isImageGen
-                ? "AI Image Generator"
-                : "AI Tool",
-      modelName: "Latest Model",
-      reason: "General creation",
+      toolName: currentCategoryConfig.defaultTools[0]?.toolName || "AI Tool",
+      modelName: currentCategoryConfig.defaultTools[0]?.modelName || "Latest Model",
+      reason: currentCategoryConfig.defaultTools[0]?.reason || "General creation",
     };
-  }, [guideTools, selectedGuideToolIndex, isVideoGen, isWebsiteGen, isPresentationGen, isDesignGen, isImageGen, template.recommendedTools]);
+  }, [guideTools, selectedGuideToolIndex, currentCategoryConfig, template.recommendedTools]);
 
   // Dynamic video workflow resolution
   const videoWorkflow = useMemo(() => {
@@ -440,50 +384,14 @@ export default function TemplatePage({ params }: TemplatePageProps) {
   // Computed dynamic slides with appropriate demo images for this template
   const slides = useMemo(() => getTemplateSlides(template), [template]);
 
-  // Dynamic 8-10 step tool-adapted guide with visual guideline checkpoints
+  // Dynamic 8-step tool-adapted guide with visual guideline checkpoints
   const displaySteps = useMemo(() => {
-    let rawSteps: UsageStep[] = [];
-    if (isVideoGen && videoWorkflow) {
-      rawSteps = generateVideoGuide(videoWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
-        templateName: template.name,
-        promptText: template.promptText,
-      });
-    } else if (isWebsiteGen && websiteWorkflow) {
-      rawSteps = generateWebsiteGuide(websiteWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
-        templateName: template.name,
-        promptText: template.promptText,
-        style: template.style,
-        categoryId: template.categoryId,
-        assets: websiteWorkflow.assets,
-      });
-    } else if (isPresentationGen && presentationWorkflow) {
-      rawSteps = generatePresentationGuide(presentationWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
-        templateName: template.name,
-        promptText: template.promptText,
-        style: template.style,
-        categoryId: template.categoryId,
-        assets: presentationWorkflow.assets,
-        slideCount: presentationWorkflow.slideCount,
-      });
-    } else if (isDesignGen && designWorkflow) {
-      rawSteps = generateDesignGuide(designWorkflow, activeGuideTool.toolName, activeGuideTool.modelName, {
-        templateTitle: template.name,
-        promptText: template.promptText,
-        style: template.style,
-        mood: template.mood,
-      });
-    } else if (isImageGen || imageGenTools.length > 0) {
-      rawSteps = generateImageGuide(activeGuideTool.toolName, activeGuideTool.modelName, {
-        templateName: template.name,
-        promptText: template.promptText,
-        style: template.style,
-        categoryId: template.categoryId,
-      });
-    } else if (template.usageSteps && template.usageSteps.length > 0) {
-      rawSteps = template.usageSteps;
-    } else {
-      rawSteps = defaultSteps;
-    }
+    const resolved = resolveTemplateGuide(
+      template,
+      activeGuideTool.toolName,
+      activeGuideTool.modelName
+    );
+    let rawSteps: UsageStep[] = resolved.steps;
 
     // Collect all workflow assets across workflows if available
     const workflowAssets = [
@@ -685,11 +593,13 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
         {/* Top Badges Overlay */}
         <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-          <span className="text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white border border-white/15 shadow-md">
-            {currentSlide.label}
-          </span>
+          {slides.length > 1 && (
+            <span className="text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white border border-white/15 shadow-md">
+              {currentSlide.label}
+            </span>
+          )}
           {template.categoryName && (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
+            <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-cyan-300 border border-cyan-500/30">
               {template.categoryName}
             </span>
           )}
@@ -716,6 +626,47 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     );
   };
 
+  const renderSpecIcon = (iconName: string) => {
+    switch (iconName) {
+      case "Camera":
+        return <Camera className="h-5 w-5 text-amber-500 mx-auto" />;
+      case "Film":
+      case "Video":
+        return <Film className="h-5 w-5 text-purple-500 mx-auto" />;
+      case "Globe":
+        return <Globe className="h-5 w-5 text-blue-500 mx-auto" />;
+      case "Presentation":
+        return <Presentation className="h-5 w-5 text-emerald-500 mx-auto" />;
+      case "Palette":
+        return <Palette className="h-5 w-5 text-rose-500 mx-auto" />;
+      case "Sparkles":
+        return <Sparkles className="h-5 w-5 text-amber-400 mx-auto" />;
+      case "Smartphone":
+        return <Smartphone className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />;
+      case "Code":
+        return <Code className="h-5 w-5 text-blue-500 mx-auto" />;
+      case "Layers":
+        return <Layers className="h-5 w-5 text-indigo-500 mx-auto" />;
+      case "Clock":
+        return <Clock className="h-5 w-5 text-purple-400 mx-auto" />;
+      case "FileText":
+        return <FileText className="h-5 w-5 text-rose-400 mx-auto" />;
+      case "Type":
+        return <Type className="h-5 w-5 text-rose-400 mx-auto" />;
+      case "Ratio":
+        return (
+          <div className="h-5 w-5 rounded bg-slate-200/60 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center mx-auto text-[10px] font-bold font-mono">
+            ⚏
+          </div>
+        );
+      case "Share2":
+        return <Share2 className="h-5 w-5 text-teal-400 mx-auto" />;
+      case "ShieldCheck":
+      default:
+        return <ShieldCheck className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full space-y-10">
@@ -724,18 +675,18 @@ export default function TemplatePage({ params }: TemplatePageProps) {
           {/* LEFT COLUMN: Interactive Window Preview & Thumbnail Carousel (7 cols on lg) */}
           <div className="lg:col-span-7 space-y-4 lg:sticky lg:top-24">
             {/* Main Window Preview Container */}
-            <div className="rounded-2xl border border-zinc-800 bg-[#0d0e12] overflow-hidden shadow-2xl relative group">
+            <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-900 dark:bg-[#0d0e12] overflow-hidden shadow-2xl relative group">
               {/* macOS-style Window Titlebar */}
-              <div className="px-4 py-3 bg-[#131419] border-b border-zinc-800/80 flex items-center justify-between">
+              <div className="px-4 py-3 bg-slate-100 dark:bg-[#131419] border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-rose-500/90" />
                   <div className="h-2.5 w-2.5 rounded-full bg-amber-500/90" />
                   <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/90" />
                 </div>
-                <span className="text-[11px] font-mono text-zinc-500 hidden sm:inline">
+                <span className="text-[11px] font-mono text-slate-500 dark:text-zinc-500 hidden sm:inline">
                   {template.slug}.preview
                 </span>
-                <div className="text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer">
+                <div className="text-slate-400 hover:text-slate-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors cursor-pointer">
                   <X className="h-3.5 w-3.5" />
                 </div>
               </div>
@@ -747,63 +698,75 @@ export default function TemplatePage({ params }: TemplatePageProps) {
             </div>
 
             {/* Thumbnail Carousel Bar & View Full Screen Button */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-              {/* Thumbnail Carousel */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                <button
-                  onClick={() => setActiveSlide((prev) => (prev > 0 ? prev - 1 : slides.length - 1))}
-                  className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0"
-                  aria-label="Previous slide"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
+            {slides.length > 1 ? (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                {/* Thumbnail Carousel for Presentations / Multi-slide Decks */}
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                  <button
+                    onClick={() => setActiveSlide((prev) => (prev > 0 ? prev - 1 : slides.length - 1))}
+                    className="p-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-white transition-colors shrink-0 shadow-sm"
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
 
-                {slides.map((s, idx) => {
-                  const isActive = activeSlide === idx;
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => setActiveSlide(idx)}
-                      className={`h-14 w-20 sm:h-16 sm:w-24 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-[#090a0f] ${isActive
-                          ? "border-cyan-400 shadow-lg shadow-cyan-500/30 ring-1 ring-cyan-400/50 scale-105"
-                          : "border-zinc-800 hover:border-zinc-600 opacity-70 hover:opacity-100"
-                        }`}
-                      title={s.label}
-                    >
-                      <img src={s.url} alt={s.label} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <span className="absolute bottom-1 left-1.5 text-[9px] font-bold font-mono text-zinc-200 truncate max-w-[75px]">
-                        {idx + 1}
-                      </span>
-                    </button>
-                  );
-                })}
+                  {slides.map((s, idx) => {
+                    const isActive = activeSlide === idx;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => setActiveSlide(idx)}
+                        className={`h-14 w-20 sm:h-16 sm:w-24 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-slate-900 dark:bg-[#090a0f] ${isActive
+                          ? "border-cyan-500 dark:border-cyan-400 shadow-lg shadow-cyan-500/30 ring-1 ring-cyan-500/50 scale-105"
+                          : "border-slate-200 dark:border-zinc-800 hover:border-slate-400 dark:hover:border-zinc-600 opacity-80 hover:opacity-100"
+                          }`}
+                        title={s.label}
+                      >
+                        <img src={s.url} alt={s.label} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <span className="absolute bottom-1 left-1.5 text-[9px] font-bold font-mono text-white truncate max-w-[75px]">
+                          Slide {idx + 1}
+                        </span>
+                      </button>
+                    );
+                  })}
 
+                  <button
+                    onClick={() => setActiveSlide((prev) => (prev < slides.length - 1 ? prev + 1 : 0))}
+                    className="p-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-white transition-colors shrink-0 shadow-sm"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* View Full Screen Button */}
                 <button
-                  onClick={() => setActiveSlide((prev) => (prev < slides.length - 1 ? prev + 1 : 0))}
-                  className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0"
-                  aria-label="Next slide"
+                  onClick={() => setIsFullScreen(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition-colors shrink-0 shadow-sm active:scale-95"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <Maximize2 className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
+                  <span>View Full Screen</span>
                 </button>
               </div>
-
-              {/* View Full Screen Button (from screenshot) */}
-              <button
-                onClick={() => setIsFullScreen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition-colors shrink-0 shadow active:scale-95"
-              >
-                <Maximize2 className="h-3.5 w-3.5 text-zinc-400" />
-                <span>View Full Screen</span>
-              </button>
-            </div>
+            ) : (
+              <div className="flex items-center justify-end pt-1">
+                <button
+                  onClick={() => setIsFullScreen(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition-colors shrink-0 shadow-sm active:scale-95"
+                >
+                  <Maximize2 className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
+                  <span>View Full Screen</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* RIGHT COLUMN: Metadata, Lock/Unlock Box, Badges (5 cols on lg) */}
           <div className="lg:col-span-5 space-y-5">
             {/* Category Pill & Social Actions */}
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700/80">
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700/80">
                 {template.subcategoryName || template.categoryName}
               </span>
 
@@ -811,43 +774,43 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                 {/* Like Button */}
                 <button
                   onClick={handleLike}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${liked
-                      ? "bg-rose-500/20 border-rose-500/50 text-rose-300 shadow-sm"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm ${liked
+                    ? "bg-rose-50 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/50 text-rose-700 dark:text-rose-300"
+                    : "bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
                     }`}
                   title={liked ? "Unlike" : "Like template"}
                 >
-                  <Heart className={`h-3.5 w-3.5 ${liked ? "fill-rose-400 text-rose-400" : ""}`} />
+                  <Heart className={`h-3.5 w-3.5 ${liked ? "fill-rose-500 text-rose-500 dark:fill-rose-400 dark:text-rose-400" : "text-slate-500 dark:text-zinc-400"}`} />
                   <span>{formatLikes(currentLikes)}</span>
                 </button>
 
                 {/* Save / Bookmark Button */}
                 <button
                   onClick={handleSave}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${saved
-                      ? "bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-sm"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm ${saved
+                    ? "bg-amber-50 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/50 text-amber-800 dark:text-amber-300"
+                    : "bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
                     }`}
                   title={saved ? "Remove from saved" : "Save template"}
                 >
-                  <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-amber-400 text-amber-400" : ""}`} />
+                  <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" : "text-slate-500 dark:text-zinc-400"}`} />
                   <span>{saved ? "Saved" : "Save"}</span>
                 </button>
 
                 {/* Share Button */}
                 <button
                   onClick={handleShare}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition-colors shadow-sm"
                   title="Share template"
                 >
                   {copiedLink ? (
                     <>
-                      <Check className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
+                      <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Share2 className="h-3.5 w-3.5 text-zinc-400" />
+                      <Share2 className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
                       <span>Share</span>
                     </>
                   )}
@@ -856,12 +819,12 @@ export default function TemplatePage({ params }: TemplatePageProps) {
             </div>
 
             {/* Template Title */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
               {template.name}
             </h1>
 
             {/* Description */}
-            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
               {template.description}
             </p>
 
@@ -933,33 +896,20 @@ export default function TemplatePage({ params }: TemplatePageProps) {
 
             {/* Feature Highlights Spec Strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
-                <div className="h-6 w-6 rounded-md bg-slate-200/60 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center mx-auto text-xs font-semibold font-mono">
-                  ❖
+              {currentCategoryConfig.featureHighlights.map((feat, fIdx) => (
+                <div
+                  key={`feat-${feat.label}-${fIdx}`}
+                  className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1"
+                >
+                  {renderSpecIcon(feat.iconName)}
+                  <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                    {feat.label}
+                  </p>
+                  <span className="text-[11px] text-slate-500 dark:text-zinc-400 block truncate">
+                    {feat.sublabel}
+                  </span>
                 </div>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">Figma file</p>
-                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Preview only</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
-                <div className="h-6 w-6 rounded-md bg-slate-200/60 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center mx-auto text-xs font-semibold font-mono">
-                  v0
-                </div>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">v0 compatible</p>
-                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Ready to use</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
-                <Smartphone className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">Responsive</p>
-                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">All devices</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center space-y-1">
-                <ShieldCheck className="h-5 w-5 text-slate-600 dark:text-zinc-400 mx-auto" />
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">Commercial use</p>
-                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">Allowed</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1035,8 +985,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                         key={`design-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
-                            ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          ? "bg-rose-600 text-white border-rose-600 shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
                         {t.toolName}
@@ -1084,8 +1034,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                         key={`pres-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
-                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
                         {t.toolName}
@@ -1103,7 +1053,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                 assets={presentationWorkflow.assets}
                 slideCount={presentationWorkflow.slideCount}
                 prompt={template.promptText}
-                outline={presentationWorkflow.outline}
+                outline={presentationWorkflow.outline || presentationWorkflow.slideOutline}
+                slides={presentationWorkflow.slides}
                 steps={displaySteps}
                 isSubscriber={isSubscriber}
                 completedSteps={completedSteps}
@@ -1127,8 +1078,8 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                         key={`web-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
-                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
                         {t.toolName}
@@ -1163,7 +1114,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                       {isVideoGen ? (
                         <Film className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       ) : (
-                        <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        <Camera className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                       )}
                       <span>Step-by-Step Guide for {activeGuideTool.toolName}</span>
                     </h2>
@@ -1208,10 +1159,10 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                         key={`default-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
-                            ? isVideoGen
-                              ? "bg-purple-600 text-white border-purple-600 shadow-sm"
-                              : "bg-blue-600 text-white border-blue-600 shadow-sm"
-                            : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
+                          ? isVideoGen
+                            ? "bg-purple-600 text-white border-purple-600 shadow-sm"
+                            : "bg-amber-600 text-white border-amber-600 shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
                         {t.toolName}

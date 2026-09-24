@@ -30,11 +30,11 @@ export default function BackgroundsPage() {
             <span>INTERACTIVE MOTION SYSTEM</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
             Animated Backgrounds &amp; Canvas Shaders
           </h1>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
             Production-grade CSS keyframe loops and WebGL canvas animations. Copy drop-in React and Tailwind code with a single click.
           </p>
 
@@ -46,7 +46,7 @@ export default function BackgroundsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedCategory === cat
-                    ? "bg-slate-950 text-white dark:bg-white dark:text-black font-bold shadow-md"
+                    ? "bg-slate-950 text-white font-bold shadow-md"
                     : "bg-white text-slate-600 dark:bg-zinc-900 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800"
                 }`}
               >
@@ -61,7 +61,7 @@ export default function BackgroundsPage() {
           {filtered.map((bg) => (
             <div
               key={bg.id}
-              className="rounded-2xl border border-zinc-800 bg-[#141518] overflow-hidden flex flex-col justify-between shadow-xl group hover:border-zinc-700 transition-all"
+              className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#141518] overflow-hidden flex flex-col justify-between shadow-md dark:shadow-xl group hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
             >
               {/* Live Preview Area */}
               <div
@@ -81,19 +81,19 @@ export default function BackgroundsPage() {
               </div>
 
               {/* Card Footer */}
-              <div className="p-4 bg-[#111215] border-t border-zinc-800/80 flex items-center justify-between">
+              <div className="p-4 bg-slate-50 dark:bg-[#111215] border-t border-slate-200 dark:border-zinc-800/80 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-zinc-400 font-mono">Tailwind + CSS</span>
+                  <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">Tailwind + CSS</span>
                 </div>
 
                 <button
                   onClick={() => handleCopy(bg.id, bg.codeSnippet)}
-                  className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-transparent shadow-xs"
                 >
                   {copiedId === bg.id ? (
                     <>
-                      <Check className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
+                      <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">Copied!</span>
                     </>
                   ) : (
                     <>

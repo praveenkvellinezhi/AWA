@@ -382,11 +382,11 @@ export default function HomePage() {
       {/* 3. 4-Column Template Grid */}
       <section className="w-full px-4 sm:px-6 lg:px-8 pt-6">
         {filteredTemplates.length === 0 ? (
-          <div className="p-16 text-center rounded-2xl border border-zinc-800 bg-[#121316]">
-            <p className="text-base font-bold text-zinc-200">
+          <div className="p-16 text-center rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] shadow-sm dark:shadow-none">
+            <p className="text-base font-bold text-slate-900 dark:text-zinc-200">
               No templates found for &quot;{selectedTab}&quot;
             </p>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
               Try switching back to &quot;All&quot; or resetting your search.
             </p>
             <button
@@ -395,7 +395,7 @@ export default function HomePage() {
                 setSearchQuery("");
                 setPricingFilter("all");
               }}
-              className="mt-4 px-4 py-2 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black text-xs font-bold hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors"
+              className="mt-4 px-4 py-2 rounded-full bg-slate-950 text-white hover:bg-slate-800 text-xs font-bold transition-colors shadow-sm"
             >
               Show All Templates
             </button>

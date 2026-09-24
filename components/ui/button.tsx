@@ -26,7 +26,7 @@ const buttonVariants = cva(
         emerald:
           "bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 active:bg-emerald-800",
         slate:
-          "bg-slate-900 text-white shadow hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white",
+          "bg-slate-900 text-white shadow hover:bg-slate-800 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700",
       },
       size: {
         default: "h-9 px-4 py-2",

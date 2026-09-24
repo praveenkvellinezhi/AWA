@@ -109,6 +109,8 @@ export function getTemplatePrimaryImage(template: {
 
 /**
  * Returns multi-angle / multi-slide preview gallery for the template detail page.
+ * NOTE: As per requirements, only "slides" (presentations / pitch decks) have multiple slide images.
+ * All other templates (image generation, video generation, website, poster, etc.) have only ONE preview image.
  */
 export function getTemplateSlides(template: {
   id: string;
@@ -116,81 +118,80 @@ export function getTemplateSlides(template: {
   name?: string;
   imageUrl?: string;
   categoryName?: string;
+  categoryId?: string;
+  category?: string;
+  tags?: string[];
   galleryImages?: string[];
 }): TemplateSlide[] {
   const primary = getTemplatePrimaryImage(template);
 
-  // If template already has custom gallery images provided
+  // Determine whether this template belongs to Slides & Presentations
+  const cat = (template.categoryName || "").toLowerCase();
+  const catId = (template.categoryId || "").toLowerCase();
+  const catRaw = (template.category || "").toLowerCase();
+  const slug = (template.slug || "").toLowerCase();
+  const tagsStr = (template.tags || []).join(" ").toLowerCase();
+
+  const isSlides =
+    cat.includes("slide") ||
+    cat.includes("presentation") ||
+    cat.includes("pitch deck") ||
+    catId === "cat-slides-presentations" ||
+    catId === "slides-presentations" ||
+    catId === "slides" ||
+    catId === "presentations" ||
+    catRaw.includes("slide") ||
+    catRaw.includes("presentation") ||
+    slug.includes("slides") ||
+    slug.includes("pitch-deck") ||
+    slug.includes("deck") ||
+    tagsStr.includes("presentation") ||
+    tagsStr.includes("slides");
+
+  // Non-slides templates have strictly ONE preview image
+  if (!isSlides) {
+    return [
+      {
+        id: 0,
+        label: "Preview",
+        url: primary,
+        type: "hero",
+        caption: template.name || "Template Preview",
+      },
+    ];
+  }
+
+  // If slide template has custom gallery images provided
   if (template.galleryImages && template.galleryImages.length > 0) {
     return template.galleryImages.map((url, idx) => ({
       id: idx,
-      label: idx === 0 ? "Primary Hero Showcase" : `Angle & Variation ${idx + 1}`,
+      label: `Slide ${idx + 1}`,
       url,
-      type: idx === 0 ? "hero" : "variation",
-      caption: `${template.name || "Template"} — Preview Slide ${idx + 1}`,
+      type: idx === 0 ? "hero" : "slide",
+      caption: `${template.name || "Template"} — Slide ${idx + 1}`,
     }));
   }
 
-  // Curate variations according to category discipline
-  const cat = template.categoryName || "";
-  let variations: string[] = [];
-
-  if (cat.includes("Image") || cat === "Creative" || cat === "Agency") {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80",
-    ];
-  } else if (cat.includes("Video") || cat === "Motion") {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80",
-    ];
-  } else if (cat.includes("Website") || cat === "Saas" || cat === "Ai") {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
-    ];
-  } else if (cat.includes("Slide")) {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-    ];
-  } else if (cat.includes("Poster")) {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=1200&q=80",
-    ];
-  } else {
-    variations = [
-      primary,
-      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80",
-    ];
-  }
-
-  const slideLabels = [
-    "1. Primary Hero Render",
-    "2. Composition & Detail Angle",
-    "3. Atmospheric Lighting Variation",
-    "4. Alternative Crop / Context",
+  // Slide Deck curated slides for presentation templates
+  const slideVariations = [
+    primary,
+    "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
   ];
 
-  return variations.map((url, idx) => ({
+  const slideLabels = [
+    "Slide 1 — Title Deck",
+    "Slide 2 — Problem & Market",
+    "Slide 3 — Solution & Product",
+    "Slide 4 — Traction & Financials",
+  ];
+
+  return slideVariations.map((url, idx) => ({
     id: idx,
     label: slideLabels[idx] || `Slide ${idx + 1}`,
     url,
-    type: idx === 0 ? "hero" : "variation",
+    type: idx === 0 ? "hero" : "slide",
     caption: `${template.name || "Template"} — ${slideLabels[idx] || `Slide ${idx + 1}`}`,
   }));
 }

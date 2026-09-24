@@ -32,7 +32,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   };
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#141518] hover:border-zinc-650 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-black/40 overflow-hidden">
+    <div className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-zinc-800/80 bg-white dark:bg-[#141518] hover:border-slate-300 dark:hover:border-zinc-650 transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg dark:shadow-black/40 overflow-hidden">
       <Link href={`/templates/${template.id}`} className="block">
         {/* Visual Preview Container with Demo Image */}
         <div className="relative h-48 w-full overflow-hidden rounded-t-2xl bg-zinc-900">
@@ -42,7 +42,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
           />
           {/* Dark gradient overlay at bottom and subtle vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#121316]/95 via-transparent to-black/25 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/25 pointer-events-none" />
 
           {/* Bottom Left Category/Subcategory Pill */}
           <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5">
@@ -80,7 +80,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
             title={liked ? "Unlike this template" : "Like this template"}
             aria-label={`Like template, currently ${currentLikes} likes`}
           >
-            <span>{currentLikes}</span>
+            <span className="text-white">{currentLikes}</span>
             <Heart
               className={`h-3.5 w-3.5 transition-transform group-hover:scale-110 ${
                 liked ? "fill-rose-400 text-rose-400" : "text-white/80"
@@ -90,18 +90,18 @@ export function TemplateCard({ template }: TemplateCardProps) {
         </div>
 
         {/* Card Body / Metadata */}
-        <div className="px-3.5 py-3 border-t border-zinc-800/60 bg-[#121316]">
-          <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
+        <div className="px-3.5 py-3 border-t border-slate-100 dark:border-zinc-800/60 bg-white dark:bg-[#121316]">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors truncate">
             {template.name}
           </h3>
-          <div className="flex items-center justify-between text-xs text-zinc-400 mt-1">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 mt-1">
             <span
-              className="truncate font-medium text-zinc-300"
+              className="truncate font-medium text-slate-700 dark:text-zinc-300"
               title={`Recommended Tool: ${template.recommendedTools[0]?.toolName || "AI Guided"}`}
             >
               {template.recommendedTools[0]?.toolName || "AI Guided"}
             </span>
-            <span className="text-[10px] text-zinc-500 font-mono shrink-0 ml-2">{template.difficulty}</span>
+            <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono shrink-0 ml-2">{template.difficulty}</span>
           </div>
         </div>
       </Link>

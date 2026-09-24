@@ -16,15 +16,21 @@ import {
   Sliders,
   BarChart3,
   Lightbulb,
+  Sparkles,
+  Terminal,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   PresentationAsset,
   PresentationGenerationType,
   UsageStep,
+  SlidePrompt,
 } from "@/lib/types";
 import {
   getPresentationWorkflowTitle,
   getPresentationWorkflowDescription,
+  defaultSlidePrompts,
 } from "@/lib/presentation-guide-generator";
 import { VisualStepGuide } from "@/components/visual-step-guide";
 
@@ -36,10 +42,34 @@ interface PresentationGenerationGuideProps {
   slideCount?: number;
   prompt?: string;
   outline?: string[];
+  slides?: SlidePrompt[];
   steps: UsageStep[];
   isSubscriber: boolean;
   completedSteps: number[];
   onToggleStep: (stepNumber: number) => void;
+}
+
+function FormattedSlidePrompt({ text }: { text: string }) {
+  if (!text) return null;
+  const parts = text.split(/(\[[A-Z0-9\s/_\-–—]+\])/g);
+
+  return (
+    <pre className="font-mono text-xs text-slate-200 leading-relaxed whitespace-pre-wrap select-text break-words font-normal">
+      {parts.map((part, i) => {
+        if (part.startsWith("[") && part.endsWith("]")) {
+          return (
+            <span
+              key={i}
+              className="px-1.5 py-0.5 mx-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 font-semibold text-[11px]"
+            >
+              {part}
+            </span>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </pre>
+  );
 }
 
 export function PresentationGenerationGuide({
@@ -50,17 +80,41 @@ export function PresentationGenerationGuide({
   slideCount,
   prompt,
   outline,
+  slides,
   steps,
   isSubscriber,
   completedSteps,
   onToggleStep,
 }: PresentationGenerationGuideProps) {
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null);
+  const [expandedSlideIndex, setExpandedSlideIndex] = useState<number | null>(0);
+  const [copiedSlideIndex, setCopiedSlideIndex] = useState<number | null>(null);
+  const [copiedAllSlides, setCopiedAllSlides] = useState(false);
+
+  const effectiveSlides = slides && slides.length > 0 ? slides : defaultSlidePrompts;
 
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopiedPromptIndex(index);
     setTimeout(() => setCopiedPromptIndex(null), 2000);
+  };
+
+  const handleCopySlide = (promptText: string, idx: number) => {
+    navigator.clipboard.writeText(promptText);
+    setCopiedSlideIndex(idx);
+    setTimeout(() => setCopiedSlideIndex(null), 2000);
+  };
+
+  const handleCopyAllSlides = () => {
+    const combined = effectiveSlides
+      .map(
+        (s) =>
+          `=== Slide ${String(s.slideNumber).padStart(2, "0")}: ${s.title} ===\n${s.prompt}\n`
+      )
+      .join("\n\n");
+    navigator.clipboard.writeText(combined);
+    setCopiedAllSlides(true);
+    setTimeout(() => setCopiedAllSlides(false), 2000);
   };
 
   const workflowTitle = getPresentationWorkflowTitle(generationType);
@@ -215,7 +269,7 @@ export function PresentationGenerationGuide({
         </div>
       )}
 
-      {/* 4. Step-by-Step Instructions (Visual 4-Column Grid) */}
+      {/* 4. Step-by-Step Instructions (Visual Workflow Canvas) */}
       <VisualStepGuide
         category="presentation"
         tool={tool}
@@ -225,6 +279,134 @@ export function PresentationGenerationGuide({
         completedSteps={completedSteps}
         onToggleStep={onToggleStep}
       />
+
+      {/* 5. Individual Slide Prompts (Dedicated Slide-by-Slide Generator) */}
+      {effectiveSlides.length > 0 && (
+        <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900/40 p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-zinc-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
+                  Dedicated Slide-by-Slide Prompts ({effectiveSlides.length} Slides)
+                </h3>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+                Every individual slide has its own copyable, production-ready AI prompt tailored for {tool}.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCopyAllSlides}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono flex items-center gap-1.5 transition-all shadow-sm active:scale-95 shrink-0 self-start sm:self-auto"
+              title="Copy all individual slide prompts as a sequenced bundle"
+            >
+              {copiedAllSlides ? (
+                <>
+                  <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-100" />
+                  <span>Copied All {effectiveSlides.length} Slides!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5 text-emerald-100" />
+                  <span>Copy All Slide Prompts</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Slide List Accordion */}
+          <div className="space-y-2.5">
+            {effectiveSlides.map((slide, sIdx) => {
+              const isExpanded = expandedSlideIndex === sIdx;
+              const isCopied = copiedSlideIndex === sIdx;
+              const slideNumFormatted = String(slide.slideNumber || sIdx + 1).padStart(2, "0");
+
+              return (
+                <div
+                  key={`slide-prompt-${slide.slideNumber}-${sIdx}`}
+                  className="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] overflow-hidden transition-all shadow-sm hover:border-slate-300 dark:hover:border-zinc-700"
+                >
+                  {/* Accordion Header */}
+                  <div
+                    onClick={() => setExpandedSlideIndex(isExpanded ? null : sIdx)}
+                    className="px-4 py-3 flex items-center justify-between gap-3 cursor-pointer select-none bg-slate-50/50 dark:bg-zinc-900/30 hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-500/20">
+                        {slideNumFormatted}
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                        {slide.title}
+                      </span>
+                      {slide.layout && (
+                        <span className="hidden sm:inline text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 shrink-0">
+                          {slide.layout}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopySlide(slide.prompt, sIdx);
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-mono flex items-center gap-1 transition-all ${
+                          isCopied
+                            ? "bg-emerald-600 text-white shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700"
+                        }`}
+                        title="Copy this slide prompt"
+                      >
+                        {isCopied ? (
+                          <>
+                            <Check className="h-3 w-3 stroke-[3]" />
+                            <span>Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3" />
+                            <span>Copy Prompt</span>
+                          </>
+                        )}
+                      </button>
+
+                      <div className="p-1 text-slate-400 dark:text-zinc-500">
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Accordion Body */}
+                  {isExpanded && (
+                    <div className="p-4 border-t border-slate-200 dark:border-zinc-800 space-y-3 bg-white dark:bg-[#0f1013] animate-in fade-in duration-150">
+                      {slide.purpose && (
+                        <div className="text-xs text-slate-600 dark:text-zinc-400 flex items-start gap-2">
+                          <span className="font-semibold text-slate-800 dark:text-zinc-300 font-mono text-[11px] shrink-0">
+                            Objective:
+                          </span>
+                          <span className="leading-relaxed">{slide.purpose}</span>
+                        </div>
+                      )}
+
+                      <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 dark:border-emerald-500/20 shadow-inner">
+                        <FormattedSlidePrompt text={slide.prompt} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

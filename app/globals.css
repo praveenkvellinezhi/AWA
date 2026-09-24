@@ -91,32 +91,38 @@ html:not(.dark) {
   /* High-level dark page background containers */
   [class*="bg-[#0c0d0f]"],
   [class*="bg-[#0B0F17]"],
+  [class*="bg-[#0d0e12]"],
+  [class*="bg-[#090a0f]"],
+  [class*="bg-[#0e0f12]"],
+  [class*="bg-[#111215]"],
+  [class*="bg-[#16171c]"],
+  [class*="bg-[#17191f]"],
   .bg-awa-dark {
     background-color: #F8FAFC !important;
   }
 
-  /* Cards & Surface panels */
-  [class*="bg-[#121316]"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-[#141518]"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-[#131B2A]"]:not(.dark-surface):not(.dark-surface *),
-  .bg-awa-card:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-zinc-900"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-slate-900"]:not([class*="hover:"]):not([class*="active:"]):not(.dark-surface):not(.dark-surface *) {
+  /* Cards & Surface panels (excluding buttons, anchors, and demo controls) */
+  [class*="bg-[#121316]"]:not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *),
+  [class*="bg-[#141518]"]:not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *),
+  [class*="bg-[#131B2A]"]:not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *),
+  .bg-awa-card:not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *),
+  [class*="bg-zinc-900"]:not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *),
+  [class*="bg-slate-900"]:not([class*="hover:"]):not([class*="active:"]):not(.dark-surface):not(.dark-surface *):not(button):not(button *):not(a):not(a *):not(.demo-controls-console *) {
     background-color: #FFFFFF !important;
     border-color: #E2E8F0 !important;
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
 
-  /* Inner dark contrast boxes (e.g. code/prompt display) */
-  [class*="bg-slate-950"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-zinc-950"]:not(.dark-surface):not(.dark-surface *) {
+  /* Inner dark contrast boxes (e.g. code/prompt display) - exclude primary action buttons */
+  [class*="bg-slate-950"]:not(button):not(a[class*="bg-slate-950"]):not(.dark-surface):not(.dark-surface *),
+  [class*="bg-zinc-950"]:not(button):not(a[class*="bg-zinc-950"]):not(.dark-surface):not(.dark-surface *) {
     background-color: #F1F5F9 !important;
     border-color: #CBD5E1 !important;
   }
 
-  /* Secondary surfaces / pills / hover targets */
-  [class*="bg-zinc-800"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-slate-800"]:not(.dark-surface):not(.dark-surface *) {
+  /* Secondary surfaces / pills / hover targets (exclude buttons with text-white) */
+  [class*="bg-zinc-800"]:not(button[class*="text-white"]):not(a[class*="text-white"]):not(.dark-surface):not(.dark-surface *),
+  [class*="bg-slate-800"]:not(button[class*="text-white"]):not(a[class*="text-white"]):not(.dark-surface):not(.dark-surface *) {
     background-color: #F1F5F9 !important;
     border-color: #CBD5E1 !important;
   }
@@ -154,8 +160,14 @@ html:not(.dark) {
   .dark-surface h2,
   .dark-surface h3,
   .dark-surface h4,
+  .dark-surface h5,
+  .dark-surface h6,
   .dark-surface [class*="text-white"] {
     color: #FFFFFF !important;
+  }
+
+  .dark-surface p {
+    color: #CBD5E1;
   }
 
   /* Explicitly ensure white/light buttons and dark text elements inside .dark-surface maintain pure dark text */
@@ -166,6 +178,19 @@ html:not(.dark) {
   .dark-surface [class*="text-black"],
   .dark-surface [class*="text-black"] * {
     color: #0F172A !important;
+  }
+
+  .dark-surface button[class*="bg-slate-800"],
+  .dark-surface button[class*="bg-slate-700"] {
+    background-color: #1E293B !important;
+    color: #E2E8F0 !important;
+    border-color: #334155 !important;
+  }
+
+  .dark-surface button[class*="bg-slate-800"]:hover,
+  .dark-surface button[class*="bg-slate-700"]:hover {
+    background-color: #334155 !important;
+    color: #FFFFFF !important;
   }
 
   .category-card-overlay span,
@@ -243,26 +268,26 @@ html:not(.dark) {
     color: #0F172A;
   }
 
-  /* Text hierarchy on light canvas */
-  [class*="text-slate-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-slate-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-zinc-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-zinc-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+  /* Text hierarchy on light canvas (excluding buttons and links so their dedicated text/icon colors are preserved) */
+  [class*="text-slate-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-slate-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #0F172A !important;
   }
 
-  [class*="text-slate-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-zinc-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+  [class*="text-slate-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #1E293B !important;
   }
 
-  [class*="text-slate-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-zinc-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+  [class*="text-slate-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-400"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #475569 !important;
   }
 
-  [class*="text-slate-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *),
-  [class*="text-zinc-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *) {
+  [class*="text-slate-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-500"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #64748B !important;
   }
 
@@ -322,11 +347,105 @@ html:not(.dark) {
     color: #94A3B8 !important;
   }
 
+  /* Solid Dark Action Buttons: ONLY true dark action buttons in Light Mode (never outline or secondary buttons) */
+  button[class~="bg-slate-950"],
+  button[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *),
+  button[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *),
+  a[class~="bg-slate-950"],
+  a[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *),
+  a[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *) {
+    background-color: #0F172A !important;
+    color: #FFFFFF !important;
+    border-color: #1E293B !important;
+  }
+
+  button[class~="bg-slate-950"]:hover,
+  button[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *):hover,
+  button[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *):hover,
+  a[class~="bg-slate-950"]:hover,
+  a[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *):hover,
+  a[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]):not(.demo-controls-console *):hover {
+    background-color: #1E293B !important;
+    color: #FFFFFF !important;
+  }
+
+  button[class~="bg-slate-950"] *,
+  button[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]) *,
+  button[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]) *,
+  a[class~="bg-slate-950"] *,
+  a[class~="bg-slate-900"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]) *,
+  a[class~="bg-black"][class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not([class*="bg-slate-50"]):not([class*="bg-transparent"]) * {
+    color: #FFFFFF !important;
+  }
+
+  /* Gradient Action Buttons: Ensure pure white text */
+  [class*="bg-gradient-"][class*="text-white"],
+  [class*="bg-gradient-"][class*="text-white"] *,
+  button[class*="bg-gradient-"]:not([class*="text-slate-950"]):not([class*="text-black"]):not([class*="from-amber"]):not([class*="to-amber"]):not([class*="from-yellow"]):not([class*="to-yellow"]),
+  button[class*="bg-gradient-"]:not([class*="text-slate-950"]):not([class*="text-black"]):not([class*="from-amber"]):not([class*="to-amber"]):not([class*="from-yellow"]):not([class*="to-yellow"]) *,
+  a[class*="bg-gradient-"]:not([class*="text-slate-950"]):not([class*="text-black"]):not([class*="from-amber"]):not([class*="to-amber"]):not([class*="from-yellow"]):not([class*="to-yellow"]),
+  a[class*="bg-gradient-"]:not([class*="text-slate-950"]):not([class*="text-black"]):not([class*="from-amber"]):not([class*="to-amber"]):not([class*="from-yellow"]):not([class*="to-yellow"]) * {
+    color: #FFFFFF !important;
+  }
+
+  /* Amber/Warm Buttons: Maintain high-contrast dark text in Light Mode */
+  [class*="from-amber"][class*="text-slate-950"],
+  [class*="from-amber"][class*="text-slate-950"] *,
+  button[class*="bg-amber-"]:not([class*="text-white"]),
+  button[class*="bg-amber-"]:not([class*="text-white"]) *,
+  button[class*="from-amber"]:not([class*="text-white"]),
+  button[class*="from-amber"]:not([class*="text-white"]) * {
+    color: #0F172A !important;
+  }
+
+  /* Light Secondary & Outline Buttons: Explicitly preserve light/white background and high contrast text */
+  button[class*="bg-white"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *),
+  a[class*="bg-white"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *) {
+    background-color: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+    color: #0F172A !important;
+  }
+
+  button[class*="bg-slate-100"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *),
+  a[class*="bg-slate-100"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *) {
+    background-color: #F1F5F9 !important;
+    border-color: #E2E8F0 !important;
+    color: #0F172A !important;
+  }
+
+  button[class*="bg-slate-200"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *),
+  a[class*="bg-slate-200"]:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *) {
+    background-color: #E2E8F0 !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+
+  button[class*="bg-white"]:hover:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *),
+  a[class*="bg-white"]:hover:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *) {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+  }
+
+  button[class*="bg-slate-100"]:hover:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *),
+  a[class*="bg-slate-100"]:hover:not(.dark-surface):not(.dark-surface *):not(.demo-controls-console *) {
+    background-color: #E2E8F0 !important;
+    color: #0F172A !important;
+  }
+
+  button[class*="bg-white"] span:not([class*="text-"]),
+  button[class*="bg-slate-100"] span:not([class*="text-"]),
+  button[class*="bg-slate-200"] span:not([class*="text-"]),
+  a[class*="bg-white"] span:not([class*="text-"]),
+  a[class*="bg-slate-100"] span:not([class*="text-"]),
+  a[class*="bg-slate-200"] span:not([class*="text-"]) {
+    color: #1E293B !important;
+  }
+
   /* Buttons: Ensure solid action buttons maintain white text in Light Mode */
-  button[class*="text-white"],
-  button[class*="text-white"] *,
-  a[class*="text-white"][class*="bg-"],
-  a[class*="text-white"][class*="bg-"] *,
+  button[class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]),
+  button[class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]) *,
+  a[class*="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]),
+  a[class*="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]) *,
   [class~="bg-[#008235]"],
   [class~="bg-[#008235]"] *,
   [class~="bg-[#006e2c]"],
@@ -358,25 +477,26 @@ html:not(.dark) {
     color: #FFFFFF !important;
   }
 
-  /* Dropdown filter buttons in Light Mode */
-  [class*="bg-zinc-900/90"]:not(.dark-surface):not(.dark-surface *),
-  [class*="bg-zinc-900"]:not([class*="group-hover:"]):not(.dark-surface):not(.dark-surface *) {
+  /* Secondary / Dropdown filter buttons in Light Mode (when not marked with text-white) */
+  [class*="bg-zinc-900/90"]:not([class*="text-white"]):not(.dark-surface):not(.dark-surface *),
+  [class*="bg-zinc-900"]:not([class*="text-white"]):not([class*="group-hover:"]):not(.dark-surface):not(.dark-surface *) {
     background-color: #FFFFFF !important;
     border-color: #E2E8F0 !important;
     color: #334155 !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   }
 
-  /* Overlays on images and dark scrims must keep light/white text */
-  [class*="from-black"] [class*="text-white"],
-  [class*="from-black"] [class*="text-zinc-"],
-  [class*="from-black"] h3,
-  [class*="from-black"] span,
-  [class*="from-black"] p,
-  [class*="bg-black/"] [class*="text-white"],
-  [class*="bg-black/"] [class*="text-zinc-"],
-  [class*="bg-black/"] span,
-  [class*="bg-black/"] p {
+  /* Overlays on images (badges & labels directly positioned over dark scrims, strictly excluding modal dialogs and light surfaces) */
+  .category-card-overlay span,
+  [data-media-overlay] span,
+  .dark-media-overlay span,
+  [data-overlay-badge],
+  .group\/img [class*="bg-black"] span,
+  .group\/modalimg [class*="bg-black"] span,
+  [class*="from-black"]:not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *):not(.fixed *) [class*="text-white"],
+  [class*="from-black"]:not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *):not(.fixed *) [class*="text-zinc-"],
+  [class*="bg-black/"]:not(.fixed):not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *) [class*="text-white"],
+  [class*="bg-black/"]:not(.fixed):not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *) [class*="text-zinc-"] {
     color: #FFFFFF !important;
   }
 
@@ -419,83 +539,123 @@ html:not(.dark) {
   }
 
   /* ==========================================================================
-     DEMO CONTROLS FLOATING CONSOLE (ISOLATED FROM LIGHT-MODE DESTRUCTIVE STYLES)
+     DEMO CONTROLS FLOATING CONSOLE (ISOLATED IN LIGHT MODE)
      ========================================================================== */
-  .demo-controls-console button.group {
-    background-color: #0F172A !important;
-    border: 2px dashed #F59E0B !important;
-    color: #FCD34D !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.3) !important;
+  .demo-controls-console button.group,
+  .demo-controls-console button {
+    background-color: #FFFFFF !important;
+    border: 2px dashed #D97706 !important;
+    color: #92400E !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px rgba(217, 119, 6, 0.15) !important;
   }
 
-  .demo-controls-console button.group:hover {
-    background-color: #1E293B !important;
-    border-color: #FBBF24 !important;
+  .demo-controls-console button.group:hover,
+  .demo-controls-console button:hover {
+    background-color: #FFFBEB !important;
+    border-color: #B45309 !important;
   }
 
-  .demo-controls-console button.group span {
-    color: #FCD34D !important;
+  .demo-controls-console button span {
+    color: #B45309 !important;
   }
 
-  .demo-controls-console button.group span.rounded-full {
-    background-color: rgba(245, 158, 11, 0.25) !important;
-    color: #FDE68A !important;
+  .demo-controls-console button span.rounded-full,
+  .demo-controls-console [data-role-badge] {
+    background-color: #FEF3C7 !important;
+    color: #78350F !important;
+    border: 1px solid #FCD34D !important;
+    font-weight: 800 !important;
   }
 
-  .demo-controls-console button.group svg {
-    color: #F59E0B !important;
+  .demo-controls-console button svg {
+    color: #D97706 !important;
   }
 
-  /* Expanded Panel */
+  /* Expanded Panel in Light Mode */
   .demo-controls-console > div {
-    background-color: #0F172A !important;
-    border: 2px dashed rgba(245, 158, 11, 0.8) !important;
-    color: #E2E8F0 !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.25) !important;
+    background-color: #FFFFFF !important;
+    border: 2px dashed rgba(217, 119, 6, 0.8) !important;
+    color: #0F172A !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 25px rgba(217, 119, 6, 0.15) !important;
   }
 
   .demo-controls-console [class*="bg-slate-950"] {
-    background-color: #020617 !important;
-    border-color: #1E293B !important;
+    background-color: #F8FAFC !important;
+    border-color: #E2E8F0 !important;
+    color: #0F172A !important;
   }
 
   .demo-controls-console [class*="bg-slate-900"] {
-    background-color: #0F172A !important;
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
   }
 
   .demo-controls-console [class*="bg-slate-800"] {
-    background-color: #1E293B !important;
-    border-color: #334155 !important;
-    color: #F8FAFC !important;
+    background-color: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
   }
 
   .demo-controls-console [class*="text-amber-"] {
-    color: #FCD34D !important;
+    color: #B45309 !important;
   }
 
   .demo-controls-console [class*="text-slate-400"] {
-    color: #94A3B8 !important;
+    color: #64748B !important;
   }
 
   .demo-controls-console [class*="text-slate-300"] {
-    color: #CBD5E1 !important;
+    color: #475569 !important;
   }
 
   .demo-controls-console [class*="text-slate-200"] {
-    color: #E2E8F0 !important;
-  }
-
-  .demo-controls-console [class*="text-white"] {
-    color: #FFFFFF !important;
+    color: #1E293B !important;
   }
 
   .demo-controls-console [class*="border-amber-"] {
-    border-color: #F59E0B !important;
+    border-color: #D97706 !important;
   }
 
   .demo-controls-console [class*="border-slate-800"] {
-    border-color: #1E293B !important;
+    border-color: #E2E8F0 !important;
   }
+}
+
+/* Dark mode demo-controls styles */
+html.dark .demo-controls-console button.group,
+html.dark .demo-controls-console button {
+  background-color: #0F172A !important;
+  border: 2px dashed #F59E0B !important;
+  color: #FCD34D !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.3) !important;
+}
+
+html.dark .demo-controls-console button:hover {
+  background-color: #1E293B !important;
+  border-color: #FBBF24 !important;
+}
+
+html.dark .demo-controls-console button span {
+  color: #FCD34D !important;
+}
+
+html.dark .demo-controls-console button span.rounded-full,
+html.dark .demo-controls-console [data-role-badge] {
+  background-color: rgba(245, 158, 11, 0.25) !important;
+  color: #FDE68A !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  font-weight: 700 !important;
+}
+
+html.dark .demo-controls-console button svg {
+  color: #F59E0B !important;
+}
+
+html.dark .demo-controls-console > div {
+  background-color: #0F172A !important;
+  border: 2px dashed rgba(245, 158, 11, 0.8) !important;
+  color: #E2E8F0 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.25) !important;
 }
 
 /* ==========================================================================

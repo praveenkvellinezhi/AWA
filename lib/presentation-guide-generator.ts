@@ -3,9 +3,12 @@ import {
   PresentationAssetType,
   PresentationGenerationType,
   PresentationWorkflowConfig,
+  PresentationWorkflowPrompts,
+  SlidePrompt,
   Template,
   UsageStep,
 } from "./types";
+import { getTemplateCategoryKey } from "./category-guide-config";
 
 /**
  * Normalizes tool name for matching.
@@ -20,88 +23,12 @@ function normalizeTool(name: string): string {
 export function isPresentationGenerationTemplate(template: {
   categoryId?: string;
   categoryName?: string;
+  category?: string;
+  slug?: string;
   tags?: string[];
   recommendedTools?: { toolName: string }[];
-  description?: string;
-  name?: string;
 }): boolean {
-  const catId = (template.categoryId || "").toLowerCase();
-  const catName = (template.categoryName || "").toLowerCase();
-  const name = (template.name || "").toLowerCase();
-  const desc = (template.description || "").toLowerCase();
-  const tags = (template.tags || []).map((t) => t.toLowerCase());
-
-  // Category matching
-  if (
-    catId === "cat-slides-presentations" ||
-    catId.includes("slide") ||
-    catId.includes("presentation") ||
-    catName.includes("slide") ||
-    catName.includes("presentation")
-  ) {
-    return true;
-  }
-
-  // Tag matching
-  const slideKeywords = [
-    "presentation",
-    "slide",
-    "slides",
-    "pitch deck",
-    "deck",
-    "keynote",
-    "qbr",
-    "fundraising",
-    "powerpoint",
-    "gamma",
-    "canva",
-    "beautiful.ai",
-    "tome",
-    "pitch",
-    "slidesai",
-    "plus ai",
-    "prezi",
-  ];
-
-  if (tags.some((t) => slideKeywords.some((kw) => t.includes(kw)))) {
-    return true;
-  }
-
-  // Tool matching
-  const slideTools = [
-    "gamma",
-    "canva",
-    "beautiful.ai",
-    "powerpoint",
-    "copilot",
-    "google slides",
-    "gemini",
-    "tome",
-    "pitch",
-    "plus ai",
-    "slidesai",
-    "prezi",
-  ];
-
-  const hasSlideTool = (template.recommendedTools || []).some((tool) =>
-    slideTools.some((st) => tool.toolName.toLowerCase().includes(st))
-  );
-  if (hasSlideTool) return true;
-
-  // Name / description matching
-  if (
-    name.includes("slide") ||
-    name.includes("pitch deck") ||
-    name.includes("presentation") ||
-    name.includes("keynote") ||
-    desc.includes("presentation deck") ||
-    desc.includes("pitch deck") ||
-    desc.includes("slide structure")
-  ) {
-    return true;
-  }
-
-  return false;
+  return getTemplateCategoryKey(template) === "slides";
 }
 
 /**
@@ -145,7 +72,7 @@ export function getPresentationWorkflowDescription(
 ): string {
   switch (type) {
     case "prompt-to-presentation":
-      return `Generate a complete, narrative-driven presentation deck from a descriptive prompt in ${toolName}.`;
+      return `Generate a complete, narrative-driven presentation deck from a sequence of specialized AI prompts in ${toolName}.`;
     case "topic-to-presentation":
       return `Transform a high-level topic into a structured, multi-slide presentation with strong visual pacing in ${toolName}.`;
     case "outline-to-slides":
@@ -167,8 +94,556 @@ export function getPresentationWorkflowDescription(
     case "branded-presentation":
       return `Apply custom brand guidelines, color palettes, typography, and logo lockups across all slides in ${toolName}.`;
     default:
-      return `Follow this structured walkthrough to generate, refine, review, and export your presentation in ${toolName}.`;
+      return `Execute this 9-step prompt pipeline to generate, structure, design, refine, and review your presentation in ${toolName}.`;
   }
+}
+
+/**
+ * Standard default slide-by-slide prompts for complete pitch deck & presentation generation.
+ * Each individual slide has its own copyable, production-grade prompt.
+ */
+export const defaultSlidePrompts: SlidePrompt[] = [
+  {
+    slideNumber: 1,
+    title: "Cover & Strategic Hook",
+    purpose: "Establish high-conviction first impression, brand identity, and core mission",
+    prompt: `Generate Slide 01 (Title Card) for [COMPANY/TOPIC].
+
+Headline: [NAME / PRODUCT] — [ONE-LINE COMPELLING MISSION]
+Subtitle: [TARGET MARKET / STRATEGIC PROPOSITION]
+Presenter: [PRESENTER NAME / FOUNDERS] | [DATE / SERIES]
+
+Visual Direction:
+- Minimalist high-contrast obsidian background (#090A0F) with electric cyan (#00F5D4) accent glow.
+- Centered typography hierarchy with prominent bold hero headline.
+- Subtle geometric grid watermark and clean logo lockup in top-left.
+
+Tone: Authoritative, visionary, uncluttered.`,
+    layout: "Hero Title Center",
+  },
+  {
+    slideNumber: 2,
+    title: "The Problem & Pain Point",
+    purpose: "Articulate the acute friction, cost of inaction, and market inefficiency",
+    prompt: `Generate Slide 02 (The Problem) for [TOPIC].
+
+Headline: The Critical Pain in [INDUSTRY]
+Core Message: Traditional approaches are costing enterprises millions in wasted hours and operational friction.
+
+Visual Structure:
+- 3 distinct acute friction points formatted as equal comparison cards.
+- Bold stat callout on each card (e.g. "68% of teams struggle with...", "$4.2M average annual loss").
+- Warning accent indicators (#F59E0B) on critical friction points.
+
+Avoid paragraphs—use 1-line headlines with 2-line supporting bullets per card.`,
+    layout: "3-Column Pain Matrix",
+  },
+  {
+    slideNumber: 3,
+    title: "The Solution & Value Proposition",
+    purpose: "Present the core product paradigm shift and immediate customer benefits",
+    prompt: `Generate Slide 03 (The Solution) for [PRODUCT].
+
+Headline: [PRODUCT]: The New Operating System for [DOMAIN]
+Core Message: Autonomous, AI-driven workflows that eliminate manual friction.
+
+Visual Structure:
+- Split layout: Left side highlights 3 primary pillars of value (Speed, Accuracy, Automation).
+- Right side displays clean, stylized product UI wireframe/architecture preview.
+- High-contrast electric cyan highlights on key technological differentiators.`,
+    layout: "Split Value & Architecture",
+  },
+  {
+    slideNumber: 4,
+    title: "Product Architecture & Workflow",
+    purpose: "Show how the technology actually works with clear visual flow",
+    prompt: `Generate Slide 04 (Product Workflow) for [PRODUCT].
+
+Headline: End-to-End Autonomous Pipeline
+Workflow Stages:
+1. Ingestion: Seamless API & data ingestion from enterprise sources.
+2. AI Context Engine: Autonomous context processing & intent parsing.
+3. Verification Matrix: Real-time validation and compliance check.
+4. Production Action: Immediate execution and automated reporting.
+
+Visual: 4 connected glowing process cards with directional flow arrows and icon markers.`,
+    layout: "4-Stage Flowchart",
+  },
+  {
+    slideNumber: 5,
+    title: "Market Opportunity (TAM / SAM / SOM)",
+    purpose: "Prove venture-scale addressable market with credible sizing breakdown",
+    prompt: `Generate Slide 05 (Market Opportunity) for [INDUSTRY].
+
+Headline: Sizing a [TOTAL TAM] Market In Transition
+Data Callouts:
+- TAM: $[TOTAL]B (Total Global Addressable Market)
+- SAM: $[SERVEABLE]B (Serviceable Addressable Market in target verticals)
+- SOM: $[OBTAINABLE]M (Immediate 24-Month Target Beachhead)
+
+Visual: 3 nested concentric metric cards with proportional font scaling and authoritative market research citations.`,
+    layout: "3-Tier Market Sizing Cards",
+  },
+  {
+    slideNumber: 6,
+    title: "Business Model & Monetization",
+    purpose: "Explain unit economics, pricing tiers, and land-and-expand revenue model",
+    prompt: `Generate Slide 06 (Business Model) for [COMPANY].
+
+Headline: High-Margin SaaS with Usage-Based Expansion
+Tiers:
+1. Platform Starter: Base annual subscription for core workflow routing.
+2. Enterprise Pro: Advanced security, custom AI models, and dedicated SLAs.
+3. Volume Expansion: Usage-based consumption meter on automated actions.
+
+Visual: Clean 3-tier comparison matrix with highlighted recommended Enterprise tier and land-and-expand ARR illustration.`,
+    layout: "Pricing Tier Matrix",
+  },
+  {
+    slideNumber: 7,
+    title: "Early Traction & Proof Points",
+    purpose: "Demonstrate verified adoption, revenue velocity, and customer love",
+    prompt: `Generate Slide 07 (Traction & Metrics) for [COMPANY].
+
+Headline: Rapid Enterprise Adoption & Revenue Velocity
+Key Metrics:
+- Monthly Revenue: $[MRR] MRR (+[MOM]% Month-over-Month Growth)
+- Enterprise Pilots: [NUMBER] active multi-year deployments
+- Net Retention: [RETENTION]% Net Revenue Retention (NRR)
+
+Visual: 3 bold KPI counter blocks with upward trend green pill badges (#10B981) and customer logo row below.`,
+    layout: "KPI Metric Counter Grid",
+  },
+  {
+    slideNumber: 8,
+    title: "Competitive Moat & Defensibility",
+    purpose: "Highlight proprietary advantages, network effects, and switching barriers",
+    prompt: `Generate Slide 08 (Competitive Moat) for [COMPANY].
+
+Headline: Why [COMPANY] Wins and Retains Market Dominance
+Comparison:
+- Legacy Competitors: Slow manual setup, rigid rule engines, high deployment overhead.
+- Generic Point AI Tools: Superficial wrapper interfaces, zero enterprise integrations.
+- [COMPANY]: Deep bi-directional API orchestrations, fine-tuned proprietary models, compounding data flywheel.
+
+Visual: 2x2 competitive positioning quadrant or 3-column feature comparison matrix with checkmark indicators.`,
+    layout: "2x2 Positioning Matrix",
+  },
+  {
+    slideNumber: 9,
+    title: "Founding Team & Key Leaders",
+    purpose: "Build investor trust in founders' domain expertise and track record",
+    prompt: `Generate Slide 09 (Founding Team) for [COMPANY].
+
+Headline: World-Class Engineering & Domain Leadership
+Team Cards:
+1. CEO: Prior founder with successful exit in enterprise SaaS; ex-[NOTABLE COMPANY].
+2. CTO: PhD in Machine Learning; former Principal AI Architect at [NOTABLE COMPANY].
+3. Head of Product: 10+ years scaling enterprise developer tools and UX.
+
+Visual: 3 modern team cards with photo slots, LinkedIn badges, previous exit credentials, and top university badges.`,
+    layout: "3-Card Team Grid",
+  },
+  {
+    slideNumber: 10,
+    title: "The Ask & Capital Allocation",
+    purpose: "State funding target, valuation, and 18-month strategic milestones",
+    prompt: `Generate Slide 10 (The Investment Opportunity) for [COMPANY].
+
+Headline: Raising $[AMOUNT] to Accelerate Market Capture
+Use of Funds:
+- 60% Engineering & Core Model Infrastructure
+- 30% Enterprise Go-To-Market & Sales Expansion
+- 10% Operations, Compliance & Security Certifications
+
+18-Month Milestones:
+- Scale from $[CURRENT MRR] to $[TARGET ARR] ARR
+- Expand active enterprise logos from [CURRENT] to 150+
+Contact: [FOUNDER EMAIL / PHONE] | [INVESTOR PORTAL LINK]
+
+Visual: Clean donut allocation chart on left side, milestone timeline roadmap on right side.`,
+    layout: "Split Allocation & Roadmap",
+  },
+];
+
+/**
+ * Builds the 9-Step Prompt Workflow for Slides & Presentations.
+ * Every step is an ACTUAL USABLE AI PROMPT that users can copy directly into Gamma, Canva, Claude, ChatGPT, or PowerPoint.
+ */
+export function buildPresentationPromptSteps(
+  templateContext?: {
+    name?: string;
+    description?: string;
+    promptText?: string;
+    style?: string;
+    tags?: string[];
+    presentationPrompts?: PresentationWorkflowPrompts;
+    slidePrompts?: SlidePrompt[];
+    targetAudience?: string;
+    objective?: string;
+    slideCount?: number;
+  },
+  toolName: string = "Gamma",
+  modelName: string = "Gamma Presentation AI"
+): UsageStep[] {
+  const name = templateContext?.name || "B2B AI SaaS Pitch Deck";
+  const tags = (templateContext?.tags || []).map((t) => t.toLowerCase());
+  const custom = templateContext?.presentationPrompts;
+
+  // Infer smart defaults from template context
+  const isPitch = tags.includes("pitch") || tags.includes("fundraising") || name.toLowerCase().includes("pitch");
+  const isQBR = tags.includes("qbr") || name.toLowerCase().includes("qbr") || name.toLowerCase().includes("review");
+  const isKeynote = tags.includes("keynote") || name.toLowerCase().includes("keynote") || name.toLowerCase().includes("launch");
+
+  const defaultTopic = name;
+  const defaultAudience = templateContext?.targetAudience || (
+    isPitch
+      ? "Tier-1 Venture Capitalists & Angel Investors"
+      : isQBR
+      ? "Executive Board & Department Leadership"
+      : isKeynote
+      ? "Industry Conference Attendees & Prospective Enterprise Customers"
+      : "Executive Decision Makers & Stakeholders"
+  );
+  const defaultObjective = templateContext?.objective || (
+    isPitch
+      ? "Secure $3M Seed funding by validating market urgency, autonomous product architecture, and rapid customer velocity"
+      : isQBR
+      ? "Report quarterly ARR performance, highlight operational efficiencies, and lock in next quarter OKR roadmap"
+      : isKeynote
+      ? "Introduce breakthrough platform capabilities and convert audience into beta enterprise pilots"
+      : "Deliver a compelling, data-backed presentation that drives clear organizational alignment"
+  );
+  const defaultStyle = templateContext?.style || "Minimalist Obsidian (#090A0F) with Electric Cyan (#00F5D4) accents";
+
+  return [
+    // ------------------------------------------------------------------------
+    // PROMPT 01 — Presentation Strategy
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 1,
+      title: "Step 01 — Generate Presentation Strategy",
+      instruction:
+        "Instructs the AI to establish target audience, strategic objectives, narrative tone, and optimal slide count.",
+      tip: "Copy this prompt into your AI model first to establish the strategic guardrails before drafting any slide content.",
+      promptCategory: "Strategy",
+      promptVariables: [
+        { name: "[TOPIC]", description: "The core subject of the presentation", defaultValue: defaultTopic },
+        { name: "[TARGET AUDIENCE]", description: "Who will receive this presentation", defaultValue: defaultAudience },
+        { name: "[OBJECTIVE]", description: "The desired business outcome", defaultValue: defaultObjective },
+      ],
+      prompt: custom?.strategy || `Create a presentation strategy for [TOPIC].
+
+The presentation is intended for [TARGET AUDIENCE].
+
+The primary objective is [OBJECTIVE].
+
+Define:
+- the core message
+- audience expectations
+- presentation tone
+- key information that must be communicated
+- recommended presentation length
+- recommended number of slides
+- desired audience takeaway
+
+Keep the strategy focused and suitable for a professional presentation.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 02 — Presentation Structure
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 2,
+      title: "Step 02 — Generate Presentation Structure",
+      instruction:
+        "Generates a complete slide-by-slide sequence with narrative flow, titles, purposes, and layout archetypes.",
+      tip: "Paste your output from Prompt 01 into [PASTE PRESENTATION STRATEGY]. This ensures each slide advances the storyline logically.",
+      promptCategory: "Structure",
+      promptVariables: [
+        { name: "[PASTE PRESENTATION STRATEGY]", description: "The strategy generated in Prompt 01" },
+      ],
+      prompt: custom?.structure || `Based on the presentation strategy below, create a complete slide-by-slide presentation structure.
+
+Presentation Strategy:
+[PASTE PRESENTATION STRATEGY]
+
+Create an appropriate sequence of slides.
+
+For every slide provide:
+- Slide number
+- Slide title
+- Purpose of the slide
+- Main message
+- Key information to communicate
+- Recommended visual type
+- Recommended layout
+
+Do not force a fixed number of slides.
+
+The structure should follow a logical narrative from introduction to conclusion.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 03 — Individual Slide Planning
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 3,
+      title: "Step 03 — Generate Individual Slide Specifications",
+      instruction:
+        "Produces an exhaustive blueprint defining content, typography, visuals, statistics, and speaker notes for every slide.",
+      tip: "This blueprint prevents redundant content across slides and guarantees every slide has one distinct purpose.",
+      promptCategory: "Slide Planning",
+      promptVariables: [
+        { name: "[PASTE PRESENTATION STRUCTURE]", description: "The slide structure generated in Prompt 02" },
+      ],
+      prompt: custom?.slidePlanning || `Using the presentation structure below, create a detailed specification for every individual slide.
+
+Presentation Structure:
+[PASTE PRESENTATION STRUCTURE]
+
+For each slide define:
+1. Slide number
+2. Slide title
+3. Primary objective
+4. Main message
+5. Supporting content
+6. Visual requirements
+7. Recommended layout
+8. Typography hierarchy
+9. Data or statistics required
+10. Image or illustration requirements
+11. Call-to-action, if applicable
+12. Speaker notes, if required
+
+Make every slide serve a distinct purpose.
+
+Avoid repeating the same information across multiple slides.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 04 — Slide Content Generation
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 4,
+      title: "Step 04 — Generate Slide Content",
+      instruction:
+        "Generates concise, punchy presentation copy without filler or long text blocks for any specific slide.",
+      tip: "Run this prompt for each slide number. It enforces short headlines and scannable bullet points suitable for slides.",
+      promptCategory: "Content",
+      promptVariables: [
+        { name: "[SLIDE NUMBER]", description: "e.g. 1, 2, 3..." },
+        { name: "[PRESENTATION CONTEXT]", description: "Brief summary of the deck" },
+        { name: "[SLIDE PURPOSE]", description: "Primary goal of this slide" },
+        { name: "[SLIDE TITLE]", description: "The slide's working title" },
+      ],
+      prompt: custom?.contentGeneration || `Create the content for Slide [SLIDE NUMBER] of the presentation.
+
+Presentation context:
+[PRESENTATION CONTEXT]
+
+Slide purpose:
+[SLIDE PURPOSE]
+
+Slide title:
+[SLIDE TITLE]
+
+Create concise, presentation-ready content.
+
+Include only information that supports the primary message of this slide.
+
+Use:
+- short headlines
+- concise supporting text
+- meaningful statistics where relevant
+- short bullet points when appropriate
+
+Avoid long paragraphs and unnecessary filler content.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 05 — Visual Direction
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 5,
+      title: "Step 05 — Generate Visual Direction",
+      instruction:
+        "Defines layout, typography hierarchy, image treatment, color accents, and spacing for visual design tools.",
+      tip: "Use this prompt with Gamma, Canva, Figma, or PowerPoint to guide the aesthetic execution of the slide.",
+      promptCategory: "Visual Direction",
+      promptVariables: [
+        { name: "[SLIDE CONTENT]", description: "Content produced in Prompt 04" },
+        { name: "[PRESENTATION STYLE]", description: defaultStyle },
+      ],
+      prompt: custom?.visualDirection || `Create the visual direction for this presentation slide.
+
+Slide content:
+[SLIDE CONTENT]
+
+Define:
+- layout
+- visual hierarchy
+- typography hierarchy
+- image placement
+- image treatment
+- color usage
+- spacing
+- icons or illustrations
+- charts or diagrams if required
+- background treatment
+
+The visual design should support the slide's main message rather than simply decorating the slide.
+
+Maintain consistency with the overall presentation style: [PRESENTATION STYLE].`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 06 — Slide-by-Slide Generation
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 6,
+      title: "Step 06 — Generate Individual Slides",
+      instruction:
+        "Assembles the complete presentation slide combining copy, layout, data visualization, and typography hierarchy.",
+      tip: "The flagship production prompt: produces complete, standalone slide cards that integrate seamlessly into the master deck.",
+      promptCategory: "Slide Generation",
+      promptVariables: [
+        { name: "[SLIDE NUMBER]", description: "e.g. 1, 2, 3..." },
+        { name: "[PRESENTATION CONTEXT]", description: defaultTopic },
+        { name: "[SLIDE SPECIFICATION]", description: "Slide blueprint from Prompt 03 & 04" },
+      ],
+      prompt: custom?.slideGeneration || `Create Slide [SLIDE NUMBER] for the following presentation.
+
+Presentation:
+[PRESENTATION CONTEXT]
+
+Slide specification:
+[SLIDE SPECIFICATION]
+
+Generate a complete presentation slide based on the specification.
+
+Include:
+- slide title
+- slide content
+- visual hierarchy
+- layout
+- imagery or illustration direction
+- charts/data visualization when required
+- typography hierarchy
+- spacing
+- supporting elements
+
+The slide should communicate one clear primary idea.
+
+Do not add unnecessary content.
+
+Ensure the slide can visually stand on its own while remaining consistent with the rest of the presentation.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 07 — Data / Charts / Visuals
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 7,
+      title: "Step 07 — Generate Data Visualizations & Charts",
+      instruction:
+        "Analyzes numerical data and selects the highest-impact visual chart, table, timeline, or stat callout.",
+      tip: "Critical for metrics slides, financial highlights, market sizing (TAM/SAM/SOM), and roadmap schedules.",
+      promptCategory: "Visuals / Data",
+      promptVariables: [
+        { name: "[SLIDE CONTENT]", description: "Raw metrics, revenue numbers, or timeline dates" },
+      ],
+      prompt: custom?.dataVisualization || `Analyze the following slide content and determine the most effective way to visually communicate the information.
+
+Content:
+[SLIDE CONTENT]
+
+Determine whether the slide should use:
+- KPI / statistics callouts
+- bar chart
+- line chart
+- pie / donut chart
+- comparison table
+- timeline / roadmap
+- process flow diagram
+- infographic cards
+- comparison matrix
+- visual illustration
+
+Then provide the recommended visual structure and explain how the information should be arranged.
+
+Prioritize clarity and fast comprehension.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 08 — Presentation Consistency & Refinement
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 8,
+      title: "Step 08 — Refine Visual Consistency",
+      instruction:
+        "Audits all generated slides as a complete visual system, aligning typography, margins, colors, and styling.",
+      tip: "Run this across your assembled slides before final review to ensure the deck looks designed by one expert agency.",
+      promptCategory: "Consistency",
+      promptVariables: [
+        { name: "[PRESENTATION SLIDES]", description: "The list of assembled slide cards or summaries" },
+      ],
+      prompt: custom?.consistency || `Review the following presentation slides as a complete visual system.
+
+[PRESENTATION SLIDES]
+
+Identify and refine inconsistencies in:
+- typography
+- spacing
+- alignment
+- colors
+- visual hierarchy
+- image treatment
+- card styles
+- icon styles
+- chart styles
+- margins
+- layouts
+
+Preserve the unique purpose of each slide while ensuring the entire presentation feels like one cohesive design system.`,
+    },
+
+    // ------------------------------------------------------------------------
+    // PROMPT 09 — Final Presentation Review
+    // ------------------------------------------------------------------------
+    {
+      stepNumber: 9,
+      title: "Step 09 — Review Final Presentation",
+      instruction:
+        "Performs an executive audit evaluating narrative flow, information density, readability, and audience impact.",
+      tip: "Provides targeted surgical improvements without rewriting slides that are already working well.",
+      promptCategory: "Review",
+      promptVariables: [
+        { name: "[PRESENTATION]", description: "The complete presentation content from Slide 1 to end" },
+      ],
+      prompt: custom?.finalReview || `Review the complete presentation below.
+
+[PRESENTATION]
+
+Evaluate every slide for:
+- clarity
+- narrative flow
+- content quality
+- visual hierarchy
+- readability
+- information density
+- consistency
+- unnecessary repetition
+- missing information
+- weak transitions
+
+Suggest specific improvements for individual slides.
+
+Do not rewrite the entire presentation unnecessarily.
+
+Only modify slides where improvement is required.`,
+    },
+  ];
 }
 
 /**
@@ -178,29 +653,30 @@ export function resolvePresentationWorkflow(
   template: Template,
   activeToolName?: string
 ): PresentationWorkflowConfig {
+  const customPrompts = template.presentationPrompts;
+  const customSlides = template.slidePrompts;
+
   if (template.presentationWorkflow) {
     return {
       ...template.presentationWorkflow,
       tool: activeToolName || template.presentationWorkflow.tool,
+      prompts: customPrompts || template.presentationWorkflow.prompts,
+      slides: customSlides || template.presentationWorkflow.slides || defaultSlidePrompts,
     };
   }
 
   const tags = (template.tags || []).map((t) => t.toLowerCase());
   const name = (template.name || "").toLowerCase();
   const desc = (template.description || "").toLowerCase();
-  const prompt = (template.promptText || "").toLowerCase();
 
   let generationType: PresentationGenerationType = "prompt-to-presentation";
   let presentationType = "Business Presentation";
   const assets: PresentationAsset[] = [];
   let slideCount = 10;
   let hasDataVerification = false;
-  let requiresSpeakerNotes = false;
-  let requiresAnimations = false;
-  const outline: string[] = [];
 
   // Detect slide count from name or prompt
-  const countMatch = (template.name + " " + template.promptText).match(/(\d+)[\s-]slide/i);
+  const countMatch = (template.name + " " + (template.promptText || "")).match(/(\d+)[\s-]slide/i);
   if (countMatch) {
     slideCount = parseInt(countMatch[1], 10);
   }
@@ -208,1013 +684,66 @@ export function resolvePresentationWorkflow(
   // Detect presentation type
   if (tags.includes("pitch deck") || name.includes("pitch deck") || desc.includes("pitch deck")) {
     presentationType = "Pitch Deck & Fundraising";
+    hasDataVerification = true;
   } else if (tags.includes("qbr") || name.includes("qbr") || name.includes("quarterly")) {
     presentationType = "Quarterly Business Review (QBR)";
+    hasDataVerification = true;
   } else if (tags.includes("keynote") || name.includes("keynote") || name.includes("launch")) {
     presentationType = "Keynote & Product Launch";
   } else if (tags.includes("investor") || name.includes("series a") || name.includes("seed")) {
     presentationType = "Investor Growth Presentation";
+    hasDataVerification = true;
   } else if (tags.includes("sales") || name.includes("sales")) {
     presentationType = "Sales & Client Proposal";
   } else if (tags.includes("educational") || tags.includes("training")) {
     presentationType = "Educational & Training Workshop";
   }
 
-  // Detect data verification need
-  if (
-    tags.includes("analytics") ||
-    tags.includes("fintech") ||
-    tags.includes("okr") ||
-    name.includes("arr") ||
-    name.includes("qbr") ||
-    name.includes("growth") ||
-    prompt.includes("tam") ||
-    prompt.includes("arr") ||
-    prompt.includes("revenue") ||
-    prompt.includes("metric") ||
-    prompt.includes("chart")
-  ) {
-    hasDataVerification = true;
-  }
-
-  // 1. Detect Document / PDF to Presentation
-  if (
-    tags.includes("document") ||
-    tags.includes("pdf") ||
-    name.includes("document") ||
-    name.includes("pdf") ||
-    desc.includes("pdf")
-  ) {
-    generationType = tags.includes("pdf") || name.includes("pdf") ? "pdf-to-presentation" : "document-to-presentation";
-    assets.push({
-      id: "asset-source-doc",
-      type: tags.includes("pdf") || name.includes("pdf") ? "pdf" : "document",
-      label: `${template.name} Source Document`,
-      description: "Upload this source document or report. The AI will extract core findings and structure slides.",
-      required: true,
-      role: "Source Material",
-      fileFormat: tags.includes("pdf") || name.includes("pdf") ? "PDF" : "DOCX / Text",
-    });
-  }
-  // 2. Detect Data to Presentation
-  else if (
-    tags.includes("data") ||
-    name.includes("data") ||
-    prompt.includes("financial highlights") ||
-    prompt.includes("cohort retention")
-  ) {
-    generationType = "data-to-presentation";
-    hasDataVerification = true;
-    assets.push({
-      id: "asset-data-file",
-      type: "data-file",
-      label: `${template.name} Metrics & Financial Table`,
-      description: "Provide the quantitative dataset, CSV, or spreadsheet to generate verified charts and tables.",
-      required: true,
-      role: "Financial & Quantitative Data",
-      fileFormat: "CSV / Excel / Table",
-    });
-  }
-  // 3. Detect Branded Presentation
-  else if (
-    tags.includes("brand") ||
-    tags.includes("branded") ||
-    name.includes("branded") ||
-    prompt.includes("brand guidelines")
-  ) {
-    generationType = "branded-presentation";
-    assets.push(
-      {
-        id: "asset-brand-logo",
-        type: "logo",
-        label: "Corporate Brand Logo",
-        description: "Vector logo mark (SVG or high-res PNG) for slide master headers and title cards.",
-        required: true,
-        role: "Brand Identity",
-        fileFormat: "SVG / PNG",
-      },
-      {
-        id: "asset-brand-palette",
-        type: "brand-assets",
-        label: "Brand Colors & Typography Guidelines",
-        description: "Primary brand hex codes and typography pairings to enforce visual consistency.",
-        required: true,
-        role: "Style Guide",
-      }
-    );
-  }
-  // 4. Detect Existing Presentation Redesign
-  else if (
-    tags.includes("redesign") ||
-    name.includes("redesign") ||
-    desc.includes("redesign")
-  ) {
-    generationType = "existing-presentation-redesign";
-    assets.push({
-      id: "asset-existing-deck",
-      type: "existing-presentation",
-      label: "Legacy Presentation File",
-      description: "Upload the existing presentation to modernize layout hierarchy while keeping core content intact.",
-      required: true,
-      role: "Original Slide Deck",
-      fileFormat: "PPTX / PDF",
-    });
-  }
-  // 5. Detect Outline to Slides
-  else if (
-    prompt.includes("slide 1") ||
-    prompt.includes("slide sequence:") ||
-    prompt.includes("slides required:")
-  ) {
-    generationType = "outline-to-slides";
-  }
-  // 6. Default: Prompt to Presentation
-  else {
-    generationType = "prompt-to-presentation";
-  }
-
-  // Extract slide outline from prompt if present
-  const slideRegex = /(?:Slide\s*\d+\s*[:—\)]\s*|(\d+\)\s*))([^\.\n\d\)]+)/gi;
-  let match;
-  const promptToScan = template.promptText || template.uiPrompt || "";
-  while ((match = slideRegex.exec(promptToScan)) !== null) {
-    if (match[2] && match[2].trim().length > 3 && outline.length < 15) {
-      outline.push(match[2].trim().replace(/[:—].*$/, ""));
-    }
-  }
-
   return {
-    tool: activeToolName,
     generationType,
     presentationType,
-    assets: assets.length > 0 ? assets : undefined,
     slideCount,
-    prompt: template.promptText,
-    outline: outline.length > 0 ? outline : undefined,
+    assets,
+    theme: template.style || "Minimalist Obsidian (#090A0F) with Electric Cyan (#00F5D4) Accents",
+    prompts: customPrompts,
+    slides: customSlides || defaultSlidePrompts,
     hasDataVerification,
-    requiresSpeakerNotes,
-    requiresAnimations,
-    exportFormats: ["PPTX", "PDF", "Shareable Link", "Presenter View"],
+    requiresSpeakerNotes: true,
+    supportedExportFormats: ["PPTX", "PDF", "Shareable Link", "Presenter Mode"],
   };
 }
 
-export interface GuideContext {
-  templateName?: string;
-  promptText?: string;
-  style?: string;
-  categoryId?: string;
-  slideCount?: number;
-  assets?: PresentationAsset[];
-}
-
 /**
- * Dynamically generates 8–10 tool-specific, presentation-tailored steps for AI Slide Generation.
+ * Dynamically generates tool-specific, presentation-tailored prompt steps for AI Slide Generation.
  */
 export function generatePresentationGuide(
   workflow: PresentationWorkflowConfig,
   toolName: string,
   modelName?: string,
-  context?: GuideContext
+  context?: {
+    templateName?: string;
+    promptText?: string;
+    style?: string;
+    categoryId?: string;
+    targetAudience?: string;
+    objective?: string;
+    slideCount?: number;
+    presentationPrompts?: PresentationWorkflowPrompts;
+    slidePrompts?: SlidePrompt[];
+  }
 ): UsageStep[] {
-  function buildSteps(): UsageStep[] {
-    const norm = normalizeTool(toolName);
-  const genType = workflow.generationType;
-  const presType = workflow.presentationType || "Business Presentation";
-  const slideCount = workflow.slideCount || context?.slideCount || 10;
-  const hasAssets = !!(workflow.assets && workflow.assets.length > 0);
-  const isDoc = genType === "document-to-presentation" || genType === "pdf-to-presentation";
-  const isData = genType === "data-to-presentation" || workflow.hasDataVerification;
-  const isBranded = genType === "branded-presentation" || !!workflow.brandAssets;
-  const isRedesign = genType === "existing-presentation-redesign";
-  const isOutline = genType === "outline-to-slides" || !!(workflow.outline && workflow.outline.length > 0);
-
-  const basePrompt = context?.promptText || workflow.prompt || "the provided presentation prompt";
-
-  // ----------------------------------------------------
-  // 1. GAMMA WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("gamma")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Gamma App",
-        instruction: "Navigate to gamma.app and sign in to your creator workspace.",
-        tip: "Gamma formats presentation cards with responsive pacing, automatic stat cards, and clean typography scales.",
-      },
-      {
-        stepNumber: 2,
-        title: "Select Presentation Generator",
-        instruction: isDoc
-          ? "Click 'New with AI' and choose 'Paste in text / Import a document'. Select 'Presentation' as output."
-          : "Click 'New with AI' → 'Generate' and select 'Presentation' as the output format.",
-        tip: "Gamma automatically detects heading structures and converts them into sequential presentation cards.",
-      },
-    ];
-
-    if (hasAssets || isDoc || isData) {
-      steps.push({
-        stepNumber: 3,
-        title: isDoc
-          ? "Upload Source Document / Report"
-          : isData
-          ? "Upload Quantitative Data & Metrics"
-          : "Upload Reference Assets",
-        instruction: isDoc
-          ? `Upload the provided report (${(workflow.assets || []).map((a) => a.label).join(", ")}). Direct Gamma to extract core findings without losing key statistics.`
-          : isData
-          ? "Paste your financial table or upload your CSV dataset into Gamma's context input."
-          : `Provide your reference assets (${(workflow.assets || []).map((a) => a.label).join(", ")}).`,
-        tip: "Gamma preserves key numerical data points when instructed explicitly in the input brief.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Enter Presentation Prompt & Outline",
-        instruction: `Paste the AWA prompt into Gamma. Direct the AI to generate a ${presType} with clean cards and high visual hierarchy.`,
-        examplePrompt: `Create a ${slideCount}-card ${presType}. Tone: ${context?.style || "Executive & Authoritative"}. Requirements: ${workflow.outline?.join(" → ") || "clean stat cards, minimal bullet points, high-impact titles"}. Avoid text walls.`,
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: `Configure Card Count (${slideCount} Cards) & Theme`,
-        instruction: `Set the card count to exactly ${slideCount} cards. Select a high-contrast visual theme (such as obsidian dark, slate navy, or clean modern minimalist).`,
-        tip: "Choosing 16:9 widescreen card dimensions ensures clean projection during live pitches and Zoom calls.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Generate Presentation Deck",
-        instruction:
-          "Click Generate. Watch Gamma build each card sequentially, populating icons, stat callouts, and multi-column comparison grids in real time.",
-        tip: "Review the generated card outline before confirming final generation to ensure all required sections are present.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Slide-by-Slide Content & Layout Refinement",
-        instruction:
-          "Click into individual cards. Use Gamma's AI card rewrite tool to reduce text density and convert long paragraphs into 3 concise bullet points.",
-        examplePrompt:
-          "Convert this paragraph into 3 punchy bullet points with bold lead-in keywords. Increase whitespace around the stat callouts.",
-      }
-    );
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data, Numbers & Chart Labels",
-        instruction:
-          "Audit every numerical metric: verify currency symbols ($), percentages (%), dates, and axis labels against your source data.",
-        tip: "Double-check TAM/SAM/SOM concentric circles and revenue growth milestones for mathematical consistency.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Complete Deck Flow & Pacing",
-        instruction:
-          "Review the presentation from start to finish: verify smooth narrative transitions from Problem → Solution → Traction → Call to Action.",
-        tip: "Ensure font sizes, icon styles, and accent colors remain unified across all cards.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Export PPTX / PDF or Present Fullscreen",
-        instruction:
-          "Click the 'Share' menu in the top right. Export as a PowerPoint (.pptx) file, download as PDF, or click 'Present' for instant full-screen presentation mode.",
-        tip: "Exported PPTX decks maintain clean vector text and editable shapes for PowerPoint or Google Slides.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 2. CANVA MAGIC STUDIO WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("canva")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Canva",
-        instruction: "Navigate to canva.com and log in to your account.",
-        tip: "Canva Magic Design generates multi-slide presentation decks paired with hundreds of thousands of design assets and Brand Kits.",
-      },
-      {
-        stepNumber: 2,
-        title: "Launch Magic Design for Presentations",
-        instruction:
-          "Click 'Presentations' on the Canva homepage, then select 'Magic Design for Presentations' or search for 'AI Presentation'.",
-        tip: "Select 16:9 Presentation (1920x1080px) for standard modern display compatibility.",
-      },
-    ];
-
-    if (isBranded || hasAssets) {
-      steps.push({
-        stepNumber: 3,
-        title: "Upload Brand Assets & Activate Brand Kit",
-        instruction:
-          `Upload your corporate logo (${(workflow.assets || []).map((a) => a.label).join(", ")}) and select your Canva Brand Kit colors and font pairings.`,
-        tip: "Setting brand colors early allows Canva Magic Design to automatically tint all generated slides with your brand palette.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Enter Presentation Prompt",
-        instruction: `Paste the AWA prompt into Magic Design. Describe the presentation topic (${presType}), target audience, and desired ${slideCount}-slide structure.`,
-        examplePrompt: `Create a ${slideCount}-slide ${presType}. Topic: ${context?.templateName || "Business Presentation"}. Style: ${context?.style || "Clean Minimalist"}. Include title, problem, solution, metrics, and conclusion slides.`,
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Generate & Select Deck Style Variation",
-        instruction:
-          "Review the slide deck style variations generated by Magic Design. Choose the template with the strongest visual hierarchy and font balance.",
-        tip: "You can click 'Apply style to all pages' to synchronize color palettes across the entire deck.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Slide-by-Slide Layout & Graphic Customization",
-        instruction:
-          "Inspect each slide. Use Canva's drag-and-drop editor to replace stock illustrations with authentic product photos, metric cards, and charts.",
-        examplePrompt:
-          "Replace generic graphics with crisp minimal vector icons. Increase letter-spacing on section titles and ensure margins are balanced.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Readability, Typography & Alignment",
-        instruction:
-          "Check that font sizes follow clear hierarchy (40pt+ slide titles, 18pt body text) and that all cards and icons align to Canva's smart guides.",
-        tip: "Use Canva's 'Tidy Up' alignment tool to ensure equal spacing between metric cards and icon grids.",
-      }
-    );
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data & Interactive Charts",
-        instruction:
-          "Click on Canva chart elements to verify underlying spreadsheet numbers, labels, and percentage breakdowns.",
-        tip: "Canva allows direct entry of numbers or importing data from Google Sheets into native bar, line, and donut charts.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Present with Presenter View or Export PPTX / PDF",
-        instruction:
-          "Click 'Present' in the top right to launch Presenter View (with speaker notes and timer) or click 'Share' → 'Download' to export as PPTX or Standard PDF.",
-        tip: "Exporting as Microsoft PowerPoint (.pptx) preserves editable text boxes and individual shapes.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 3. BEAUTIFUL.AI WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("beautiful")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Beautiful.ai",
-        instruction: "Navigate to beautiful.ai and open your presentation dashboard.",
-        tip: "Beautiful.ai uses adaptive Smart Slide templates that automatically adjust typography and spacing as you add content.",
-      },
-      {
-        stepNumber: 2,
-        title: "Create New Presentation & Choose Smart Theme",
-        instruction: `Click 'Create New Presentation' and select a professional theme. Set your presentation purpose to '${presType}'.`,
-        tip: "Smart themes enforce 60-30-10 color rules, font constraints, and margins across every slide automatically.",
-      },
-    ];
-
-    if (hasAssets || isDoc) {
-      steps.push({
-        stepNumber: 3,
-        title: isDoc ? "Upload Source Document" : "Upload Brand Assets",
-        instruction: isDoc
-          ? `Upload the source document (${(workflow.assets || []).map((a) => a.label).join(", ")}). Direct DesignerBot to convert sections into slides.`
-          : `Upload your brand logo and define color codes in the Theme settings.`,
-        tip: "DesignerBot can summarize multi-page PDF/Word documents directly into discrete slide outlines.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Input Presentation Prompt into DesignerBot",
-        instruction: `Prompt DesignerBot with the complete AWA presentation brief. Specify ${slideCount} slides with high-impact layouts.`,
-        examplePrompt: `Build a ${slideCount}-slide ${presType} using Smart Slides. Structure: ${workflow.outline?.join(" → ") || "Hero, Problem, Solution, Data, Roadmap, Call to Action"}. Keep text concise and visual.`,
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Generate Smart Slides with Adaptive Layouts",
-        instruction:
-          "Allow DesignerBot to generate the complete deck. Watch Beautiful.ai calculate layout geometry, icon scaling, and card positions.",
-        tip: "Notice how text wrapping never overflows slide margins thanks to automated layout constraints.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Customize Smart Charts & Metric Cards",
-        instruction:
-          "Select the metrics and traction slides. Use Beautiful.ai's smart data visualizers (pie charts, stat callouts, milestone timelines) to input your numbers.",
-        examplePrompt:
-          "Format this slide with 3 large metric cards: 10x Speed, 99.4% Uptime, $42B Market Size with icon accents.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Refine Slide-by-Slide Content & Spacing",
-        instruction:
-          "Audit individual slides: trim verbose sentences into bullet points, select relevant un-splash photography, and ensure titles are active statements.",
-        tip: "Replace passive titles like 'Our Product' with active takeaways like 'Autonomous AI Engine Eliminates Manual Compliance'.",
-      }
-    );
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data & Numerical Accuracy",
-        instruction:
-          "Cross-reference all chart numbers, percentages, and financial milestone labels against your original source data.",
-        tip: "Ensure chart legends clearly identify units (e.g. Millions USD, Percentage YoY).",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Export to Editable PowerPoint (.pptx) or PDF",
-        instruction:
-          "Click the Export icon in the top toolbar. Download as an editable Microsoft PowerPoint (.pptx) file or vector PDF.",
-        tip: "Beautiful.ai exports clean PowerPoint shapes and fonts that can be edited in Microsoft Office or Google Slides.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 4. MICROSOFT COPILOT / POWERPOINT WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("powerpoint") || norm.includes("copilot")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Microsoft PowerPoint",
-        instruction: "Launch Microsoft PowerPoint (desktop or web) and ensure Microsoft Copilot is enabled on your ribbon.",
-        tip: "PowerPoint Copilot can generate complete presentations from text prompts or convert existing Word/PDF documents into slides.",
-      },
-      {
-        stepNumber: 2,
-        title: "Open Copilot Panel",
-        instruction:
-          "Click the 'Copilot' button on the Home ribbon to open the conversational AI task sidebar.",
-        tip: "Copilot can generate new decks, add single slides, or summarize existing presentations.",
-      },
-    ];
-
-    if (isDoc) {
-      steps.push({
-        stepNumber: 3,
-        title: "Upload / Link Source Document (Word/PDF)",
-        instruction:
-          `In the Copilot chat box, click 'Create presentation from file' and select your source document (${(workflow.assets || []).map((a) => a.label).join(", ")}).`,
-        tip: "Copilot reads the Word/PDF document's heading hierarchy and maps major sections into slide chapters.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Enter Presentation Generation Prompt",
-        instruction: `Paste the AWA prompt into Copilot. Direct Copilot to build a ${slideCount}-slide ${presType} with high executive clarity.`,
-        examplePrompt: `Create a ${slideCount}-slide ${presType} based on this prompt. Tone: ${context?.style || "Professional & Data-Driven"}. Include executive summary, problem, solution, metrics, and roadmap.`,
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Generate Initial Slide Draft",
-        instruction:
-          "Press Enter to run Copilot. Watch PowerPoint generate slides with title cards, content bullet points, and suggested imagery.",
-        tip: "Copilot adds speaker notes to generated slides automatically based on the source context.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Refine Slide Layouts with PowerPoint Designer",
-        instruction:
-          "Click on each generated slide and open the 'Designer' panel on the Home ribbon to choose polished visual layouts and stat card arrangements.",
-        tip: "Designer suggests high-end modern card layouts, asymmetric visual splits, and clean typography treatments with one click.",
-      }
-    );
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data & Excel-Linked Charts",
-        instruction:
-          "Audit all numerical data points in tables and charts. Right-click any chart to edit data in Excel and verify numbers against your records.",
-        tip: "Ensure data labels, currency symbols, and growth percentages match your verified financial metrics.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Slide Hierarchy & Speaker Notes",
-        instruction:
-          "Review the complete deck in Slide Sorter view. Check that speaker notes provide talking points, proof metrics, and presentation cues.",
-        tip: "Use PowerPoint's 'Rehearse with Coach' to test your presentation pacing and delivery.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Save & Export as PPTX or PDF",
-        instruction:
-          "Save the file to OneDrive or local storage as `.pptx`. Export as PDF for distribution or share a secure view-only PowerPoint link.",
-        tip: "Use 'Package for CD' or 'Compress Media' if your presentation contains embedded high-resolution videos or heavy graphics.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 5. GOOGLE GEMINI / GOOGLE SLIDES WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("gemini") || norm.includes("google slides")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Google Slides",
-        instruction: "Navigate to slides.google.com and open a new blank presentation.",
-        tip: "Google Workspace with Gemini provides built-in presentation generation and image creation directly inside Google Slides.",
-      },
-      {
-        stepNumber: 2,
-        title: "Launch 'Help me create a presentation' (Gemini)",
-        instruction:
-          "Click the 'Help me create a presentation' pen/sparkle icon at the top of the canvas or in the Gemini side panel.",
-        tip: "Gemini can generate entire decks or create custom AI images for specific slides.",
-      },
-      {
-        stepNumber: 3,
-        title: "Enter the Presentation Prompt",
-        instruction: `Paste the AWA prompt into Gemini. Specify that you need a ${slideCount}-slide ${presType} with clean modern layout.`,
-        examplePrompt: `Create a ${slideCount}-slide ${presType}. Topic: ${context?.templateName || "Business Presentation"}. Audience: Executives. Key sections: Problem, Solution, Market Opportunity, Product Architecture, Financial Metrics, Team.`,
-      },
-      {
-        stepNumber: 4,
-        title: "Generate Initial Slide Deck Draft",
-        instruction:
-          "Click 'Create'. Gemini will generate sequential slides complete with suggested titles, bulleted takeaways, and layout styles.",
-        tip: "Review the initial draft to verify that slide order follows a logical narrative arc.",
-      },
-      {
-        stepNumber: 5,
-        title: "Refine Typography, Colors & Master Layouts",
-        instruction:
-          "Use the Slide → Edit Theme menu to set brand fonts (e.g. Plus Jakarta Sans, Inter) and uniform color palettes across all slides.",
-        tip: "Harmonizing background tones and title font weights creates an immediate cohesive agency feel.",
-      },
-      {
-        stepNumber: 6,
-        title: "Slide-by-Slide Content Polish & Image Replacement",
-        instruction:
-          "Review individual slides: condense wordy sentences, add numeric callout boxes, and use Gemini to generate contextual editorial imagery.",
-        examplePrompt:
-          "Replace the generic bullet list on this slide with a 3-column comparative benefit grid with icon accents.",
-      }
-    ];
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Insert & Verify Linked Google Sheets Charts",
-        instruction:
-          "Insert charts linked directly to your Google Sheets data. Verify that numbers, percentages, and milestone labels match accurately.",
-        tip: "Linked Google Sheets charts allow one-click updating when financial numbers change.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Complete Presentation Flow",
-        instruction:
-          "Run through the presentation in 'Slideshow' mode to test transition smoothness, readability, and visual hierarchy from an audience perspective.",
-        tip: "Check that text contrast against slide backgrounds meets accessibility standards.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Present Live or Download as PPTX / PDF",
-        instruction:
-          "Present directly in Google Meet or click File → Download → Microsoft PowerPoint (.pptx) or PDF Document (.pdf).",
-        tip: "Google Slides allows instant real-time collaborative editing with teammates via shareable link.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 6. TOME WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("tome")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Tome",
-        instruction: "Navigate to tome.app and log in to your workspace.",
-        tip: "Tome combines AI storytelling with dynamic, responsive multi-media canvas layouts that adapt seamlessly to mobile and desktop.",
-      },
-      {
-        stepNumber: 2,
-        title: "Click 'Create with AI'",
-        instruction:
-          "Press Ctrl+K (or Cmd+K) and select 'Create presentation about...' from the AI command palette.",
-        tip: "Tome allows you to generate complete presentations from prompts or summarize long-form articles and documents.",
-      },
-      {
-        stepNumber: 3,
-        title: "Enter Presentation Narrative Prompt",
-        instruction: `Paste the AWA prompt into Tome's prompt bar. Direct the AI to generate a ${slideCount}-page ${presType} with cinematic visual tone.`,
-        examplePrompt: `Create a ${slideCount}-page ${presType}. Theme: ${context?.style || "Dark Modern"}. Focus on compelling storytelling, bold typography, and visual diagrams.`,
-      },
-      {
-        stepNumber: 4,
-        title: "Generate Presentation & Review Outline",
-        instruction:
-          "Tome generates an initial outline. Review the slide topics, re-order if necessary, and click 'Generate presentation'.",
-        tip: "Watch Tome build full-bleed slides with integrated AI imagery, multi-column layouts, and interactive embeds.",
-      },
-      {
-        stepNumber: 5,
-        title: "Customize Modular Canvas Blocks",
-        instruction:
-          "Use Tome's modular blocks to add 3D model previews, live web embeds, or interactive data charts into your slides.",
-        tip: "Drag and drop blocks to rearrange content without breaking layout alignment.",
-      },
-      {
-        stepNumber: 6,
-        title: "Refine Typography & Text Density",
-        instruction:
-          "Click into each slide to edit copy. Replace lengthy explanations with punchy headline takeaways and bulleted proof points.",
-        examplePrompt:
-          "Make this page more minimal: enlarge the headline, reduce body text to 2 lines, and emphasize the metric callout.",
-      },
-      {
-        stepNumber: 7,
-        title: "Review Responsive & Presentation View",
-        instruction:
-          "Test how the presentation looks on desktop and mobile. Tome automatically reflows content for vertical mobile scrolling.",
-        tip: "Click the Play icon to enter distraction-free full-screen presentation mode.",
-      },
-      {
-        stepNumber: 8,
-        title: "Share Interactive Link or Export to PDF",
-        instruction:
-          "Click 'Share' to generate an interactive web link with custom access controls, or export as a high-resolution PDF document.",
-        tip: "Interactive links allow viewers to interact with live embedded demos directly within the presentation.",
-      }
-    ];
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 7. PITCH WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("pitch")) {
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: "Open Pitch",
-        instruction: "Navigate to pitch.com and sign in to your team workspace.",
-        tip: "Pitch offers collaborative AI presentation creation with modular slide blocks, custom color palettes, and interactive team feedback.",
-      },
-      {
-        stepNumber: 2,
-        title: "Click 'Start with AI'",
-        instruction:
-          "Click the 'Start with AI' button on your dashboard to open the AI presentation builder.",
-        tip: "Pitch will prompt you for topic, audience, and visual styling choices.",
-      },
-      {
-        stepNumber: 3,
-        title: "Enter Presentation Brief & Choose Palette",
-        instruction: `Paste the AWA prompt into Pitch. Specify ${slideCount} slides and choose your preferred color palette (e.g. Obsidian Neon, Clean Minimalist).`,
-        examplePrompt: `Build an institutional-grade ${slideCount}-slide ${presType}. Narrative structure: ${workflow.outline?.join(" → ") || "Problem, Solution, Traction, Market, Team, Ask"}. Use bold typography and generous whitespace.`,
-      },
-      {
-        stepNumber: 4,
-        title: "Generate Modular Slide Stack",
-        instruction:
-          "Click 'Generate presentation'. Pitch builds the complete slide stack with structured content blocks, icons, and placeholder charts.",
-        tip: "Pitch organizes slides into structured narrative chapters with clear transition cards.",
-      },
-      {
-        stepNumber: 5,
-        title: "Fine-Tune Typographic Hierarchy & Slide Blocks",
-        instruction:
-          "Use the Pitch design bar to adjust font weights, align card containers, and apply consistent border radius across all slides.",
-        tip: "Use the 'Replace slide' button to quickly swap any slide layout with an alternative from Pitch's template library.",
-      },
-      {
-        stepNumber: 6,
-        title: "Slide-by-Slide Content & Metric Polish",
-        instruction:
-          "Refine copy on individual slides: replace generic text with verified numbers, pilot customer logos, and clear visual diagrams.",
-        examplePrompt:
-          "Format this slide with 4 metric cards: ARR ($5M), YoY Growth (320%), NRR (140%), and CAC Payback (6mo).",
-      }
-    ];
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Financial Data & Chart Coordinates",
-        instruction:
-          "Click on chart blocks to verify data series, axis scales, and percentage labels against your source records.",
-        tip: "Pitch supports direct Google Analytics and ChartMogul integrations for live data syncing.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Speaker Notes & Team Collaboration",
-        instruction:
-          "Add speaker notes to guide your talking points during live delivery. Invite teammates to review and leave comments on specific slides.",
-        tip: "Use Pitch's built-in video recording feature to create an async video pitch deck for investors.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Present Live or Export PPTX / PDF",
-        instruction:
-          "Click 'Present' to launch live presentation mode, share a tracked presentation link with viewer analytics, or export as PPTX/PDF.",
-        tip: "Tracked links show you how much time investors spend on each individual slide.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 8. PLUS AI / SLIDESAI WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("plus") || norm.includes("slidesai")) {
-    const isPlus = norm.includes("plus");
-    const toolLabel = isPlus ? "Plus AI" : "SlidesAI";
-
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: `Open Google Slides & Launch ${toolLabel}`,
-        instruction: `Open a new Google Slides presentation, navigate to Extensions → ${toolLabel}, and click 'Launch'.`,
-        tip: `${toolLabel} runs directly inside Google Slides, allowing you to generate and edit slides using native Google Slides shapes and text boxes.`,
-      },
-      {
-        stepNumber: 2,
-        title: "Choose Generation Mode",
-        instruction: isDoc
-          ? `Select 'Document to Presentation' and upload or paste your source text (${(workflow.assets || []).map((a) => a.label).join(", ")}).`
-          : "Select 'Prompt to Presentation' and set your target slide count.",
-        tip: `You can specify slide count (${slideCount} slides) and select from pre-designed professional themes.`,
-      },
-      {
-        stepNumber: 3,
-        title: "Enter Presentation Prompt",
-        instruction: `Paste the AWA prompt into ${toolLabel}. Specify your presentation purpose (${presType}) and audience expectations.`,
-        examplePrompt: `Create a ${slideCount}-slide ${presType}. Topic: ${context?.templateName || "Presentation"}. Style: ${context?.style || "Clean Minimalist"}. Structure: Problem, Solution, Market, Traction, Team, Financials.`,
-      },
-      {
-        stepNumber: 4,
-        title: "Generate Presentation Deck",
-        instruction:
-          `Click 'Generate Presentation'. ${toolLabel} will generate the slide deck directly into your Google Slides presentation.`,
-        tip: "Every element created is a native Google Slides shape or text box, making customization effortless.",
-      },
-      {
-        stepNumber: 5,
-        title: `Use ${toolLabel} 'Remix' to Optimize Layouts`,
-        instruction:
-          `Select any slide that feels overcrowded and use ${toolLabel}'s 'Remix' feature to convert text into cards, timelines, or multi-column grids.`,
-        examplePrompt:
-          "Remix this slide into a 3-column card layout with large metric numbers and minimal subtext.",
-      },
-      {
-        stepNumber: 6,
-        title: "Refine Slide-by-Slide Content & Visual Balance",
-        instruction:
-          "Inspect individual slides: ensure consistent font pairing, uniform card padding, and replace generic imagery with authentic brand assets.",
-        tip: "Use Google Slides 'Format Options' to apply subtle drop shadows and rounded corners to image cards.",
-      }
-    ];
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data & Numerical Accuracy",
-        instruction:
-          "Check all numbers, percentages, and financial milestone labels against your original source records.",
-        tip: "Ensure all currency units and date ranges are clearly documented on chart labels.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Complete Presentation Flow",
-        instruction:
-          "Enter Slideshow mode to test readability, visual hierarchy, and smooth pacing from an audience perspective.",
-        tip: "Verify that speaker notes contain helpful presenter cues for each slide.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Export PPTX / PDF or Present in Google Meet",
-        instruction:
-          "Present directly or export via File → Download → Microsoft PowerPoint (.pptx) or PDF Document (.pdf).",
-        tip: "Native Google Slides integration ensures 100% compatibility across all devices and platforms.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 9. CHATGPT / CLAUDE WORKFLOW
-  // ----------------------------------------------------
-  if (norm.includes("chatgpt") || norm.includes("claude") || norm.includes("gpt")) {
-    const isClaude = norm.includes("claude");
-    const aiName = isClaude ? "Claude" : "ChatGPT";
-
-    const steps: UsageStep[] = [
-      {
-        stepNumber: 1,
-        title: `Open ${aiName}`,
-        instruction: `Navigate to ${isClaude ? "claude.ai" : "chatgpt.com"} and select the latest reasoning model (${isClaude ? "Claude 3.7 Sonnet" : "GPT-4o"}).`,
-        tip: `${aiName} can generate complete slide-by-slide markdown, VBA automation scripts, or Marp/Meme outlines with precise layout directives.`,
-      },
-      {
-        stepNumber: 2,
-        title: "Enter Structured Presentation Prompt",
-        instruction: `Paste the AWA prompt into ${aiName}. Direct the model to generate a complete ${slideCount}-slide deck breakdown with slide titles, exact copy, and layout guidance.`,
-        examplePrompt: `Generate a complete ${slideCount}-slide ${presType} based on this brief. For each slide provide: 1) Slide Title, 2) Visual Layout Description (card structure, diagrams), 3) Exact Body Copy / Bullet Points, 4) Speaker Notes. Zero fluff.`,
-      },
-    ];
-
-    if (hasAssets || isDoc || isData) {
-      steps.push({
-        stepNumber: 3,
-        title: isDoc
-          ? "Attach Source Document / Report"
-          : isData
-          ? "Attach Data Table / Financial Metrics"
-          : "Attach Reference Presentation",
-        instruction:
-          `Upload your source file (${(workflow.assets || []).map((a) => a.label).join(", ")}) and instruct ${aiName} to extract core findings, metrics, and quotes.`,
-        tip: `Ask ${aiName} to highlight which quantitative figures belong on which slides.`,
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Generate Slide-by-Slide Content & Structure",
-        instruction:
-          `Run the prompt. ${aiName} will generate a comprehensive slide-by-slide script covering all ${slideCount} slides with layout recommendations.`,
-        tip: "Review the outline: ensure each slide focuses on a single core message to prevent cognitive overload.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Transfer Content into Presentation Tool",
-        instruction:
-          "Copy the slide titles and bullet points into your preferred presentation software (PowerPoint, Keynote, Google Slides, or Gamma).",
-        tip: "You can also ask the AI to generate a PowerPoint VBA script or Markdown file for instant automated slide creation.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Apply Visual Styling & Layout Directives",
-        instruction:
-          `Follow ${aiName}'s layout recommendations: convert bullet lists into 3-column cards, add large metric numbers, and format visual diagrams.`,
-        examplePrompt:
-          "How can I format the 'Traction' slide into a clean 4-metric grid with high visual impact in PowerPoint?",
-      }
-    );
-
-    if (isData) {
-      steps.push({
-        stepNumber: steps.length + 1,
-        title: "Verify Data & Numerical Accuracy",
-        instruction:
-          "Audit every number, growth percentage, and market sizing calculation against your source material.",
-        tip: "Verify that all currency conversions and growth rates are mathematically sound.",
-      });
-    }
-
-    steps.push(
-      {
-        stepNumber: steps.length + 1,
-        title: "Review Complete Deck Flow & Speaker Notes",
-        instruction:
-          "Review the presentation end-to-end. Ensure speaker notes provide narrative context and that slide transitions feel natural.",
-        tip: "Practice delivering the presentation aloud to check timing and clarity.",
-      },
-      {
-        stepNumber: steps.length + 1,
-        title: "Export or Present",
-        instruction:
-          "Save the presentation as PPTX or PDF, or launch full-screen presentation mode for your pitch meeting.",
-        tip: "Keep a backup PDF version on a USB drive or cloud drive in case of technical issues during live presentations.",
-      }
-    );
-
-    return steps;
-  }
-
-  // ----------------------------------------------------
-  // 10. UNKNOWN TOOL FALLBACK (Section 21/23 Strict Clean Workflow)
-  // ----------------------------------------------------
-  const fallbackSteps: UsageStep[] = [
+  return buildPresentationPromptSteps(
     {
-      stepNumber: 1,
-      title: "Open the Tool",
-      instruction: `Launch ${toolName} in your browser or open its desktop application.`,
-      tip: "Ensure you are logged in to save your presentation progress.",
+      name: context?.templateName,
+      promptText: context?.promptText || workflow.prompt,
+      style: context?.style,
+      targetAudience: context?.targetAudience,
+      objective: context?.objective,
+      slideCount: context?.slideCount || workflow.slideCount,
+      presentationPrompts: context?.presentationPrompts || workflow.prompts,
+      slidePrompts: context?.slidePrompts || workflow.slides,
     },
-    {
-      stepNumber: 2,
-      title: "Start a New Presentation",
-      instruction: `Create a new presentation project in ${toolName} for '${context?.templateName || "AWA Presentation"}'.`,
-      tip: "Select 16:9 widescreen format for standard modern display compatibility.",
-    },
-    {
-      stepNumber: 3,
-      title: "Enter the Presentation Prompt / Topic",
-      instruction: `Copy the complete presentation prompt from this AWA tutorial and paste it into ${toolName}'s input field.`,
-      examplePrompt: basePrompt,
-    },
-    {
-      stepNumber: 4,
-      title: "Upload Required References / Assets",
-      instruction: hasAssets
-        ? `Upload the provided tutorial assets (${(workflow.assets || []).map((a) => a.label).join(", ")}) before initiating generation.`
-        : `If ${toolName} supports source documents or image references, upload any relevant material.`,
-      tip: "Providing source documents or brand logos significantly improves slide quality and consistency.",
-    },
-    {
-      stepNumber: 5,
-      title: `Configure Slide Count (${slideCount} Slides)`,
-      instruction: `Set the presentation to approximately ${slideCount} slides as specified in the tutorial.`,
-      tip: "If the tool determines slide count automatically, review the generated outline to verify all topics are covered.",
-    },
-    {
-      stepNumber: 6,
-      title: "Generate the Presentation",
-      instruction: `Initiate the AI generation process in ${toolName}. Allow the model to scaffold the slide structure, copy, and layout.`,
-      tip: "Wait for all slides to finish generating before making individual edits.",
-    },
-    {
-      stepNumber: 7,
-      title: "Review Slide Structure & Storytelling Flow",
-      instruction:
-        "Check: Slide order, Content flow, Titles, Amount of text, Visual hierarchy, Storytelling, and Consistency across the deck.",
-      tip: "Ensure the narrative moves logically from introduction to problem, solution, evidence, and conclusion.",
-    },
-    {
-      stepNumber: 8,
-      title: "Refine Individual Slides",
-      instruction:
-        "Review individual slides: reduce text density, convert long paragraphs into concise bullet points, and replace generic imagery.",
-      examplePrompt:
-        "Reduce the amount of text on this slide and convert the three paragraphs into three concise bullet points.",
-    },
-  ];
-
-  if (isData) {
-    fallbackSteps.push({
-      stepNumber: 9,
-      title: "Verify Data, Charts & Labels",
-      instruction:
-        "Check: Numbers, Percentages, Chart labels, Units, Dates, Sources, and Calculations against your source data.",
-      tip: "Never present unverified AI-generated numbers or statistics.",
-    });
-  }
-
-  fallbackSteps.push({
-    stepNumber: fallbackSteps.length + 1,
-    title: "Export or Present",
-    instruction:
-      `Depending on ${toolName}'s capabilities, export the presentation as PPTX, PDF, or shareable link, or launch full-screen presentation mode.`,
-    tip: "Ensure all animations and transitions function smoothly before presenting live.",
-  });
-
-    return fallbackSteps;
-  }
-
-  return buildSteps().map((step, idx) => ({
-    ...step,
-    stepNumber: idx + 1,
-  }));
+    toolName,
+    modelName
+  );
 }

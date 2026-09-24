@@ -198,7 +198,7 @@ export function PromptPanel({
                 : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700 shadow-sm"
             }`}
           >
-            <span>{isCustomizeOpen ? "Close Customizer" : "Customize with AI"}</span>
+            <span>{isCustomizeOpen ? "Close Customizer" : "Customize"}</span>
           </Button>
         </div>
       </div>
@@ -220,10 +220,10 @@ export function PromptPanel({
               onClick={handleCopyUi}
               variant="outline"
               size="sm"
-              className="h-7 px-2.5 text-[11px] gap-1 shrink-0"
+              className="h-7 px-2.5 text-[11px] gap-1 shrink-0 bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white shadow-sm"
               title="Copy UI Prompt"
             >
-              {copiedUi ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+              {copiedUi ? <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3 w-3 text-slate-500 dark:text-zinc-400" />}
               <span>{copiedUi ? "Copied" : "Copy UI"}</span>
             </Button>
           </div>
@@ -242,10 +242,10 @@ export function PromptPanel({
               onClick={handleCopyContext}
               variant="outline"
               size="sm"
-              className="h-7 px-2.5 text-[11px] gap-1 shrink-0"
+              className="h-7 px-2.5 text-[11px] gap-1 shrink-0 bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white shadow-sm"
               title="Copy Context Prompt"
             >
-              {copiedContext ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+              {copiedContext ? <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3 w-3 text-slate-500 dark:text-zinc-400" />}
               <span>{copiedContext ? "Copied" : "Copy Context"}</span>
             </Button>
           </div>
@@ -306,10 +306,10 @@ export function PromptPanel({
                 onClick={handleCopyUi}
                 variant="outline"
                 size="sm"
-                className={`h-7 px-2.5 text-xs font-semibold gap-1.5 transition-all ${
+                className={`h-7 px-2.5 text-xs font-semibold gap-1.5 transition-all shadow-sm ${
                   copiedUi
-                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
-                    : "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
+                    ? "bg-emerald-50 dark:bg-emerald-500/15 border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                    : "bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
                 }`}
                 title="Copy UI Prompt only"
               >
@@ -320,7 +320,7 @@ export function PromptPanel({
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3 w-3 text-slate-400" />
+                    <Copy className="h-3 w-3 text-slate-500 dark:text-zinc-400" />
                     <span>Copy UI Prompt</span>
                   </>
                 )}
@@ -333,7 +333,7 @@ export function PromptPanel({
             </p>
 
             {/* Readable Preview without inner border */}
-            <div className="relative rounded-lg bg-white dark:bg-[#0a0b0e] p-3 font-mono text-xs text-slate-900 dark:text-slate-200 leading-relaxed">
+            <div className="relative rounded-lg bg-white dark:bg-[#0a0b0e] p-3 font-mono text-xs text-slate-900 dark:text-slate-200 leading-relaxed border border-slate-200/60 dark:border-zinc-800/60">
               <p
                 className={`whitespace-pre-wrap break-words ${
                   !isUiExpanded && isUiLong ? "line-clamp-4" : ""
@@ -377,10 +377,10 @@ export function PromptPanel({
                 onClick={handleCopyContext}
                 variant="outline"
                 size="sm"
-                className={`h-7 px-2.5 text-xs font-semibold gap-1.5 transition-all ${
+                className={`h-7 px-2.5 text-xs font-semibold gap-1.5 transition-all shadow-sm ${
                   copiedContext
-                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
-                    : "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
+                    ? "bg-emerald-50 dark:bg-emerald-500/15 border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                    : "bg-white hover:bg-slate-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white"
                 }`}
                 title="Copy Context Prompt only"
               >
@@ -391,7 +391,7 @@ export function PromptPanel({
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3 w-3 text-slate-400" />
+                    <Copy className="h-3 w-3 text-slate-500 dark:text-zinc-400" />
                     <span>Copy Context Prompt</span>
                   </>
                 )}

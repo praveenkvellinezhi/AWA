@@ -58,14 +58,14 @@ export function FeedbackWidget({
   }
 
   return (
-    <div className="rounded-2xl border border-awa-border bg-awa-card p-6 shadow-xl space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 shadow-sm dark:shadow-xl space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-indigo-400" />
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             Was this prompt useful?
           </h4>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600 dark:text-slate-400">
             Tell us how the result looked on your external AI tool.
           </p>
         </div>
@@ -78,7 +78,7 @@ export function FeedbackWidget({
             className={`p-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all ${
               rating === "up"
                 ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/20 scale-105"
-                : "bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 hover:text-slate-950 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             }`}
           >
             <ThumbsUp className="h-4 w-4" />
@@ -91,7 +91,7 @@ export function FeedbackWidget({
             className={`p-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all ${
               rating === "down"
                 ? "bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-600/20 scale-105"
-                : "bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700 hover:text-slate-950 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             }`}
           >
             <ThumbsDown className="h-4 w-4" />
@@ -101,17 +101,17 @@ export function FeedbackWidget({
       </div>
 
       {rating && (
-        <form onSubmit={handleSubmit} className="space-y-3 pt-2 border-t border-slate-800 animate-in fade-in duration-200">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800 animate-in fade-in duration-200">
           {/* Tool selector */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                 Which tool did you run this on? (Optional)
               </label>
               <select
                 value={selectedTool}
                 onChange={(e) => setSelectedTool(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500 shadow-xs"
               >
                 <option value="">-- Select or specify --</option>
                 <option value="Midjourney v6.1">Midjourney v6.1</option>
@@ -126,10 +126,10 @@ export function FeedbackWidget({
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                 Prompt Version Evaluated
               </label>
-              <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300">
+              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-300">
                 {isCustomized ? "Your Customized Prompt" : "Original Base Expert Prompt"}
               </div>
             </div>
@@ -137,7 +137,7 @@ export function FeedbackWidget({
 
           {/* Comment text */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
               Add details or comments (Optional)
             </label>
             <textarea
@@ -145,7 +145,7 @@ export function FeedbackWidget({
               onChange={(e) => setComment(e.target.value)}
               placeholder="e.g. Lighting was spot on, but needed 2 tries to get the label text sharp..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-xs text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none shadow-xs"
             />
           </div>
 

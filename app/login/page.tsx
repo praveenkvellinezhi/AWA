@@ -142,12 +142,12 @@ function LoginContent() {
             />
           </Link>
 
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             {activeTab === "signup"
               ? "Create Your AWA Account"
               : "Sign in to Your Account"}
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-sm mx-auto">
             {activeTab === "signup"
               ? "Join creators crafting with expert prompts and AI tools."
               : "Instant prompts, recommended AI tools, and creation guides."}
@@ -155,7 +155,7 @@ function LoginContent() {
         </div>
 
         {/* Auth Mode Tabs (User Sign In vs User Sign Up Only) */}
-        <div className="flex rounded-2xl bg-zinc-900/90 p-1.5 border border-zinc-800 text-xs font-semibold">
+        <div className="flex rounded-2xl bg-slate-100 dark:bg-zinc-900/90 p-1.5 border border-slate-200 dark:border-zinc-800 text-xs font-semibold">
           <button
             type="button"
             onClick={() => {
@@ -164,8 +164,8 @@ function LoginContent() {
             }}
             className={`flex-1 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
               activeTab === "signin"
-                ? "bg-zinc-800 text-white shadow-md font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-white text-slate-900 shadow-sm border border-slate-200/80 dark:border-transparent dark:bg-zinc-800 dark:text-white font-bold"
+                : "text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white"
             }`}
           >
             <User className="h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ function LoginContent() {
             className={`flex-1 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
               activeTab === "signup"
                 ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md font-bold"
-                : "text-zinc-400 hover:text-white"
+                : "text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white"
             }`}
           >
             <span>Sign Up Free</span>
@@ -189,7 +189,7 @@ function LoginContent() {
         </div>
 
         {/* Main Form Container */}
-        <div className="rounded-3xl border border-zinc-800 bg-[#121316] p-6 sm:p-8 shadow-2xl space-y-5">
+        <div className="rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 sm:p-8 shadow-xl dark:shadow-2xl space-y-5">
           {/* Notifications */}
           {errorMessage && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
@@ -209,25 +209,25 @@ function LoginContent() {
           {activeTab === "signin" && (
             <form onSubmit={handleUserSignIn} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-zinc-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alex.creator@awa.guide"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors font-mono"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors font-mono"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold text-zinc-300">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                     Password
                   </label>
                   <button
@@ -237,25 +237,25 @@ function LoginContent() {
                         "Password reset is simulated in this demo. Use password 'password123' or 1-click login below."
                       )
                     }
-                    className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+                    className="text-[11px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium"
                   >
                     Forgot password?
                   </button>
                 </div>
                 <div className="relative">
-                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors font-mono"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -266,13 +266,13 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
+              <div className="flex items-center justify-between text-xs text-slate-600 dark:text-zinc-400 pt-1">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-0"
+                    className="rounded border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-purple-600 focus:ring-0"
                   />
                   <span>Remember this browser</span>
                 </label>
@@ -281,7 +281,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-slate-950 text-white dark:bg-white dark:text-black font-bold text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-lg flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-800 font-bold text-xs sm:text-sm transition-all shadow-lg flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
               >
                 {loading ? (
                   <span>Authenticating...</span>
@@ -294,26 +294,26 @@ function LoginContent() {
               </button>
 
               {/* 1-Click Fast Logins for Testing */}
-              <div className="pt-4 border-t border-zinc-800 space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block text-center">
+              <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-500 block text-center">
                   Instant 1-Click Simulation Sign In
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => handleQuickSignIn(false)}
-                    className="py-2 px-3 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-zinc-700/50"
+                    className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-200 dark:border-zinc-700/50 shadow-sm dark:shadow-none"
                   >
-                    <Zap className="h-3.5 w-3.5 text-amber-400" />
+                    <Zap className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                     <span>Free Creator</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleQuickSignIn(true)}
-                    className="py-2 px-3 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-indigo-700/50"
+                    className="py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-indigo-200 dark:border-indigo-700/50 shadow-sm dark:shadow-none"
                   >
-                    <Crown className="h-3.5 w-3.5 text-amber-400" />
+                    <Crown className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                     <span>Subscriber</span>
                   </button>
                 </div>
@@ -325,42 +325,42 @@ function LoginContent() {
           {activeTab === "signup" && (
             <form onSubmit={handleUserSignUp} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-zinc-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                   Full Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Alex Creator"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-zinc-300">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alex.creator@awa.guide"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors font-mono"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-zinc-300">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                     Password
                   </label>
                   <input
@@ -369,12 +369,12 @@ function LoginContent() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors font-mono"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors font-mono"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-zinc-300">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                     Confirm Password
                   </label>
                   <input
@@ -383,27 +383,27 @@ function LoginContent() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors font-mono"
+                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-500 transition-colors font-mono"
                   />
                 </div>
               </div>
 
               {/* Free Benefits Checklist */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <span className="text-[11px] font-bold text-zinc-300 block">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 space-y-2">
+                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-300 block">
                   Free Member Perks Included:
                 </span>
-                <ul className="text-xs text-zinc-400 space-y-1.5">
+                <ul className="text-xs text-slate-600 dark:text-zinc-400 space-y-1.5">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span>Browse 100+ expert prompt template previews</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span>Save &amp; like favorite templates to personal library</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     <span>Access Design Rocket Academy video guides</span>
                   </li>
                 </ul>
@@ -428,14 +428,14 @@ function LoginContent() {
         </div>
 
         {/* Footer info and switch link */}
-        <div className="text-center text-xs text-zinc-500 space-y-3">
+        <div className="text-center text-xs text-slate-500 dark:text-zinc-500 space-y-3">
           {activeTab === "signin" ? (
             <p>
               Don&apos;t have an account yet?{" "}
               <button
                 type="button"
                 onClick={() => setActiveTab("signup")}
-                className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold underline underline-offset-2"
               >
                 Create one now
               </button>
@@ -446,7 +446,7 @@ function LoginContent() {
               <button
                 type="button"
                 onClick={() => setActiveTab("signin")}
-                className="text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-2"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold underline underline-offset-2"
               >
                 Sign in to your account
               </button>
@@ -457,23 +457,23 @@ function LoginContent() {
           <div className="pt-2">
             <Link
               href="/admin"
-              className="inline-flex items-center gap-1.5 text-xs text-purple-400/80 hover:text-purple-300 hover:underline transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400/80 hover:text-purple-700 dark:hover:text-purple-300 hover:underline transition-colors"
             >
-              <Shield className="h-3.5 w-3.5 text-purple-400" />
+              <Shield className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
               <span>Are you an administrator? Sign in to Admin Console &rarr;</span>
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-4 text-[11px] pt-1 text-zinc-600">
-            <Link href="/" className="hover:text-zinc-300 transition-colors">
+          <div className="flex items-center justify-center gap-4 text-[11px] pt-1 text-slate-500 dark:text-zinc-600">
+            <Link href="/" className="hover:text-slate-900 dark:hover:text-zinc-300 transition-colors">
               Return Home
             </Link>
             <span>•</span>
-            <Link href="/unlimited" className="hover:text-zinc-300 transition-colors">
+            <Link href="/unlimited" className="hover:text-slate-900 dark:hover:text-zinc-300 transition-colors">
               Unlimited Plans
             </Link>
             <span>•</span>
-            <Link href="/contact" className="hover:text-zinc-300 transition-colors">
+            <Link href="/contact" className="hover:text-slate-900 dark:hover:text-zinc-300 transition-colors">
               Need Help?
             </Link>
           </div>

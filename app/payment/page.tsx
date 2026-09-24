@@ -277,14 +277,14 @@ function PaymentContent() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Link
                 href="/templates/template-dark-mode-ai-saas"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black font-bold text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-slate-950 text-white hover:bg-slate-800 font-bold text-xs sm:text-sm transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
               >
                 <span>Launch Unlocked Flagship</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-850 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-950 dark:text-zinc-200 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
               >
                 <span>Browse All Templates</span>
               </Link>
@@ -312,24 +312,24 @@ function PaymentContent() {
         </nav>
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-zinc-800">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-rose-400 flex items-center gap-1.5">
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                 <Lock className="h-3.5 w-3.5" />
                 256-Bit SSL Encrypted Checkout
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
               <span>Complete Your Subscription</span>
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1 max-w-xl">
               Unlock the entire AWA prompt intelligence library and AI shader generator instantly.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-400 bg-zinc-900/90 border border-zinc-800 px-3.5 py-2 rounded-2xl shrink-0">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-zinc-400 bg-white dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 px-3.5 py-2 rounded-2xl shrink-0 shadow-sm dark:shadow-none">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>Official Razorpay &amp; Stripe Verified</span>
           </div>
         </div>
@@ -360,9 +360,9 @@ function PaymentContent() {
           {/* LEFT COLUMN: Payment Methods & Billing (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             {/* Payment Method Selector Tabs */}
-            <div className="rounded-3xl border border-zinc-800 bg-[#121316] p-6 space-y-6">
-              <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider font-mono flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-rose-400" />
+            <div className="rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 space-y-6 shadow-sm dark:shadow-none">
+              <h2 className="text-sm font-bold text-slate-800 dark:text-zinc-200 uppercase tracking-wider font-mono flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-rose-500 dark:text-rose-400" />
                 <span>Select Payment Method</span>
               </h2>
 
@@ -373,13 +373,13 @@ function PaymentContent() {
                   onClick={() => setActiveMethod("upi")}
                   className={`p-3 rounded-2xl border text-left transition-all flex flex-col items-center sm:items-start gap-1.5 ${
                     activeMethod === "upi"
-                      ? "bg-rose-950/30 border-rose-500 text-white shadow-lg shadow-rose-950/20"
-                      : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850"
+                      ? "bg-rose-50 dark:bg-rose-950/30 border-rose-500 text-rose-950 dark:text-white shadow-md shadow-rose-500/10"
+                      : "bg-slate-50 dark:bg-zinc-900/80 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-850"
                   }`}
                 >
-                  <QrCode className="h-5 w-5 text-rose-400" />
+                  <QrCode className="h-5 w-5 text-rose-500 dark:text-rose-400" />
                   <span className="text-xs font-bold">UPI / QR</span>
-                  <span className="text-[10px] text-zinc-500 hidden sm:inline">GPay, PhonePe, Paytm</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-500 hidden sm:inline">GPay, PhonePe, Paytm</span>
                 </button>
 
                 <button
@@ -387,13 +387,13 @@ function PaymentContent() {
                   onClick={() => setActiveMethod("card")}
                   className={`p-3 rounded-2xl border text-left transition-all flex flex-col items-center sm:items-start gap-1.5 ${
                     activeMethod === "card"
-                      ? "bg-rose-950/30 border-rose-500 text-white shadow-lg shadow-rose-950/20"
-                      : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850"
+                      ? "bg-rose-50 dark:bg-rose-950/30 border-rose-500 text-rose-950 dark:text-white shadow-md shadow-rose-500/10"
+                      : "bg-slate-50 dark:bg-zinc-900/80 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-850"
                   }`}
                 >
-                  <CreditCard className="h-5 w-5 text-rose-400" />
+                  <CreditCard className="h-5 w-5 text-rose-500 dark:text-rose-400" />
                   <span className="text-xs font-bold">Cards</span>
-                  <span className="text-[10px] text-zinc-500 hidden sm:inline">Credit &amp; Debit</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-500 hidden sm:inline">Credit &amp; Debit</span>
                 </button>
 
                 <button
@@ -401,13 +401,13 @@ function PaymentContent() {
                   onClick={() => setActiveMethod("netbanking")}
                   className={`p-3 rounded-2xl border text-left transition-all flex flex-col items-center sm:items-start gap-1.5 ${
                     activeMethod === "netbanking"
-                      ? "bg-rose-950/30 border-rose-500 text-white shadow-lg shadow-rose-950/20"
-                      : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850"
+                      ? "bg-rose-50 dark:bg-rose-950/30 border-rose-500 text-rose-950 dark:text-white shadow-md shadow-rose-500/10"
+                      : "bg-slate-50 dark:bg-zinc-900/80 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-850"
                   }`}
                 >
-                  <Building2 className="h-5 w-5 text-rose-400" />
+                  <Building2 className="h-5 w-5 text-rose-500 dark:text-rose-400" />
                   <span className="text-xs font-bold">Net Banking</span>
-                  <span className="text-[10px] text-zinc-500 hidden sm:inline">All Indian Banks</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-500 hidden sm:inline">All Indian Banks</span>
                 </button>
               </div>
 
@@ -716,43 +716,43 @@ function PaymentContent() {
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="e.g. AWA50"
-                    className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white uppercase placeholder-zinc-500 focus:outline-none focus:border-zinc-700"
+                    className="flex-1 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white uppercase placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 dark:focus:border-zinc-700"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors"
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold text-white transition-colors shadow-sm"
                   >
                     Apply
                   </button>
                 </div>
                 {appliedCoupon && (
-                  <p className="text-xs text-emerald-400 mt-1.5 flex items-center gap-1">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1 font-medium">
                     <Check className="h-3 w-3" />
                     <span>Coupon <strong>{appliedCoupon.code}</strong> applied (-₹{appliedCoupon.discount})</span>
                   </p>
                 )}
-                {couponError && <p className="text-xs text-rose-400 mt-1.5">{couponError}</p>}
+                {couponError && <p className="text-xs text-rose-600 dark:text-rose-400 mt-1.5 font-medium">{couponError}</p>}
               </form>
 
               {/* Price Breakdown */}
-              <div className="space-y-2.5 pt-3 border-t border-zinc-800 text-xs text-zinc-300">
+              <div className="space-y-2.5 pt-3 border-t border-slate-200 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300">
                 <div className="flex items-center justify-between">
-                  <span className="text-zinc-400">Plan Subtotal</span>
-                  <span>₹{subtotal}</span>
+                  <span className="text-slate-500 dark:text-zinc-400">Plan Subtotal</span>
+                  <span className="font-semibold">₹{subtotal}</span>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex items-center justify-between text-emerald-400">
+                  <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-medium">
                     <span>Discount ({appliedCoupon.code})</span>
                     <span>-₹{appliedCoupon.discount}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-zinc-400">
+                <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
                   <span>GST / Platform Taxes (18%)</span>
                   <span>Included</span>
                 </div>
-                <div className="flex items-center justify-between pt-3 border-t border-zinc-800 text-sm font-bold text-white">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-zinc-800 text-sm font-bold text-slate-900 dark:text-white">
                   <span>Total Amount Due</span>
-                  <span className="text-xl font-black text-rose-300">₹{finalTotal}</span>
+                  <span className="text-xl font-black text-rose-600 dark:text-rose-300">₹{finalTotal}</span>
                 </div>
               </div>
 
@@ -761,16 +761,16 @@ function PaymentContent() {
                 type="button"
                 onClick={handleProcessPayment}
                 disabled={isProcessing}
-                className="w-full py-3.5 rounded-full bg-slate-950 text-white dark:bg-white dark:text-black font-extrabold text-sm hover:bg-slate-800 dark:hover:bg-zinc-200 transition-all shadow-xl shadow-slate-950/20 dark:shadow-white/10 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 rounded-full bg-slate-950 text-white hover:bg-slate-800 font-extrabold text-sm transition-all shadow-xl shadow-slate-950/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isProcessing ? (
                   <>
-                    <RefreshCw className="h-4 w-4 animate-spin text-white dark:text-black" />
+                    <RefreshCw className="h-4 w-4 animate-spin text-white" />
                     <span>Authorizing Payment with Bank...</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="h-4 w-4 text-white dark:text-black" />
+                    <Lock className="h-4 w-4 text-white" />
                     <span>Pay ₹{finalTotal} Securely</span>
                   </>
                 )}
