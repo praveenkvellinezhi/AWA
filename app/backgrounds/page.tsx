@@ -25,7 +25,7 @@ export default function BackgroundsPage() {
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-10">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <section id="backgrounds-hero" aria-label="Backgrounds overview" className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold font-mono">
             <span>INTERACTIVE MOTION SYSTEM</span>
           </div>
@@ -43,6 +43,7 @@ export default function BackgroundsPage() {
             {categories.map((cat) => (
               <button
                 key={cat}
+                id={`bg-filter-${cat.toLowerCase()}`}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedCategory === cat
@@ -54,13 +55,14 @@ export default function BackgroundsPage() {
               </button>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Backgrounds Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section id="backgrounds-grid" aria-label="Background animations gallery" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((bg) => (
-            <div
+            <article
               key={bg.id}
+              id={`bg-card-${bg.id}`}
               className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#141518] overflow-hidden flex flex-col justify-between shadow-md dark:shadow-xl group hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
             >
               {/* Live Preview Area */}
@@ -87,6 +89,7 @@ export default function BackgroundsPage() {
                 </div>
 
                 <button
+                  id={`bg-copy-${bg.id}`}
                   onClick={() => handleCopy(bg.id, bg.codeSnippet)}
                   className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200 dark:border-transparent shadow-xs"
                 >
@@ -103,9 +106,9 @@ export default function BackgroundsPage() {
                   )}
                 </button>
               </div>
-            </div>
+            </article>
           ))}
-        </div>
+        </section>
       </div>
     </div>
   );

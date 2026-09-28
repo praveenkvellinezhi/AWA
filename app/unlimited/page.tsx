@@ -23,7 +23,7 @@ export default function UnlimitedPage() {
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full space-y-12">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <section id="unlimited-hero" aria-label="AWA Unlimited overview" className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/10 via-rose-500/10 to-purple-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-bold font-mono">
             <span>AWA UNLIMITED</span>
           </div>
@@ -38,7 +38,7 @@ export default function UnlimitedPage() {
           <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
             Get instant unmasked access to all 500+ production prompts, animated canvas backgrounds, private MCP endpoint, and weekly drops.
           </p>
-        </div>
+        </section>
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

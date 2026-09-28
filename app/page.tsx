@@ -41,13 +41,15 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0c0d0f] text-slate-900 dark:text-slate-100 pb-24 transition-colors">
       {/* 1. Hero / Welcome Section */}
-      <LandingHero
-        onExploreClick={handleHeroExplore}
-        onFreeClick={handleHeroFree}
-      />
+      <section id="hero" aria-label="Welcome to AWA">
+        <LandingHero
+          onExploreClick={handleHeroExplore}
+          onFreeClick={handleHeroFree}
+        />
+      </section>
 
       {/* 2. Core Creation Categories */}
-      <section id="disciplines" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16 space-y-6">
+      <section id="disciplines" aria-label="Creative discipline categories" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-zinc-800">
           <div>
             <span className="text-xs font-medium text-slate-500 dark:text-zinc-400 block mb-1">
@@ -71,7 +73,7 @@ export default function HomePage() {
 
 
       {/* 4. Template Discovery (Masonry Grid & Interactive Filters) */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16">
+      <section id="template-discovery" aria-label="Discover AI prompt templates" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16">
         <TemplateDiscoverySection
           initialTemplates={templates}
           categories={categoryNames}
@@ -79,7 +81,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. Featured Flagship Walkthrough Spotlight */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-20">
+      <section id="flagship-walkthrough" aria-label="Featured flagship template walkthrough" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-20">
         <div className="dark-surface relative rounded-3xl border border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/80 dark:from-[#121316] dark:via-[#15171e] dark:to-indigo-950/30 p-6 sm:p-10 shadow-2xl overflow-hidden text-white">
           {/* Ambient Glows */}
           <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
@@ -151,7 +153,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. Production Callout */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16">
+      <section id="production-cta" aria-label="Get started with production-ready prompts" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-16">
         <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-[#121316] p-8 sm:p-12 text-center space-y-5 shadow-xs">
           <div className="max-w-2xl mx-auto space-y-3">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">

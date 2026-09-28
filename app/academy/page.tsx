@@ -42,7 +42,7 @@ export default function AcademyPage() {
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl space-y-12">
         {/* Hero */}
-        <div className="text-center space-y-4">
+        <section id="academy-hero" aria-label="Academy introduction" className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-bold font-mono">
             <Rocket className="h-3.5 w-3.5 text-blue-400" />
             <span>DESIGN ROCKET ACADEMY</span>
@@ -67,10 +67,10 @@ export default function AcademyPage() {
               {enrolled ? "✓ You are Enrolled — Start Lesson 01" : "Start Learning for Free"}
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Modules List */}
-        <div className="space-y-4">
+        <section id="academy-curriculum" aria-label="Course curriculum modules" className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
             <span>Curriculum Overview</span>
@@ -78,8 +78,9 @@ export default function AcademyPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {modules.map((m) => (
-              <div
+              <article
                 key={`academy-module-${m.number}`}
+                id={`academy-module-${m.number}`}
                 className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 space-y-3 shadow-md dark:shadow-lg hover:border-slate-300 dark:hover:border-zinc-700 transition-all"
               >
                 <div className="flex items-center justify-between">
@@ -99,10 +100,10 @@ export default function AcademyPage() {
                     Watch Preview <ArrowRight className="h-3.5 w-3.5" />
                   </span>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

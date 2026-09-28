@@ -15,10 +15,51 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AWA — AI Creation Guide Platform",
+  title: {
+    default: "AWA — AI Creation Guide Platform",
+    template: "%s | AWA",
+  },
   description:
     "Instant expert prompts, matched AI tools with one-line rationales, and short usage steps for Midjourney, Runway, Sora, and generative AI creation.",
-  keywords: ["AI prompts", "Midjourney prompt", "Runway Gen-3", "Sora prompt", "AI creation guide", "prompt templates"],
+  keywords: [
+    "AI prompts",
+    "Midjourney prompt",
+    "Runway Gen-3",
+    "Sora prompt",
+    "AI creation guide",
+    "prompt templates",
+    "generative AI",
+    "AI tools",
+    "prompt engineering",
+  ],
+  authors: [{ name: "AWA" }],
+  creator: "AWA",
+  metadataBase: new URL("https://awa.guide"),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "AWA — AI Creation Guide Platform",
+    title: "AWA — AI Creation Guide Platform",
+    description:
+      "Instant expert prompts, matched AI tools, and step-by-step usage guides for Midjourney, Runway, Sora, and every generative AI creation workflow.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AWA — AI Creation Guide Platform",
+    description:
+      "Production-ready AI prompts with matched tools and step-by-step guides for Midjourney, Runway, Sora, and more.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       {
@@ -34,6 +75,7 @@ export const metadata: Metadata = {
     apple: "/logo/logodark.png",
   },
 };
+
 
 export default function RootLayout({
   children,

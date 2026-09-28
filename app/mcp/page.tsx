@@ -43,7 +43,7 @@ export default function McpPage() {
     <div className="min-h-screen bg-[#0c0d0f] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl space-y-12">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <section id="mcp-hero" aria-label="MCP overview" className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold font-mono">
             <span>MODEL CONTEXT PROTOCOL</span>
             <span className="text-zinc-400 dark:text-zinc-600">•</span>
@@ -60,10 +60,10 @@ export default function McpPage() {
           <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
             Directly query 500+ production prompts, animated canvas shaders, and component templates straight inside Cursor, Claude Code, Lovable, or Bolt.
           </p>
-        </div>
+        </section>
 
         {/* Quick Launch Terminal Command */}
-        <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 shadow-xl dark:shadow-2xl space-y-4">
+        <section id="mcp-quick-launch" aria-label="Quick launch terminal command" className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-6 shadow-xl dark:shadow-2xl space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-mono text-slate-600 dark:text-zinc-400">
               <Terminal className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
@@ -80,6 +80,7 @@ export default function McpPage() {
               $ {mcpCommand}
             </code>
             <button
+              id="mcp-copy-command-btn"
               onClick={handleCopy}
               className="w-full sm:w-auto px-4 py-2 rounded-lg bg-white text-slate-950 font-bold text-xs hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow active:scale-95"
             >
@@ -96,16 +97,17 @@ export default function McpPage() {
               )}
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Client Configuration Tabs */}
-        <div className="space-y-4">
+        <section id="mcp-client-config" aria-label="Agent client integration configuration" className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Agent Client Integration</h2>
 
           <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 overflow-x-auto">
             {(["cursor", "claude", "bolt", "lovable"] as const).map((tab) => (
               <button
                 key={tab}
+                id={`mcp-tab-${tab}`}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                   activeTab === tab
@@ -127,11 +129,11 @@ export default function McpPage() {
               {clientConfigs[activeTab].code}
             </pre>
           </div>
-        </div>
+        </section>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
+        <section id="mcp-features" aria-label="MCP features" className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <article id="mcp-feature-tool-invocation" className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
             <div className="h-9 w-9 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center">
               <Cpu className="h-5 w-5" />
             </div>
@@ -139,9 +141,9 @@ export default function McpPage() {
             <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
               Your agent can call <code>get_template</code>, <code>search_prompts</code>, and <code>export_tokens</code> natively during generation.
             </p>
-          </div>
+          </article>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
+          <article id="mcp-feature-live-shaders" className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
             <div className="h-9 w-9 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
               <Layers className="h-5 w-5" />
             </div>
@@ -149,9 +151,9 @@ export default function McpPage() {
             <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
               Stream complex GLSL and CSS keyframe animations directly into your project files with zero manual copy-pasting.
             </p>
-          </div>
+          </article>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
+          <article id="mcp-feature-zero-setup" className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121316] p-5 space-y-2 shadow-sm dark:shadow-none">
             <div className="h-9 w-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <ShieldCheck className="h-5 w-5" />
             </div>
@@ -159,8 +161,8 @@ export default function McpPage() {
             <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
               Self-contained stdio process. Runs anywhere Node 18+ is present, including headless CI/CD environments.
             </p>
-          </div>
-        </div>
+          </article>
+        </section>
       </div>
     </div>
   );
