@@ -140,6 +140,8 @@ export function normalizeTemplateStep(
     tip: tips[0] || undefined,
     imageUrl: image?.url || undefined,
     imageCaption: image?.caption || undefined,
+    videoUrl: raw.videoUrl || undefined,
+    mediaType: raw.mediaType || (raw.videoUrl ? "video" : image?.url ? "image" : undefined),
     promptCategory: raw.promptCategory || undefined,
     promptVariables: variables.length > 0 ? variables : undefined,
     slideNumber: raw.slideNumber || undefined,

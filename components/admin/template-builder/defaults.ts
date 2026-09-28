@@ -101,6 +101,8 @@ export const INITIAL_BASIC_INFO: BuilderBasicInfo = {
 };
 
 export const INITIAL_IMAGE_DATA: ImageBuilderData = {
+  uiPrompt: `A high-end commercial studio product photograph of [SUBJECT], centered on an organic matte podium, styled in [STYLE] aesthetics. Illuminated by soft [LIGHTING] casting diffused delicate shadows, shot on [CAMERA] with shallow depth of field, minimalist composition, [ASPECT_RATIO] aspect ratio --v 6.1 --style raw --q 2`,
+  contextPrompt: `Luxury cosmetics and lifestyle product campaign. Target audience: Discerning design-conscious consumers valuing organic materials, calm neutral tones, and Scandinavian minimalism. Focus on authentic tactile textures, subtle glass reflections, and clean studio lighting with zero background clutter.`,
   prompt: `A high-end commercial studio product photograph of [SUBJECT], centered on an organic matte podium, styled in [STYLE] aesthetics. Illuminated by soft [LIGHTING] casting diffused delicate shadows, shot on [CAMERA] with shallow depth of field, minimalist composition, [ASPECT_RATIO] aspect ratio --v 6.1 --style raw --q 2`,
   imageType: "Product Photography",
   visualStyle: "Commercial Minimalist",
@@ -118,6 +120,8 @@ export const INITIAL_IMAGE_DATA: ImageBuilderData = {
 };
 
 export const INITIAL_VIDEO_DATA: VideoBuilderData = {
+  uiPrompt: `Cinematic wide-angle tracking shot of [SUBJECT] moving across [SCENE], [ACTION]. Camera executes a [CAMERA_MOVEMENT] with [MOTION_INTENSITY] pace. Natural atmospheric [LIGHTING], photorealistic 8k render, cinematic film grain, [DURATION] sequence.`,
+  contextPrompt: `High-production commercial brand film and cinematic trailer sequence. Narrative arc highlights precision craftsmanship, dynamic physical presence, and evocative atmosphere. Optimized for high emotional impact and seamless pacing.`,
   prompt: `Cinematic wide-angle tracking shot of [SUBJECT] moving across [SCENE], [ACTION]. Camera executes a [CAMERA_MOVEMENT] with [MOTION_INTENSITY] pace. Natural atmospheric [LIGHTING], photorealistic 8k render, cinematic film grain, [DURATION] sequence.`,
   videoType: "Text-to-Video",
   duration: "5s",
@@ -171,6 +175,8 @@ export const INITIAL_SLIDES_DATA: SlidesBuilderData = {
   language: "English (US)",
   presentationContext: `AWA is an intelligent prompt & template ecosystem designed for modern creators. We are raising a $2.5M Seed Round to expand our category coverage from image and video to web apps and enterprise design pipelines. This deck must convince tier-1 seed investors of our proprietary prompt optimization layer and 400% MoM creator retention.`,
   globalPrompt: `Act as a world-class venture partner and pitch deck strategist. Generate a structured 5-slide pitch deck for AWA that follows the Sequoia Capital pitch framework. Maintain concise bullet points (max 3 per slide), high-contrast slide layouts, and strong data-backed narratives.`,
+  uiPrompt: `Act as a world-class venture partner and pitch deck strategist. Generate a structured 5-slide pitch deck for AWA that follows the Sequoia Capital pitch framework. Maintain concise bullet points (max 3 per slide), high-contrast slide layouts, and strong data-backed narratives.`,
+  contextPrompt: `AWA is an intelligent prompt & template ecosystem designed for modern creators. We are raising a $2.5M Seed Round to expand our category coverage from image and video to web apps and enterprise design pipelines. This deck must convince tier-1 seed investors of our proprietary prompt optimization layer and 400% MoM creator retention.`,
   slides: [
     {
       id: "slide-1",
@@ -251,6 +257,19 @@ Closing: contact@awa.guide | Join the creation revolution.`,
 };
 
 export const INITIAL_POSTER_DATA: PosterBuilderData = {
+  uiPrompt: `Design a museum-grade typographic event poster for [HEADLINE]. 
+Layout: Modern Swiss grid system with structured margins and bold vertical typography.
+Main Headline: "[HEADLINE]" set in massive condensed sans-serif with high contrast.
+Central visual: 3D generative fluid sculpture with iridescent metallic reflections on dark background.
+Color scheme: High contrast dark background with electric neon accents.
+Supporting text: "[SUPPORTING_TEXT]" and prominent call-to-action "[CTA]".`,
+  contextPrompt: `Annual Generative Art & Technology Symposium 2026. Target demographic: Creative technologists, computational designers, and AI artists. Urgency-driven messaging, brutalist elegance, high visual contrast, optimized for print and social marketing.`,
+  prompt: `Design a museum-grade typographic event poster for [HEADLINE]. 
+Layout: Modern Swiss grid system with structured margins and bold vertical typography.
+Main Headline: "[HEADLINE]" set in massive condensed sans-serif with high contrast.
+Central visual: 3D generative fluid sculpture with iridescent metallic reflections on dark background.
+Color scheme: High contrast dark background with electric neon accents.
+Supporting text: "[SUPPORTING_TEXT]" and prominent call-to-action "[CTA]".`,
   designType: "Event Poster",
   canvasSize: "Instagram Portrait (1080x1350)",
   dimensions: "1080 x 1350 px",
@@ -264,12 +283,6 @@ export const INITIAL_POSTER_DATA: PosterBuilderData = {
   colorPalette: "Deep Obsidian Black, Electric Cobalt (#2563EB), Neon Mint (#10B981)",
   typography: "Display Headline: Neue Haas Grotesk Bold 96pt. Body: Inter Medium 16pt.",
   imageDirection: "Central abstract 3D metallic fluid knot floating over a dark grid field.",
-  prompt: `Design a museum-grade typographic event poster for [HEADLINE]. 
-Layout: Modern Swiss grid system with structured margins and bold vertical typography.
-Main Headline: "[HEADLINE]" set in massive condensed sans-serif with high contrast.
-Central visual: 3D generative fluid sculpture with iridescent metallic reflections.
-Color scheme: High contrast dark background with electric neon accents.
-Supporting text: "[SUPPORTING_TEXT]" and prominent call-to-action "[CTA]".`,
 };
 
 export function getDefaultWorkflowSteps(categoryKey: TemplateCategoryKey): WorkflowStepItem[] {

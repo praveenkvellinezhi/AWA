@@ -17,6 +17,7 @@ import {
   Layout,
   MessageSquare,
   HelpCircle,
+  Code2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { PromptEditor } from "./PromptEditor";
 import { SlidesBuilderData, BuilderSlideItem, ValidationErrors } from "./types";
+import { combinePrompts } from "@/lib/prompt-utils";
 
 interface SlidesBuilderProps {
   data: SlidesBuilderData;
@@ -70,6 +72,24 @@ export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
   const [expandedSlideId, setExpandedSlideId] = useState<string | null>(
     data.slides[0]?.id || null
   );
+  const [activeMasterPromptTab, setActiveMasterPromptTab] = useState<"separate" | "combined">("separate");
+  const [copiedCombinedMaster, setCopiedCombinedMaster] = useState(false);
+
+  const uiPromptValue = data.uiPrompt || data.globalPrompt || "";
+  const contextPromptValue = data.contextPrompt || data.presentationContext || "";
+  const combinedDeckPrompt = combinePrompts(uiPromptValue, contextPromptValue);
+
+  const handleCopyCombinedMaster = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(combinedDeckPrompt);
+        setCopiedCombinedMaster(true);
+        setTimeout(() => setCopiedCombinedMaster(false), 2000);
+      }
+    } catch (e) {
+      console.warn("Failed to copy combined master prompt:", e);
+    }
+  };
 
   const handleAddSlide = () => {
     const nextNumber = data.slides.length + 1;
@@ -292,43 +312,116 @@ export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
         </div>
       </div>
 
-      {/* Presentation Context Prompt Editor */}
-      <PromptEditor
-        label="Presentation Context & Narrative Arc"
-        value={data.presentationContext}
-        onChange={(val) => onChange({ presentationContext: val })}
-        placeholder="Comprehensive narrative context for the entire deck..."
-        helperText="Explains the overarching story, key business drivers, metrics, and problem-solution dynamic."
-        suggestedVariables={[
-          "[TOPIC]",
-          "[AUDIENCE]",
-          "[OBJECTIVE]",
-          "[PRESENTATION_TYPE]",
-          "[TONE]",
-          "[NUMBER_OF_SLIDES]",
-        ]}
-        error={errors?.presentationContext}
-        minRows={4}
-        highlightCategory="Deck Narrative Context"
-      />
+      {/* Dual Master Prompt Editor: UI Prompt + Context Prompt with Combined Deck View */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveMasterPromptTab("separate")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                activeMasterPromptTab === "separate"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Dual Prompt Editors (UI + Context)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMasterPromptTab("combined")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+                activeMasterPromptTab === "combined"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Preview Combined Deck Prompt</span>
+            </button>
+          </div>
 
-      {/* Global Presentation Prompt */}
-      <PromptEditor
-        label="Global Presentation Master Prompt"
-        value={data.globalPrompt}
-        onChange={(val) => onChange({ globalPrompt: val })}
-        placeholder="Act as a world-class pitch deck designer and venture partner..."
-        helperText="Master prompt used to generate or re-theme the entire presentation in Gamma, Beautiful.ai, or Claude."
-        suggestedVariables={[
-          "[TOPIC]",
-          "[AUDIENCE]",
-          "[TONE]",
-          "[NUMBER_OF_SLIDES]",
-          "[STYLE]",
-        ]}
-        minRows={4}
-        highlightCategory="Master Deck Prompt"
-      />
+          <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+            Separates Visual UI from Presentation Context
+          </span>
+        </div>
+
+        {activeMasterPromptTab === "separate" ? (
+          <div className="space-y-5">
+            {/* UI / Master Deck Design Prompt */}
+            <PromptEditor
+              label="UI Generation Prompt (Slide Deck Visual System & Layout)"
+              value={uiPromptValue}
+              onChange={(val) => onChange({ uiPrompt: val, globalPrompt: val })}
+              placeholder="Act as a world-class pitch deck designer and venture partner. Generate a structured 5-slide pitch deck..."
+              helperText="Master visual prompt directing slide layout hierarchy, typographic contrast, card grids, visual direction, and design tokens."
+              suggestedVariables={[
+                "[TOPIC]",
+                "[AUDIENCE]",
+                "[TONE]",
+                "[NUMBER_OF_SLIDES]",
+                "[STYLE]",
+                "[OBJECTIVE]",
+              ]}
+              error={errors?.uiPrompt || errors?.mainPrompt}
+              minRows={5}
+              highlightCategory="Visual UI & Layout"
+            />
+
+            {/* Context Prompt */}
+            <PromptEditor
+              label="Context Prompt (Presentation Context, Thesis & Narrative Arc)"
+              value={contextPromptValue}
+              onChange={(val) => onChange({ contextPrompt: val, presentationContext: val })}
+              placeholder="Comprehensive narrative context: AWA is an intelligent prompt & template ecosystem..."
+              helperText="Overarching deck thesis explaining market opportunity, problem-solution arc, business model, and proof metrics."
+              suggestedVariables={[
+                "[TOPIC]",
+                "[AUDIENCE]",
+                "[OBJECTIVE]",
+                "[PRESENTATION_TYPE]",
+                "[TONE]",
+                "[NUMBER_OF_SLIDES]",
+              ]}
+              error={errors?.contextPrompt || errors?.presentationContext}
+              minRows={4}
+              highlightCategory="Deck Narrative Context"
+            />
+          </div>
+        ) : (
+          /* Live Combined Prompt View */
+          <div className="p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 space-y-3 font-mono">
+            <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+              <span className="font-bold text-white flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+                Live Combined Master Deck Prompt (Standard AWA Prompt)
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleCopyCombinedMaster}
+                className="h-7 text-xs bg-slate-800 border-slate-700 text-slate-200 hover:text-white"
+              >
+                {copiedCombinedMaster ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400 mr-1" />
+                    <span className="text-emerald-400 font-bold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 mr-1" />
+                    <span>Copy Full Combined Prompt</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            <pre className="text-xs whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto text-slate-300">
+              {combinedDeckPrompt}
+            </pre>
+          </div>
+        )}
+      </div>
 
       {/* Individual Slide Builder & Manager */}
       <div className="space-y-4">

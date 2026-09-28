@@ -95,6 +95,8 @@ export interface TemplateStep {
   tip?: string;
   imageUrl?: string;
   imageCaption?: string;
+  videoUrl?: string;
+  mediaType?: "image" | "video";
   promptCategory?: string;
   promptVariables?: { name: string; description?: string; defaultValue?: string }[];
   slideNumber?: number;
@@ -139,6 +141,8 @@ export interface GuideStep {
   tip?: string;
   image?: string;
   imageCaption?: string;
+  videoUrl?: string;
+  mediaType?: "image" | "video";
   prompt?: string;
   promptCategory?: string;
   promptVariables?: { name: string; description?: string; defaultValue?: string }[];

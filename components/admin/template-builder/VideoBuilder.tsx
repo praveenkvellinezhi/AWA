@@ -12,7 +12,11 @@ import {
   Layers,
   Music,
   Maximize2,
+  Code2,
+  Copy,
+  Check,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -24,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { PromptEditor } from "./PromptEditor";
 import { VideoBuilderData, ValidationErrors } from "./types";
+import { combinePrompts } from "@/lib/prompt-utils";
 
 interface VideoBuilderProps {
   data: VideoBuilderData;
@@ -87,7 +92,25 @@ const VISUAL_STYLES = [
 ];
 
 export function VideoBuilder({ data, onChange, errors }: VideoBuilderProps) {
+  const [activePromptTab, setActivePromptTab] = useState<"separate" | "combined">("separate");
+  const [copiedCombined, setCopiedCombined] = useState(false);
   const [isOptionalOpen, setIsOptionalOpen] = useState(false);
+
+  const uiPromptValue = data.uiPrompt || data.prompt || "";
+  const contextPromptValue = data.contextPrompt || "";
+  const combinedPrompt = combinePrompts(uiPromptValue, contextPromptValue);
+
+  const handleCopyCombined = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(combinedPrompt);
+        setCopiedCombined(true);
+        setTimeout(() => setCopiedCombined(false), 2000);
+      }
+    } catch (e) {
+      console.warn("Failed to copy combined prompt:", e);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -102,35 +125,126 @@ export function VideoBuilder({ data, onChange, errors }: VideoBuilderProps) {
               Video Generation Prompt & Motion Direction
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Configure motion vectors, camera paths, temporal duration, and video prompt tokens.
+              Configure the visual shot prompt, scene narrative context, motion vectors, and rendering settings.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Main Video Prompt Editor */}
-      <PromptEditor
-        label="Video Generation Prompt"
-        value={data.prompt}
-        onChange={(val) => onChange({ prompt: val })}
-        placeholder="Cinematic wide-angle tracking shot of [SUBJECT] moving across [SCENE]..."
-        helperText="Supports tokens: [SUBJECT], [SCENE], [ACTION], [CAMERA_MOVEMENT], [LIGHTING], [STYLE], [DURATION], [ASPECT_RATIO]."
-        suggestedVariables={[
-          "[SUBJECT]",
-          "[SCENE]",
-          "[ACTION]",
-          "[CAMERA_MOVEMENT]",
-          "[LIGHTING]",
-          "[STYLE]",
-          "[DURATION]",
-          "[ASPECT_RATIO]",
-          "[MOTION_INTENSITY]",
-          "[FRAME_RATE]",
-        ]}
-        error={errors?.mainPrompt}
-        minRows={5}
-        highlightCategory="Video Generation"
-      />
+      {/* Dual Prompt Editor: UI Prompt + Context Prompt with Combined View */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActivePromptTab("separate")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                activePromptTab === "separate"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Dual Prompt Editors (UI + Context)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivePromptTab("combined")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+                activePromptTab === "combined"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Preview Combined Prompt</span>
+            </button>
+          </div>
+
+          <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+            Separates Visual Motion from Scene Narrative
+          </span>
+        </div>
+
+        {activePromptTab === "separate" ? (
+          <div className="space-y-5">
+            {/* UI / Video Generation Prompt */}
+            <PromptEditor
+              label="UI Generation Prompt (Visual Motion & Cinematography)"
+              value={uiPromptValue}
+              onChange={(val) => onChange({ uiPrompt: val, prompt: val })}
+              placeholder="Cinematic wide-angle tracking shot of [SUBJECT] moving across [SCENE]..."
+              helperText="Specifies visual motion direction, camera movement, temporal flow, lighting, and rendering fidelity."
+              suggestedVariables={[
+                "[SUBJECT]",
+                "[SCENE]",
+                "[ACTION]",
+                "[CAMERA_MOVEMENT]",
+                "[LIGHTING]",
+                "[STYLE]",
+                "[DURATION]",
+                "[ASPECT_RATIO]",
+                "[MOTION_INTENSITY]",
+                "[FRAME_RATE]",
+              ]}
+              error={errors?.uiPrompt || errors?.mainPrompt}
+              minRows={5}
+              highlightCategory="Motion & Visuals"
+            />
+
+            {/* Context Prompt */}
+            <PromptEditor
+              label="Context Prompt (Scene Narrative & Director's Brief)"
+              value={contextPromptValue}
+              onChange={(val) => onChange({ contextPrompt: val })}
+              placeholder="Scene context: High-production commercial trailer establishing brand prestige and precision..."
+              helperText="Explains the narrative arc, scene purpose, character intent, audio mood, and brand storytelling."
+              suggestedVariables={[
+                "[PROJECT_NAME]",
+                "[SCENE_OBJECTIVE]",
+                "[TARGET_AUDIENCE]",
+                "[BRAND_IDENTITY]",
+                "[AUDIO_MOOD]",
+                "[EMOTIONAL_TONE]",
+              ]}
+              error={errors?.contextPrompt}
+              minRows={4}
+              highlightCategory="Narrative & Context"
+            />
+          </div>
+        ) : (
+          /* Live Combined Prompt View */
+          <div className="p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 space-y-3 font-mono">
+            <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+              <span className="font-bold text-white flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5 text-purple-400" />
+                Live Combined Video Prompt (Standard AWA Prompt)
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleCopyCombined}
+                className="h-7 text-xs bg-slate-800 border-slate-700 text-slate-200 hover:text-white"
+              >
+                {copiedCombined ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400 mr-1" />
+                    <span className="text-emerald-400 font-bold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 mr-1" />
+                    <span>Copy Full Combined Prompt</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            <pre className="text-xs whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto text-slate-300">
+              {combinedPrompt}
+            </pre>
+          </div>
+        )}
+      </div>
 
       {/* Video Motion Configuration Grid */}
       <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-[#0E1422] border border-slate-200/80 dark:border-slate-800/80 space-y-4">

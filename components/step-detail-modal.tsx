@@ -10,6 +10,7 @@ import {
   Lightbulb,
   Sparkles,
   BookOpen,
+  Video,
 } from "lucide-react";
 import { GuideStep } from "@/lib/types";
 
@@ -199,13 +200,17 @@ export function StepDetailModal({
             </div>
           </div>
 
-          {/* Visual Guideline Benchmark Image (if available) */}
-          {step.image && (
+          {/* Visual Guideline Benchmark Media (Video or Image if available) */}
+          {(step.videoUrl || step.image) && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
                 <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold">
-                  <Sparkles className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-                  <span>Visual Reference Benchmark</span>
+                  {step.videoUrl ? (
+                    <Video className="h-3.5 w-3.5 text-blue-500" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+                  )}
+                  <span>{step.videoUrl ? "Step Video Guide" : "Visual Reference Benchmark"}</span>
                 </span>
                 {step.imageCaption && (
                   <span className="text-[10px] text-slate-600 dark:text-zinc-400 truncate max-w-[200px] font-medium">
@@ -215,33 +220,43 @@ export function StepDetailModal({
               </div>
 
               <div className="relative rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 group/modalimg">
-                <div className="relative h-44 sm:h-52 w-full overflow-hidden">
-                  <img
-                    src={step.image}
-                    alt={step.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover/modalimg:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+                {step.videoUrl ? (
+                  <div className="relative w-full overflow-hidden bg-black flex flex-col items-center justify-center">
+                    <video
+                      src={step.videoUrl}
+                      controls
+                      className="w-full max-h-64 object-contain bg-black"
+                    />
+                  </div>
+                ) : (
+                  <div className="relative h-44 sm:h-52 w-full overflow-hidden">
+                    <img
+                      src={step.image}
+                      alt={step.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/modalimg:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
 
-                  {onImageClick && (
-                    <button
-                      type="button"
-                      data-overlay-badge
-                      onClick={() =>
-                        onImageClick({
-                          url: step.image!,
-                          title: step.title,
-                          caption: step.imageCaption,
-                        })
-                      }
-                      className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/80 hover:bg-black text-white text-xs font-mono flex items-center gap-1.5 border border-white/20 shadow-lg transition-colors"
-                      title="Inspect reference in full size"
-                    >
-                      <Maximize2 className="h-3 w-3 text-cyan-300" />
-                      <span className="text-white font-medium">Full View</span>
-                    </button>
-                  )}
-                </div>
+                    {onImageClick && (
+                      <button
+                        type="button"
+                        data-overlay-badge
+                        onClick={() =>
+                          onImageClick({
+                            url: step.image!,
+                            title: step.title,
+                            caption: step.imageCaption,
+                          })
+                        }
+                        className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/80 hover:bg-black text-white text-xs font-mono flex items-center gap-1.5 border border-white/20 shadow-lg transition-colors"
+                        title="Inspect reference in full size"
+                      >
+                        <Maximize2 className="h-3 w-3 text-cyan-300" />
+                        <span className="text-white font-medium">Full View</span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -287,30 +302,26 @@ export function StepDetailModal({
             </button>
           </div>
 
-          {/* Complete / Done Action Button */}
+          {/* Modal Actions */}
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white transition-colors"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white transition-colors border border-slate-200 dark:border-slate-700"
             >
               Close
             </button>
 
-            <button
-              type="button"
-              onClick={handleDoneClick}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 ${
-                isCompleted
-                  ? "bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-400 shadow-sm dark:bg-emerald-600/20 dark:hover:bg-emerald-600/30 dark:text-emerald-300 dark:border-emerald-500/40"
-                  : "bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-600/25 ring-1 ring-cyan-500/30"
-              }`}
-            >
-              <Check className={`h-3.5 w-3.5 stroke-[2.5] ${isCompleted ? "text-emerald-800 dark:text-emerald-300" : "text-white"}`} />
-              <span className={isCompleted ? "text-emerald-900 dark:text-emerald-300 font-bold" : "text-white font-bold"}>
-                {isCompleted ? "Done ✓" : "Done"}
-              </span>
-            </button>
+            {hasNext && (
+              <button
+                type="button"
+                onClick={onNextStep}
+                className="px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 active:scale-95 transition-all"
+              >
+                <span>Next Step</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </div>

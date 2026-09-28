@@ -9,6 +9,7 @@ import {
   Lightbulb,
   Maximize2,
   Image as ImageIcon,
+  Video,
   CheckCircle2,
   Sliders,
   HelpCircle,
@@ -41,7 +42,12 @@ export function WorkflowStep({
   const orderNum = step.order || step.stepNumber || 1;
   const orderFormatted = String(orderNum).padStart(2, "0");
   const imgUrl = step.image?.url || step.imageUrl;
-  const imgCaption = step.image?.caption || step.imageCaption || "Visual Guideline";
+  const videoUrl = step.videoUrl;
+  const isVideo = step.mediaType === "video" || Boolean(videoUrl);
+  const mediaCaption =
+    step.image?.caption ||
+    step.imageCaption ||
+    (isVideo ? "Video Guideline" : "Visual Guideline");
 
   // Compact Pill mode
   if (mode === "compact") {
@@ -161,40 +167,60 @@ export function WorkflowStep({
       {/* Expanded Step Body */}
       {isExpanded && (
         <div className="px-4 sm:px-5 pb-5 space-y-4 pt-1 border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#0E121C]/60">
-          {/* Visual Guideline Image if present */}
-          {imgUrl && (
+          {/* Visual Guideline Media (Video or Image) if present */}
+          {(videoUrl || imgUrl) && (
             <div className="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-zinc-800 group/img">
-              <div className="relative h-44 sm:h-52 w-full overflow-hidden flex items-center justify-center">
-                <img
-                  src={imgUrl}
-                  alt={step.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-
-                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono text-zinc-200 border border-white/10 truncate max-w-md">
-                    {imgCaption}
-                  </span>
-
-                  {onImageClick && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onImageClick({
-                          url: imgUrl,
-                          title: step.title,
-                          caption: imgCaption,
-                        })
-                      }
-                      className="pointer-events-auto p-1.5 rounded-lg bg-black/70 hover:bg-black text-white transition-colors border border-white/15"
-                      title="Inspect guideline full screen"
-                    >
-                      <Maximize2 className="h-3.5 w-3.5 text-cyan-300" />
-                    </button>
+              {videoUrl ? (
+                <div className="relative w-full overflow-hidden bg-black flex flex-col items-center justify-center">
+                  <video
+                    src={videoUrl}
+                    controls
+                    className="w-full max-h-72 object-contain bg-black"
+                  />
+                  {mediaCaption && (
+                    <div className="w-full px-3 py-1.5 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-zinc-300 truncate">
+                        {mediaCaption}
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800/80">
+                        VIDEO
+                      </span>
+                    </div>
                   )}
                 </div>
-              </div>
+              ) : imgUrl ? (
+                <div className="relative h-44 sm:h-52 w-full overflow-hidden flex items-center justify-center">
+                  <img
+                    src={imgUrl}
+                    alt={step.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono text-zinc-200 border border-white/10 truncate max-w-md">
+                      {mediaCaption}
+                    </span>
+
+                    {onImageClick && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onImageClick({
+                            url: imgUrl,
+                            title: step.title,
+                            caption: mediaCaption,
+                          })
+                        }
+                        className="pointer-events-auto p-1.5 rounded-lg bg-black/70 hover:bg-black text-white transition-colors border border-white/15"
+                        title="Inspect guideline full screen"
+                      >
+                        <Maximize2 className="h-3.5 w-3.5 text-cyan-300" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
 

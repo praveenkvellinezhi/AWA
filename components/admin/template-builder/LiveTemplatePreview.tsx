@@ -21,6 +21,8 @@ import {
   Bookmark,
   Heart,
   Share2,
+  Image as ImageIcon,
+  Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,34 +58,57 @@ export function LiveTemplatePreview({
   isDraft = true,
 }: LiveTemplatePreviewProps) {
   const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const [copiedKind, setCopiedKind] = useState<"combined" | "ui" | "context" | null>(null);
+  const [promptViewMode, setPromptViewMode] = useState<"combined" | "ui" | "context">("combined");
   const [copiedStepIndex, setCopiedStepIndex] = useState<number | null>(null);
   const [selectedSlideIndex, setSelectedSlideIndex] = useState(0);
   const [activeWorkflowTab, setActiveWorkflowTab] = useState<"workflow" | "details">("workflow");
 
-  const getPrimaryPrompt = () => {
+  const getPrompts = () => {
+    let ui = "";
+    let context = "";
     switch (basicInfo.categoryKey) {
       case "image":
-        return imageData.prompt;
+        ui = imageData.uiPrompt || imageData.prompt;
+        context = imageData.contextPrompt;
+        break;
       case "video":
-        return videoData.prompt;
+        ui = videoData.uiPrompt || videoData.prompt;
+        context = videoData.contextPrompt;
+        break;
       case "website":
-        return combinePrompts(websiteData.uiPrompt, websiteData.contextPrompt);
+        ui = websiteData.uiPrompt;
+        context = websiteData.contextPrompt;
+        break;
       case "slides":
-        return slidesData.globalPrompt;
+        ui = slidesData.uiPrompt || slidesData.globalPrompt;
+        context = slidesData.contextPrompt || slidesData.presentationContext;
+        break;
       case "poster":
-        return posterData.prompt;
-      default:
-        return "";
+        ui = posterData.uiPrompt || posterData.prompt;
+        context = posterData.contextPrompt;
+        break;
     }
+    const combined = combinePrompts(ui, context);
+    return { ui, context, combined };
   };
 
-  const handleCopyPrimaryPrompt = () => {
-    const prompt = getPrimaryPrompt();
-    if (!prompt) return;
-    navigator.clipboard.writeText(prompt);
-    setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2000);
+  const handleCopyPromptByKind = async (kind: "combined" | "ui" | "context") => {
+    const { ui, context, combined } = getPrompts();
+    const textToCopy = kind === "combined" ? combined : kind === "ui" ? ui : context;
+    if (!textToCopy) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      }
+    } catch (e) {
+      console.warn("Failed to copy prompt:", e);
+    }
+    setCopiedKind(kind);
+    setTimeout(() => setCopiedKind(null), 2000);
   };
+
+  const { ui: activeUiPrompt, context: activeContextPrompt, combined: activeCombinedPrompt } = getPrompts();
 
   const handleCopyStep = (promptText: string, index: number) => {
     if (!promptText) return;
@@ -257,19 +282,29 @@ export function LiveTemplatePreview({
           </div>
         )}
 
-        {/* 2. WEBSITE CATEGORY PREVIEW */}
-        {basicInfo.categoryKey === "website" && (
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0E1422] border border-slate-200 dark:border-slate-800 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-blue-500" />
-                <span>Web Stack & Prompts</span>
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">
-                {websiteData.framework}
-              </span>
-            </div>
+        {/* DUAL PROMPT PREVIEW CARD (FOR ALL CATEGORIES) */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0E1422] border border-slate-200 dark:border-slate-800 space-y-2.5">
+          {/* Header with Category Badge & Parameter Pill */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Prompt Pipeline</span>
+            </span>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+              {basicInfo.categoryKey === "website"
+                ? websiteData.framework
+                : basicInfo.categoryKey === "image"
+                ? `${imageData.aspectRatio} • ${imageData.imageType}`
+                : basicInfo.categoryKey === "video"
+                ? `${videoData.duration} • ${videoData.aspectRatio}`
+                : basicInfo.categoryKey === "slides"
+                ? `${slidesData.numberOfSlides} Slides • ${slidesData.presentationType}`
+                : `${posterData.canvasSize}`}
+            </span>
+          </div>
 
+          {/* Quick Specs Chips for Website */}
+          {basicInfo.categoryKey === "website" && (
             <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono text-slate-600 dark:text-slate-300">
               <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 truncate">
                 CSS: {websiteData.styling}
@@ -278,71 +313,107 @@ export function LiveTemplatePreview({
                 DB: {websiteData.database}
               </div>
             </div>
+          )}
 
+          {/* Prompt Selector Pills: Combined / UI Prompt / Context Prompt */}
+          <div className="flex items-center gap-1 bg-slate-200/70 dark:bg-slate-800/80 p-0.5 rounded-lg text-[11px] font-bold">
+            <button
+              type="button"
+              onClick={() => setPromptViewMode("combined")}
+              className={`flex-1 py-1 px-2 rounded-md transition-all ${
+                promptViewMode === "combined"
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Combined
+            </button>
+            <button
+              type="button"
+              onClick={() => setPromptViewMode("ui")}
+              className={`flex-1 py-1 px-2 rounded-md transition-all ${
+                promptViewMode === "ui"
+                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              UI Prompt
+            </button>
+            <button
+              type="button"
+              onClick={() => setPromptViewMode("context")}
+              className={`flex-1 py-1 px-2 rounded-md transition-all ${
+                promptViewMode === "context"
+                  ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Context
+            </button>
+          </div>
+
+          {/* Active Prompt Preview Textbox */}
+          <div className="p-2.5 rounded-lg bg-white dark:bg-[#131B2A] border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-800 dark:text-slate-200 line-clamp-4 leading-relaxed">
+            {promptViewMode === "combined"
+              ? activeCombinedPrompt || "No prompt configured"
+              : promptViewMode === "ui"
+              ? activeUiPrompt || "No UI prompt configured"
+              : activeContextPrompt || "No context prompt configured"}
+          </div>
+
+          {/* Action Buttons: Copy Combined or Copy Selected */}
+          <div className="flex items-center gap-1.5">
             <Button
               type="button"
               variant="forest"
               size="sm"
-              onClick={handleCopyPrimaryPrompt}
-              className="w-full h-8 text-xs font-bold gap-1.5"
+              onClick={() => handleCopyPromptByKind("combined")}
+              className="flex-1 h-8 text-xs font-bold gap-1.5"
             >
-              {copiedPrompt ? (
+              {copiedKind === "combined" ? (
                 <>
                   <Check className="w-3.5 h-3.5" />
-                  <span>Copied Full Combined Prompt!</span>
+                  <span>Copied Combined Prompt!</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Combined Website Prompt</span>
+                  <span>Copy Combined Prompt</span>
                 </>
               )}
             </Button>
-          </div>
-        )}
-
-        {/* 3. IMAGE / VIDEO / POSTER MAIN PROMPT & PARAMETERS */}
-        {basicInfo.categoryKey !== "slides" && basicInfo.categoryKey !== "website" && (
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0E1422] border border-slate-200 dark:border-slate-800 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Generation Prompt</span>
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">
-                {basicInfo.categoryKey === "image"
-                  ? imageData.aspectRatio
-                  : basicInfo.categoryKey === "video"
-                  ? videoData.duration
-                  : posterData.canvasSize}
-              </span>
-            </div>
-
-            <div className="p-2.5 rounded-lg bg-white dark:bg-[#131B2A] border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-800 dark:text-slate-200 line-clamp-4 leading-relaxed">
-              {getPrimaryPrompt() || "No prompt configured"}
-            </div>
 
             <Button
               type="button"
-              variant="forest"
+              variant="outline"
               size="sm"
-              onClick={handleCopyPrimaryPrompt}
-              className="w-full h-8 text-xs font-bold gap-1.5"
+              onClick={() => handleCopyPromptByKind("ui")}
+              title="Copy UI Prompt only"
+              className="h-8 px-2.5 text-xs text-slate-700 dark:text-slate-200"
             >
-              {copiedPrompt ? (
-                <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Copied Main Prompt!</span>
-                </>
+              {copiedKind === "ui" ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
               ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Generation Prompt</span>
-                </>
+                <span className="font-semibold text-[10px]">UI</span>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleCopyPromptByKind("context")}
+              title="Copy Context Prompt only"
+              className="h-8 px-2.5 text-xs text-slate-700 dark:text-slate-200"
+            >
+              {copiedKind === "context" ? (
+                <Check className="w-3.5 h-3.5 text-blue-500" />
+              ) : (
+                <span className="font-semibold text-[10px]">Context</span>
               )}
             </Button>
           </div>
-        )}
+        </div>
 
         {/* Execution Steps Section */}
         <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
@@ -357,25 +428,67 @@ export function LiveTemplatePreview({
           </div>
 
           <div className="space-y-2">
-            {workflowSteps.map((step) => (
-              <div
-                key={step.id}
-                className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2A] space-y-1.5"
-              >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
-                    {step.stepNumber}
-                  </span>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
-                    {step.title}
-                  </span>
-                </div>
+            {workflowSteps.map((step) => {
+              const stepImg = step.image?.url || step.imageUrl;
+              const stepVideo = step.videoUrl;
+              return (
+                <div
+                  key={step.id}
+                  className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2A] space-y-1.5"
+                >
+                  <div className="flex items-center justify-between gap-1.5 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                      <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                        {step.stepNumber}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {step.title}
+                      </span>
+                    </div>
 
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                  {step.description || step.instruction}
-                </p>
-              </div>
-            ))}
+                    {stepVideo ? (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
+                        <Video className="w-2.5 h-2.5" />
+                        <span>VIDEO</span>
+                      </span>
+                    ) : stepImg ? (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                        <ImageIcon className="w-2.5 h-2.5" />
+                        <span>IMG</span>
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                    {step.description || step.instruction}
+                  </p>
+
+                  {/* Thumbnail / Video preview if present */}
+                  {stepVideo ? (
+                    <div className="rounded-md overflow-hidden bg-black max-h-32 border border-slate-200 dark:border-slate-800">
+                      <video
+                        src={stepVideo}
+                        controls
+                        className="max-h-32 w-full object-contain"
+                      />
+                    </div>
+                  ) : stepImg ? (
+                    <div className="relative h-24 w-full rounded-md overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <img
+                        src={stepImg}
+                        alt={step.title}
+                        className="w-full h-full object-cover"
+                      />
+                      {step.imageCaption && (
+                        <span className="absolute bottom-1 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-zinc-300 truncate">
+                          {step.imageCaption}
+                        </span>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

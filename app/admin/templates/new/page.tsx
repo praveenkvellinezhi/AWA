@@ -11,6 +11,7 @@ import {
   Save,
   Send,
   Eye,
+  EyeOff,
   CheckCircle2,
   AlertCircle,
   Sparkles,
@@ -49,7 +50,7 @@ import {
   INITIAL_POSTER_DATA,
   getDefaultWorkflowSteps,
 } from "@/components/admin/template-builder/defaults";
-import { combinePrompts } from "@/lib/prompt-utils";
+import { combinePrompts, getTemplatePrompts, splitCombinedPrompt } from "@/lib/prompt-utils";
 
 function TemplateBuilderContent() {
   const router = useRouter();
@@ -74,6 +75,7 @@ function TemplateBuilderContent() {
 
   // 4. UI Controls & Notifications
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
+  const [isDesktopPreviewOpen, setIsDesktopPreviewOpen] = useState(true);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [successNotice, setSuccessNotice] = useState<{
     message: string;
@@ -122,19 +124,45 @@ function TemplateBuilderContent() {
       recommendedModel: existing.recommendedTools[0]?.modelName || "Midjourney v6.1",
     });
 
-    if (existing.uiPrompt) {
-      setWebsiteData((prev) => ({
-        ...prev,
-        uiPrompt: existing.uiPrompt || prev.uiPrompt,
-        contextPrompt: existing.contextPrompt || prev.contextPrompt,
-      }));
-    }
+    // Extract UI and Context prompts systematically for all categories
+    const resolvedPrompts = getTemplatePrompts(existing);
+    const existingUi = resolvedPrompts.uiPrompt || existing.promptText || "";
+    const existingCtx = resolvedPrompts.contextPrompt || "";
 
-    if (existing.promptText) {
-      setImageData((prev) => ({ ...prev, prompt: existing.promptText || prev.prompt }));
-      setVideoData((prev) => ({ ...prev, prompt: existing.promptText || prev.prompt }));
-      setPosterData((prev) => ({ ...prev, prompt: existing.promptText || prev.prompt }));
-    }
+    setImageData((prev) => ({
+      ...prev,
+      uiPrompt: existingUi || prev.uiPrompt,
+      contextPrompt: existingCtx || prev.contextPrompt,
+      prompt: existingUi || prev.prompt,
+    }));
+
+    setVideoData((prev) => ({
+      ...prev,
+      uiPrompt: existingUi || prev.uiPrompt,
+      contextPrompt: existingCtx || prev.contextPrompt,
+      prompt: existingUi || prev.prompt,
+    }));
+
+    setWebsiteData((prev) => ({
+      ...prev,
+      uiPrompt: existingUi || prev.uiPrompt,
+      contextPrompt: existingCtx || prev.contextPrompt,
+    }));
+
+    setPosterData((prev) => ({
+      ...prev,
+      uiPrompt: existingUi || prev.uiPrompt,
+      contextPrompt: existingCtx || prev.contextPrompt,
+      prompt: existingUi || prev.prompt,
+    }));
+
+    setSlidesData((prev) => ({
+      ...prev,
+      uiPrompt: existingUi || prev.uiPrompt,
+      contextPrompt: existingCtx || prev.contextPrompt,
+      globalPrompt: existingUi || prev.globalPrompt,
+      presentationContext: existingCtx || prev.presentationContext,
+    }));
 
     if (existing.slidePrompts && existing.slidePrompts.length > 0) {
       setSlidesData((prev) => ({
@@ -211,13 +239,19 @@ function TemplateBuilderContent() {
 
     switch (basicInfo.categoryKey) {
       case "image":
-        if (!imageData.prompt.trim()) {
-          errors.mainPrompt = "Main Generation Prompt is required for Image templates.";
+        if (!(imageData.uiPrompt || imageData.prompt).trim()) {
+          errors.uiPrompt = "UI Generation Prompt is required for Image templates.";
+        }
+        if (!imageData.contextPrompt.trim()) {
+          errors.contextPrompt = "Context Prompt is required for Image templates.";
         }
         break;
       case "video":
-        if (!videoData.prompt.trim()) {
-          errors.mainPrompt = "Video Generation Prompt is required for Video templates.";
+        if (!(videoData.uiPrompt || videoData.prompt).trim()) {
+          errors.uiPrompt = "UI Generation Prompt is required for Video templates.";
+        }
+        if (!videoData.contextPrompt.trim()) {
+          errors.contextPrompt = "Context Prompt is required for Video templates.";
         }
         break;
       case "website":
@@ -229,8 +263,11 @@ function TemplateBuilderContent() {
         }
         break;
       case "slides":
-        if (!slidesData.presentationContext.trim()) {
-          errors.presentationContext = "Presentation Context is required for Slide decks.";
+        if (!(slidesData.uiPrompt || slidesData.globalPrompt).trim()) {
+          errors.uiPrompt = "UI Master Deck Prompt is required for Slide templates.";
+        }
+        if (!(slidesData.contextPrompt || slidesData.presentationContext).trim()) {
+          errors.contextPrompt = "Presentation Context is required for Slide decks.";
         }
         if (slidesData.slides.length === 0) {
           errors.slides = "At least one slide is required in the slide pipeline.";
@@ -239,8 +276,11 @@ function TemplateBuilderContent() {
         }
         break;
       case "poster":
-        if (!posterData.prompt.trim()) {
-          errors.mainPrompt = "Graphic Design Prompt is required for Poster templates.";
+        if (!(posterData.uiPrompt || posterData.prompt).trim()) {
+          errors.uiPrompt = "UI / Graphic Design Prompt is required for Poster templates.";
+        }
+        if (!posterData.contextPrompt.trim()) {
+          errors.contextPrompt = "Context Prompt is required for Poster templates.";
         }
         break;
     }
@@ -282,23 +322,33 @@ function TemplateBuilderContent() {
           }))
         : [];
 
-    let combinedPromptText = "";
-    let uiPromptText: string | undefined = undefined;
-    let contextPromptText: string | undefined = undefined;
+    let uiPromptText = "";
+    let contextPromptText = "";
 
-    if (basicInfo.categoryKey === "website") {
-      uiPromptText = websiteData.uiPrompt;
-      contextPromptText = websiteData.contextPrompt;
-      combinedPromptText = combinePrompts(websiteData.uiPrompt, websiteData.contextPrompt);
-    } else if (basicInfo.categoryKey === "image") {
-      combinedPromptText = imageData.prompt;
-    } else if (basicInfo.categoryKey === "video") {
-      combinedPromptText = videoData.prompt;
-    } else if (basicInfo.categoryKey === "slides") {
-      combinedPromptText = slidesData.globalPrompt;
-    } else if (basicInfo.categoryKey === "poster") {
-      combinedPromptText = posterData.prompt;
+    switch (basicInfo.categoryKey) {
+      case "website":
+        uiPromptText = websiteData.uiPrompt;
+        contextPromptText = websiteData.contextPrompt;
+        break;
+      case "image":
+        uiPromptText = imageData.uiPrompt || imageData.prompt;
+        contextPromptText = imageData.contextPrompt;
+        break;
+      case "video":
+        uiPromptText = videoData.uiPrompt || videoData.prompt;
+        contextPromptText = videoData.contextPrompt;
+        break;
+      case "slides":
+        uiPromptText = slidesData.uiPrompt || slidesData.globalPrompt;
+        contextPromptText = slidesData.contextPrompt || slidesData.presentationContext;
+        break;
+      case "poster":
+        uiPromptText = posterData.uiPrompt || posterData.prompt;
+        contextPromptText = posterData.contextPrompt;
+        break;
     }
+
+    const combinedPromptText = combinePrompts(uiPromptText, contextPromptText);
 
     const toolName = basicInfo.assignedToolName || basicInfo.recommendedModel.split(" ")[0] || "AI";
     const modelName = basicInfo.assignedModelName || basicInfo.recommendedModel;
@@ -436,16 +486,34 @@ function TemplateBuilderContent() {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Toggle mobile preview */}
+            {/* Preview Toggle for Desktop & Mobile */}
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setIsMobilePreviewOpen(!isMobilePreviewOpen)}
-              className="lg:hidden text-xs gap-1.5 font-medium"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  setIsMobilePreviewOpen(!isMobilePreviewOpen);
+                } else {
+                  setIsDesktopPreviewOpen(!isDesktopPreviewOpen);
+                }
+              }}
+              className="text-xs gap-1.5 font-medium rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Toggle Live Template Preview Panel"
             >
-              <Eye className="w-3.5 h-3.5" />
-              <span>{isMobilePreviewOpen ? "Hide Preview" : "Live Preview"}</span>
+              {isDesktopPreviewOpen ? (
+                <>
+                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden sm:inline">Hide Preview</span>
+                  <span className="sm:hidden">Preview</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="hidden sm:inline">Show Preview</span>
+                  <span className="sm:hidden">Preview</span>
+                </>
+              )}
             </Button>
 
             <Button
@@ -649,37 +717,39 @@ function TemplateBuilderContent() {
         </div>
 
         {/* Right Column: FIXED LIVE PREVIEW PANEL (Does NOT scroll with left column) */}
-        <div
-          className={`w-[380px] xl:w-[440px] 2xl:w-[490px] shrink-0 h-full p-4 pl-0 overflow-hidden flex flex-col ${
-            isMobilePreviewOpen
-              ? "fixed inset-0 z-50 p-4 bg-black/60 backdrop-blur-xs flex"
-              : "hidden lg:flex"
-          }`}
-        >
-          <div className="h-full w-full relative flex flex-col overflow-hidden">
-            {isMobilePreviewOpen && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMobilePreviewOpen(false)}
-                className="mb-2 self-end lg:hidden bg-white dark:bg-slate-900"
-              >
-                Close Preview
-              </Button>
-            )}
-            <LiveTemplatePreview
-              basicInfo={basicInfo}
-              imageData={imageData}
-              videoData={videoData}
-              websiteData={websiteData}
-              slidesData={slidesData}
-              posterData={posterData}
-              workflowSteps={workflowSteps}
-              isDraft={basicInfo.status === "draft"}
-            />
+        {isDesktopPreviewOpen && (
+          <div
+            className={`w-[340px] xl:w-[380px] 2xl:w-[400px] shrink-0 h-full p-4 pl-0 overflow-hidden flex flex-col ${
+              isMobilePreviewOpen
+                ? "fixed inset-0 z-50 p-4 bg-black/60 backdrop-blur-xs flex"
+                : "hidden lg:flex"
+            }`}
+          >
+            <div className="h-full w-full relative flex flex-col overflow-hidden">
+              {isMobilePreviewOpen && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMobilePreviewOpen(false)}
+                  className="mb-2 self-end lg:hidden bg-white dark:bg-slate-900"
+                >
+                  Close Preview
+                </Button>
+              )}
+              <LiveTemplatePreview
+                basicInfo={basicInfo}
+                imageData={imageData}
+                videoData={videoData}
+                websiteData={websiteData}
+                slidesData={slidesData}
+                posterData={posterData}
+                workflowSteps={workflowSteps}
+                isDraft={basicInfo.status === "draft"}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

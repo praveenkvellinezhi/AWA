@@ -58,6 +58,8 @@ export interface BuilderBasicInfo {
 }
 
 export interface ImageBuilderData {
+  uiPrompt: string;
+  contextPrompt: string;
   prompt: string;
   imageType: string;
   visualStyle: string;
@@ -75,6 +77,8 @@ export interface ImageBuilderData {
 }
 
 export interface VideoBuilderData {
+  uiPrompt: string;
+  contextPrompt: string;
   prompt: string;
   videoType: string;
   duration: string;
@@ -139,10 +143,15 @@ export interface SlidesBuilderData {
   language: string;
   presentationContext: string;
   globalPrompt: string;
+  uiPrompt: string;
+  contextPrompt: string;
   slides: BuilderSlideItem[];
 }
 
 export interface PosterBuilderData {
+  uiPrompt: string;
+  contextPrompt: string;
+  prompt: string;
   designType: string;
   canvasSize: string;
   dimensions: string;
@@ -156,7 +165,6 @@ export interface PosterBuilderData {
   colorPalette: string;
   typography: string;
   imageDirection: string;
-  prompt: string;
 }
 
 export interface WorkflowStepItem extends TemplateStep {

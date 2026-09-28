@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useDemo } from "@/lib/demo-context";
 import { Template } from "@/lib/types";
 import { getTemplatePrompts, combinePrompts } from "@/lib/prompt-utils";
+import { getTemplatePrimaryImage } from "@/lib/template-images";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ import {
   Sparkles,
   BarChart2,
   Check,
+  ExternalLink,
 } from "lucide-react";
 
 export default function AdminTemplatesPage() {
@@ -67,7 +69,7 @@ export default function AdminTemplatesPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 8;
 
   // Form State
   const [formName, setFormName] = useState("");
@@ -261,6 +263,55 @@ export default function AdminTemplatesPage() {
     return filteredTemplates.slice(start, start + itemsPerPage);
   }, [filteredTemplates, currentPage, itemsPerPage]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / itemsPerPage));
+
+  const renderPagination = () => (
+    <div className="py-3 px-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+      <div>
+        Showing {filteredTemplates.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to{" "}
+        {Math.min(currentPage * itemsPerPage, filteredTemplates.length)} of {filteredTemplates.length} templates
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1 self-center sm:self-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="h-7 px-2"
+          >
+            &lt;
+          </Button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <Button
+              key={pageNum}
+              variant={currentPage === pageNum ? "forest" : "ghost"}
+              size="sm"
+              onClick={() => setCurrentPage(pageNum)}
+              className={`h-7 w-7 p-0 text-xs font-semibold ${
+                currentPage === pageNum ? "shadow-xs" : ""
+              }`}
+            >
+              {pageNum}
+            </Button>
+          ))}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="h-7 px-2"
+          >
+            &gt;
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedRowIds(paginatedTemplates.map((t) => t.id));
@@ -332,17 +383,8 @@ export default function AdminTemplatesPage() {
             </div>
           </div>
 
-          {/* Actions: Launch Dedicated Visual Builder or Quick Inline */}
+          {/* Actions: Launch Dedicated Visual Builder */}
           <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto flex-wrap">
-            <Button
-              variant="outline"
-              size="default"
-              onClick={openNewEditor}
-              className="gap-1.5 text-xs text-slate-600 dark:text-slate-300"
-            >
-              <span>{isEditorOpen && !editingTemplateId ? "Hide Quick Form" : "Quick Form"}</span>
-            </Button>
-
             <Link href="/admin/templates/new">
               <Button
                 variant="forest"
@@ -350,7 +392,7 @@ export default function AdminTemplatesPage() {
                 className="gap-2 shadow-xs"
               >
                 <Plus className="h-4 w-4 stroke-[2.5]" />
-                <span>+ Add Template (Visual Builder)</span>
+                <span>Add Template</span>
               </Button>
             </Link>
           </div>
@@ -892,9 +934,10 @@ export default function AdminTemplatesPage() {
         </div>
       </div>
 
-      {/* Catalog Table matching mockup */}
-      <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
+      {/* Catalog Views: List (Table) vs Grid (Cards) */}
+      {viewMode === "list" ? (
+        <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] overflow-hidden shadow-xs">
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
             <thead className="bg-slate-50/80 dark:bg-slate-950/80 text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800">
               <tr>
@@ -1142,62 +1185,227 @@ export default function AdminTemplatesPage() {
           </table>
         </div>
 
-        {/* Footer: Pagination matching screenshot */}
-        <div className="py-3 px-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
-          <div>
-            Showing 1 to {paginatedTemplates.length} of {tabCounts.all} templates
-          </div>
+        {/* Footer: Pagination */}
+        {renderPagination()}
+      </div>
+    ) : (
+      /* Catalog Grid Cards */
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {paginatedTemplates.map((template, idx) => {
+            const isSelected = selectedRowIds.includes(template.id);
+            const modelName =
+              template.recommendedTools[0]?.modelName ||
+              template.recommendedTools[0]?.toolName ||
+              "AI Engine";
+            const demoImage = getTemplatePrimaryImage(template);
 
-          <div className="flex items-center gap-1 self-center sm:self-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="h-7 px-2"
-            >
-              &lt;
-            </Button>
-
-            {[1, 2, 3, 4, 5].map((pageNum) => (
-              <Button
-                key={pageNum}
-                variant={currentPage === pageNum ? "forest" : "ghost"}
-                size="sm"
-                onClick={() => setCurrentPage(pageNum)}
-                className={`h-7 w-7 p-0 text-xs font-semibold ${
-                  currentPage === pageNum ? "shadow-xs" : ""
+            return (
+              <div
+                key={template.id}
+                className={`group relative rounded-2xl border transition-all duration-200 bg-white dark:bg-[#131B2A] flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md ${
+                  isSelected
+                    ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                    : "border-slate-200/90 dark:border-zinc-800/80 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
-                {pageNum}
-              </Button>
-            ))}
+                {/* Thumbnail & Badges */}
+                <div className="relative h-44 w-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
+                  <img
+                    src={demoImage}
+                    alt={template.name}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none" />
 
-            <span className="px-1 text-slate-400">..</span>
+                  {/* Top Row: Checkbox + Status */}
+                  <div className="absolute top-2.5 inset-x-2.5 z-10 flex items-center justify-between">
+                    <div className="bg-black/40 backdrop-blur-md p-1 rounded-md border border-white/20">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) =>
+                          toggleSelectRow(template.id, !!checked)
+                        }
+                        className="border-white/60 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                      />
+                    </div>
 
-            <Button
-              variant={currentPage === 26 ? "forest" : "ghost"}
-              size="sm"
-              onClick={() => setCurrentPage(26)}
-              className={`h-7 w-7 p-0 text-xs font-semibold ${
-                currentPage === 26 ? "shadow-xs" : ""
-              }`}
-            >
-              26
-            </Button>
+                    {template.isPublished ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/90 text-white backdrop-blur-md shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                        Published
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/90 text-white backdrop-blur-md shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                        Draft
+                      </span>
+                    )}
+                  </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(26, p + 1))}
-              disabled={currentPage === 26}
-              className="h-7 px-2"
-            >
-              &gt;
-            </Button>
+                  {/* Bottom Row on image: Category badge + Model pill */}
+                  <div className="absolute bottom-2.5 inset-x-2.5 z-10 flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white border border-white/20 shadow-xs truncate">
+                      {template.categoryName}
+                    </span>
+
+                    <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-slate-200 border border-white/15 flex items-center gap-1 shrink-0">
+                      <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                      <span className="truncate max-w-[100px]">{modelName}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Body Content */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 mb-1">
+                      <span className="font-medium">{template.subcategoryName || "General"}</span>
+                      <span>•</span>
+                      <span>{getUpdatedRelativeTime(idx)}</span>
+                    </div>
+
+                    <Link
+                      href={`/admin/templates/new?edit=${template.id}`}
+                      className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 hover:text-[#008235] dark:hover:text-emerald-400 transition-colors"
+                      title={template.name}
+                    >
+                      {template.name}
+                    </Link>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                      {template.description || "No description provided."}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                      <BarChart2 className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{getFormattedUsage(template, idx)} uses</span>
+                    </div>
+
+                    <span className="text-[10px] font-medium text-slate-400 capitalize">
+                      {template.difficulty}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="px-3.5 py-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 flex items-center justify-between">
+                  <Link
+                    href={`/templates/${template.id}`}
+                    target="_blank"
+                    className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 font-medium transition-colors"
+                    title="View public template"
+                  >
+                    <span>Preview</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
+
+                  <div className="flex items-center gap-1">
+                    <Link href={`/admin/templates/new?edit=${template.id}`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-slate-500 hover:text-[#008235] hover:bg-slate-100 dark:hover:bg-slate-800"
+                        title="Edit in Visual Builder"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        const duplicated: Template = {
+                          ...template,
+                          id: `template-${Date.now()}`,
+                          name: `${template.name} (Copy)`,
+                          slug: `${template.slug}-copy`,
+                          createdAt: new Date().toISOString(),
+                        };
+                        addTemplate(duplicated);
+                      }}
+                      className="h-7 w-7 text-slate-500 hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      title="Duplicate template"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                        >
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="right">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/admin/templates/new?edit=${template.id}`}
+                            className="flex items-center cursor-pointer"
+                          >
+                            <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-500" />
+                            <span>Edit in Visual Builder</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEditEditor(template)}>
+                          <Pencil className="h-3.5 w-3.5 mr-2 text-slate-400" />
+                          <span>Quick Edit Form</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const duplicated: Template = {
+                              ...template,
+                              id: `template-${Date.now()}`,
+                              name: `${template.name} (Copy)`,
+                              slug: `${template.slug}-copy`,
+                              createdAt: new Date().toISOString(),
+                            };
+                            addTemplate(duplicated);
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5 mr-2 text-slate-400" />
+                          <span>Duplicate</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete "${template.name}"?`)) {
+                              deleteTemplate(template.id);
+                            }
+                          }}
+                          className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 mr-2" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Empty state for grid */}
+        {paginatedTemplates.length === 0 && (
+          <div className="py-16 text-center text-slate-400 bg-white dark:bg-[#131B2A] rounded-2xl border border-slate-200/90 dark:border-zinc-800">
+            No templates found matching your filters.
           </div>
+        )}
+
+        {/* Pagination for Grid view */}
+        <div className="rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] overflow-hidden shadow-xs">
+          {renderPagination()}
         </div>
       </div>
+    )}
     </div>
   );
 }

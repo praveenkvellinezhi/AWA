@@ -1800,6 +1800,8 @@ export function mapToGuideSteps(steps: (UsageStep | TemplateStep)[]): GuideStep[
       tip: canonical.tips?.[0] || canonical.tip,
       image: canonical.image?.url || canonical.imageUrl,
       imageCaption: canonical.image?.caption || canonical.imageCaption,
+      videoUrl: canonical.videoUrl,
+      mediaType: canonical.mediaType,
       prompt: canonical.prompt,
       promptCategory: canonical.promptCategory,
       promptVariables: canonical.variables || canonical.promptVariables,

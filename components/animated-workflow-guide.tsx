@@ -67,7 +67,7 @@ function WorkflowFlowInner({
   completedSteps = [],
   onToggleStep,
   onImageClick,
-  autoplay = false,
+  autoplay = true,
 }: AnimatedWorkflowGuideProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(() => {
@@ -80,7 +80,7 @@ function WorkflowFlowInner({
   const [measuredHeights, setMeasuredHeights] = useState<Record<number, number>>({});
   const [modalStepIndex, setModalStepIndex] = useState<number | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(autoplay);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentRevealedIndex, setCurrentRevealedIndex] = useState(0);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [drawingEdgeIndex, setDrawingEdgeIndex] = useState<number | null>(null);
@@ -132,9 +132,9 @@ function WorkflowFlowInner({
     });
   }, []);
 
-  // Viewport intersection observer to auto-start when in view (only if autoplay is enabled)
+  // Viewport intersection observer to auto-start sequential step reveal when in view
   useEffect(() => {
-    if (!autoplay || hasStarted || prefersReducedMotion) return;
+    if (hasStarted || prefersReducedMotion) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -144,15 +144,24 @@ function WorkflowFlowInner({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
 
-    return () => observer.disconnect();
-  }, [autoplay, hasStarted, prefersReducedMotion]);
+    // Auto-start fallback in case observer doesn't fire immediately
+    const fallbackTimer = setTimeout(() => {
+      setHasStarted(true);
+      setIsPlaying(true);
+    }, 400);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallbackTimer);
+    };
+  }, [hasStarted, prefersReducedMotion]);
 
   // Sequential Reveal State Machine (for auto-play when user clicks Play)
   useEffect(() => {
@@ -393,7 +402,8 @@ function WorkflowFlowInner({
     setDrawingEdgeIndex(null);
     setActiveOutputNodeIndex(0);
     setActiveInputNodeIndex(null);
-    setIsPlaying(false);
+    setHasStarted(true);
+    setIsPlaying(true);
   }, []);
 
   const handleTogglePlay = useCallback(() => {
@@ -600,7 +610,7 @@ function WorkflowFlowInner({
       <div className="px-4 py-2.5 bg-slate-100 dark:bg-[#0a0d14] border-t border-slate-200 dark:border-slate-800/70 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400">
         <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 truncate">
           <Workflow className="h-3 w-3 text-cyan-600 dark:text-cyan-400 shrink-0" />
-          <span>Click any card to view detailed explanation • Click Done to connect next • Drag to pan</span>
+          <span>Click any card to view detailed explanation • Steps reveal automatically one by one • Drag to pan</span>
         </span>
 
         <span className="text-slate-500 hidden sm:inline">

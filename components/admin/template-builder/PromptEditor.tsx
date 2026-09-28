@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import {
   Sparkles,
   Copy,
@@ -46,8 +46,10 @@ export function PromptEditor({
   highlightCategory,
 }: PromptEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const dropdownContainerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [showVariableDropdown, setShowVariableDropdown] = useState(false);
+  const [dropdownAlign, setDropdownAlign] = useState<"left" | "right">("right");
   const [customVarInput, setCustomVarInput] = useState("");
 
   // Detect variables currently in the prompt using regex: /\[([A-Z0-9_-]+)\]/g
@@ -97,123 +99,187 @@ export function PromptEditor({
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0;
   const tokenEstimate = Math.ceil(wordCount * 1.3);
 
+  // Position calculation and click-outside / escape handling
+  useEffect(() => {
+    if (!showVariableDropdown) return;
+
+    const updateAlignment = () => {
+      if (dropdownContainerRef.current) {
+        const buttonRect = dropdownContainerRef.current.getBoundingClientRect();
+        // Measure against the containing scroll column or section card
+        const container =
+          dropdownContainerRef.current.closest(".overflow-y-auto") ||
+          dropdownContainerRef.current.closest("section") ||
+          document.body;
+        const containerRect = container.getBoundingClientRect();
+
+        // Distance from button's left edge to right boundary of container
+        const spaceOnRight = containerRect.right - buttonRect.left;
+        // Distance from button's right edge to left boundary of container
+        const spaceOnLeft = buttonRect.right - containerRect.left;
+
+        // If there is less than 310px to the right inside this column, align right-0 so it expands inwards to the left
+        if (spaceOnRight < 310 && spaceOnLeft >= 280) {
+          setDropdownAlign("right");
+        } else if (spaceOnLeft < 280) {
+          setDropdownAlign("left");
+        } else {
+          // Default right-0 for standard desktop right-aligned toolbar
+          setDropdownAlign("right");
+        }
+      }
+    };
+
+    updateAlignment();
+    window.addEventListener("resize", updateAlignment);
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownContainerRef.current &&
+        !dropdownContainerRef.current.contains(e.target as Node)
+      ) {
+        setShowVariableDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowVariableDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("resize", updateAlignment);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showVariableDropdown]);
+
   return (
     <div className="space-y-2">
       {/* Header with Label & Action Buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
               <span>{label}</span>
               <span className="text-emerald-500">*</span>
             </label>
             {highlightCategory && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
                 {highlightCategory}
               </span>
             )}
           </div>
-          {helperText && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {helperText}
-            </p>
-          )}
-        </div>
 
-        {/* Action Controls: Variable Inserter & Copy */}
-        <div className="flex items-center gap-2 relative">
-          <div className="relative">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowVariableDropdown(!showVariableDropdown)}
-              className="h-8 text-xs font-semibold gap-1.5 rounded-lg border-emerald-600/30 text-emerald-700 dark:text-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              <span>Insert Variable</span>
-            </Button>
+          {/* Action Controls: Variable Inserter & Copy */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div ref={dropdownContainerRef} className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowVariableDropdown(!showVariableDropdown)}
+                className="h-8 text-xs font-semibold gap-1.5 rounded-lg border-emerald-600/30 text-emerald-700 dark:text-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Insert Variable</span>
+              </Button>
 
-            {/* Variable Inserter Dropdown Menu */}
-            {showVariableDropdown && (
-              <div className="absolute right-0 top-full mt-1.5 w-64 p-2 bg-white dark:bg-[#131B2A] border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-30 animate-in fade-in zoom-in-95 duration-150">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider">
-                  Suggested Variables
-                </div>
-                <div className="flex flex-wrap gap-1 p-1 max-h-40 overflow-y-auto">
-                  {suggestedVariables.map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => insertVariable(v)}
-                      className="px-2 py-1 rounded-md text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 text-slate-700 dark:text-slate-200 hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors"
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-2 mb-1">
-                    Custom Variable
+              {/* Variable Inserter Dropdown Menu */}
+              {showVariableDropdown && (
+                <div
+                  className={`absolute top-full mt-1.5 w-72 p-2.5 bg-white dark:bg-[#131B2A] border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 ${
+                    dropdownAlign === "right" ? "right-0" : "left-0"
+                  }`}
+                >
+                  <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-1 py-1 uppercase tracking-wider">
+                    Suggested Variables
                   </div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="text"
-                      value={customVarInput}
-                      onChange={(e) => setCustomVarInput(e.target.value)}
-                      placeholder="e.g. CAMERA_ANGLE"
-                      className="flex-1 px-2 py-1 text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-hidden focus:border-emerald-500 text-slate-800 dark:text-slate-200"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && customVarInput.trim()) {
-                          e.preventDefault();
+                  <div className="flex flex-wrap gap-1 p-1 max-h-44 overflow-y-auto">
+                    {suggestedVariables.map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => insertVariable(v)}
+                        className="px-2 py-1 rounded-md text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 text-slate-700 dark:text-slate-200 hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors"
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-1 mb-1">
+                      Custom Variable
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={customVarInput}
+                        onChange={(e) => setCustomVarInput(e.target.value)}
+                        placeholder="e.g. CAMERA_ANGLE"
+                        className="flex-1 px-2.5 py-1 text-xs font-mono bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-hidden focus:border-emerald-500 text-slate-800 dark:text-slate-200"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && customVarInput.trim()) {
+                            e.preventDefault();
+                            insertVariable(customVarInput.trim());
+                            setCustomVarInput("");
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="forest"
+                        disabled={!customVarInput.trim()}
+                        onClick={() => {
                           insertVariable(customVarInput.trim());
                           setCustomVarInput("");
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="forest"
-                      disabled={!customVarInput.trim()}
-                      onClick={() => {
-                        insertVariable(customVarInput.trim());
-                        setCustomVarInput("");
-                      }}
-                      className="h-7 text-xs px-2"
-                    >
-                      Add
-                    </Button>
+                        }}
+                        className="h-7 text-xs px-2.5 font-bold"
+                      >
+                        Add
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            disabled={!value}
-            className="h-8 text-xs font-medium gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                  Copied
-                </span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy</span>
-              </>
-            )}
-          </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleCopy}
+              disabled={!value}
+              className="h-8 text-xs font-medium gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    Copied
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+
+        {helperText && (
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            {helperText}
+          </p>
+        )}
       </div>
 
       {/* Textarea Editor Box */}

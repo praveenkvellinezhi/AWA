@@ -64,8 +64,8 @@ export function CategorySelector({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
             <span>Template Category</span>
             <span className="text-emerald-500">*</span>
@@ -74,12 +74,15 @@ export function CategorySelector({
             The category dynamically adapts the builder fields, prompt architecture, and workflow tools.
           </p>
         </div>
-        <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-          Selected: {currentCategory.name}
-        </span>
+        <div className="shrink-0">
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 whitespace-nowrap shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Selected: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{currentCategory.name}</span>
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
         {CATEGORY_OPTIONS.map((category) => {
           const isSelected = category.key === selectedCategoryKey;
           return (
@@ -87,16 +90,16 @@ export function CategorySelector({
               type="button"
               key={category.key}
               onClick={() => handleCardClick(category)}
-              className={`group relative text-left p-3.5 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
+              className={`group relative text-left p-3 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
                 isSelected
-                  ? "border-emerald-500 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-xs ring-2 ring-emerald-500/20"
-                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111726] hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-[#161F33]"
+                  ? "border-emerald-500 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/25 shadow-xs ring-2 ring-emerald-500/20"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111726] hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/80 dark:hover:bg-[#161F33]"
               }`}
             >
-              {/* Top Row: Icon + Badge + Check */}
-              <div className="flex items-start justify-between gap-2 mb-2.5">
+              {/* Top Row: Icon + Selection Indicator */}
+              <div className="flex items-center justify-between gap-2 mb-2">
                 <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
                       ? "bg-emerald-600 text-white shadow-xs"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700"
@@ -105,47 +108,49 @@ export function CategorySelector({
                   {getCategoryIcon(category.iconName, isSelected)}
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                <div
+                  className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all shrink-0 ${
+                    isSelected
+                      ? "bg-emerald-600 border-emerald-600 text-white shadow-2xs"
+                      : "border-slate-300 dark:border-slate-700 opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                </div>
+              </div>
+
+              {/* Category Details */}
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex items-center">
                   <span
-                    className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
+                    className={`text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 transition-colors ${
                       isSelected
-                        ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 font-bold"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                        ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60"
                     }`}
                   >
                     {category.badge}
                   </span>
-
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center border transition-colors ${
-                      isSelected
-                        ? "bg-emerald-600 border-emerald-600 text-white"
-                        : "border-slate-300 dark:border-slate-700 opacity-0 group-hover:opacity-100"
-                    }`}
-                  >
-                    {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                  </div>
                 </div>
-              </div>
 
-              {/* Title & Description */}
-              <div>
                 <h4
-                  className={`text-xs font-bold transition-colors ${
+                  className={`text-xs font-bold leading-tight transition-colors line-clamp-1 ${
                     isSelected
-                      ? "text-emerald-900 dark:text-emerald-200"
+                      ? "text-emerald-950 dark:text-emerald-100"
                       : "text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white"
                   }`}
+                  title={category.name}
                 >
                   {category.name}
                 </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-snug">
+
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                   {category.tagline}
                 </p>
               </div>
 
               {/* Bottom active pill indicator */}
-              <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px]">
                 <span
                   className={
                     isSelected

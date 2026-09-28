@@ -36,6 +36,7 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronsLeft,
+  ChevronsRight,
   Menu,
   X,
   LogOut,
@@ -58,6 +59,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { isAdmin, loginAdmin, logout } = useDemo();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [globalAdminSearch, setGlobalAdminSearch] = useState("");
 
   // Admin login form states
@@ -266,9 +268,33 @@ export default function AdminLayout({
     { label: "Languages & i18n", href: "/admin/languages", icon: <Languages className="h-4 w-4" /> },
   ];
 
-  // Resolve current page label for breadcrumb
-  const currentNavItem = navItems.find((item) => item.href === pathname);
-  const currentTitle = currentNavItem ? currentNavItem.label : "Admin Console";
+  // Resolve hierarchical breadcrumb items
+  let breadcrumbItems: { label: string; href?: string }[] = [];
+  if (pathname === "/admin") {
+    breadcrumbItems = [{ label: "Dashboard" }];
+  } else if (pathname === "/admin/templates/new") {
+    breadcrumbItems = [
+      { label: "Templates & Prompts", href: "/admin/templates" },
+      { label: "New Template" },
+    ];
+  } else if (pathname.startsWith("/admin/templates/")) {
+    breadcrumbItems = [
+      { label: "Templates & Prompts", href: "/admin/templates" },
+      { label: "Edit Template" },
+    ];
+  } else {
+    const currentNavItem = navItems.find((item) => item.href === pathname);
+    if (currentNavItem) {
+      breadcrumbItems = [{ label: currentNavItem.label }];
+    } else {
+      const parentNav = navItems.find(
+        (item) => item.href !== "/admin" && pathname.startsWith(item.href)
+      );
+      if (parentNav) {
+        breadcrumbItems = [{ label: parentNav.label, href: parentNav.href }];
+      }
+    }
+  }
 
   return (
     <div className="h-screen max-h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
@@ -296,45 +322,64 @@ export default function AdminLayout({
 
       {/* Admin Sidebar Navigation - Fixed in viewport */}
       <aside
-        className={`w-64 shrink-0 border-r border-slate-200/90 dark:border-zinc-800/80 bg-white dark:bg-[#0c0d0f]/95 py-4 flex flex-col justify-between h-full overflow-y-auto z-50 md:z-10 transition-transform md:translate-x-0 ${
+        className={`shrink-0 border-r border-slate-200/90 dark:border-zinc-800/80 bg-white dark:bg-[#0c0d0f]/95 py-4 flex flex-col justify-between h-full overflow-y-auto z-50 md:z-10 transition-all duration-200 ease-in-out ${
           mobileSidebarOpen
-            ? "fixed inset-y-0 left-0 shadow-2xl translate-x-0"
-            : "hidden md:flex -translate-x-full md:translate-x-0"
+            ? "fixed inset-y-0 left-0 shadow-2xl translate-x-0 w-64"
+            : isSidebarCollapsed
+            ? "hidden md:flex w-[68px]"
+            : "hidden md:flex w-64"
         }`}
       >
         <div className="space-y-4">
-          {/* Brand & Collapse Header matching screenshot */}
-          <div className="flex items-start justify-between px-4 pb-1">
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white font-sans">
-                  AWA
-                </span>
+          {/* Brand & Collapse Header */}
+          {!isSidebarCollapsed ? (
+            <div className="flex items-start justify-between px-4 pb-1">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white font-sans">
+                    AWA
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Admin Console
+                </p>
+                <div className="mt-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EAF5ED] dark:bg-emerald-950/40 text-[#15803D] dark:text-emerald-400 border border-[#D1E7DD] dark:border-emerald-500/30">
+                    v1.0 • Master Mode
+                  </span>
+                </div>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Admin Console
-              </p>
-              <div className="mt-2">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EAF5ED] dark:bg-emerald-950/40 text-[#15803D] dark:text-emerald-400 border border-[#D1E7DD] dark:border-emerald-500/30">
-                  v1.0 • Master Mode
-                </span>
-              </div>
-            </div>
 
-            <button
-              type="button"
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title="Collapse navigation"
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(true)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Collapse sidebar"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 px-2 pb-1">
+              <span className="text-base font-black tracking-tight text-emerald-600 dark:text-emerald-400 font-sans">
+                AWA
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Expand sidebar"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
 
           {/* Navigation Links */}
           <nav className="text-xs">
             {navItems.map((item) => {
               const active = pathname === item.href;
-              return (
+              return !isSidebarCollapsed ? (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -344,6 +389,7 @@ export default function AdminLayout({
                       ? "bg-[#008235] text-white font-medium"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium"
                   }`}
+                  title={item.label}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className={active ? "text-white" : "text-slate-500 dark:text-slate-400"}>
@@ -352,29 +398,63 @@ export default function AdminLayout({
                     <span className="truncate">{item.label}</span>
                   </div>
                 </Link>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center transition-colors my-1 ${
+                    active
+                      ? "bg-[#008235] text-white shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title={item.label}
+                >
+                  {item.icon}
+                </Link>
               );
             })}
           </nav>
         </div>
 
         {/* Sidebar Footer Links */}
-        <div className="pt-4 mt-6 border-t border-slate-200/80 dark:border-slate-800/80 space-y-1 px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900 transition-colors font-medium"
-          >
-            <ExternalLink className="h-4 w-4 text-slate-500" />
-            <span>Back to Public App</span>
-          </Link>
+        {!isSidebarCollapsed ? (
+          <div className="pt-4 mt-6 border-t border-slate-200/80 dark:border-slate-800/80 space-y-1 px-4">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900 transition-colors font-medium"
+            >
+              <ExternalLink className="h-4 w-4 text-slate-500" />
+              <span>Back to Public App</span>
+            </Link>
 
-          <button
-            onClick={() => logout()}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors font-medium text-left"
-          >
-            <LogOut className="h-4 w-4 text-red-500" />
-            <span>Sign Out of Console</span>
-          </button>
-        </div>
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors font-medium text-left"
+            >
+              <LogOut className="h-4 w-4 text-red-500" />
+              <span>Sign Out of Console</span>
+            </button>
+          </div>
+        ) : (
+          <div className="pt-3 mt-4 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col items-center gap-2 px-2">
+            <Link
+              href="/"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Back to Public App"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+
+            <button
+              onClick={() => logout()}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              title="Sign Out of Console"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main Column with Shared Top Header Bar - Fixed viewport with internal scroll */}
@@ -383,15 +463,29 @@ export default function AdminLayout({
         <header className="h-16 px-4 sm:px-8 border-b border-slate-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-[#0B0F17]/70 backdrop-blur-md flex items-center justify-between gap-4 shrink-0 z-20">
           {/* Breadcrumbs (left on desktop, hidden on tiny mobile) */}
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
-            <Link href="/admin" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Link
+              href="/admin"
+              className="hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
               Admin Console
             </Link>
-            {pathname !== "/admin" && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                <span className="text-slate-800 dark:text-slate-200 font-semibold">{currentTitle}</span>
-              </>
-            )}
+            {breadcrumbItems.map((item, idx) => (
+              <React.Fragment key={idx}>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span className="text-slate-800 dark:text-slate-200 font-semibold">
+                    {item.label}
+                  </span>
+                )}
+              </React.Fragment>
+            ))}
           </div>
 
           {/* Search bar in center */}

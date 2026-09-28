@@ -13,7 +13,11 @@ import {
   Eye,
   Layers,
   HelpCircle,
+  Code2,
+  Copy,
+  Check,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -25,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { PromptEditor } from "./PromptEditor";
 import { ImageBuilderData, ValidationErrors } from "./types";
+import { combinePrompts } from "@/lib/prompt-utils";
 
 interface ImageBuilderProps {
   data: ImageBuilderData;
@@ -89,7 +94,25 @@ const QUALITY_OPTIONS = [
 ];
 
 export function ImageBuilder({ data, onChange, errors }: ImageBuilderProps) {
+  const [activePromptTab, setActivePromptTab] = useState<"separate" | "combined">("separate");
+  const [copiedCombined, setCopiedCombined] = useState(false);
   const [isOptionalOpen, setIsOptionalOpen] = useState(false);
+
+  const uiPromptValue = data.uiPrompt || data.prompt || "";
+  const contextPromptValue = data.contextPrompt || "";
+  const combinedPrompt = combinePrompts(uiPromptValue, contextPromptValue);
+
+  const handleCopyCombined = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(combinedPrompt);
+        setCopiedCombined(true);
+        setTimeout(() => setCopiedCombined(false), 2000);
+      }
+    } catch (e) {
+      console.warn("Failed to copy combined prompt:", e);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -104,33 +127,124 @@ export function ImageBuilder({ data, onChange, errors }: ImageBuilderProps) {
               Image Generation Prompt & Parameters
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Configure the primary generation prompt, variable slots, optical settings, and rendering parameters.
+              Configure the visual UI generation prompt, creative context prompt, optical settings, and rendering parameters.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Main Image Prompt Editor with Variable Pills */}
-      <PromptEditor
-        label="Main Generation Prompt"
-        value={data.prompt}
-        onChange={(val) => onChange({ prompt: val })}
-        placeholder="A high-end editorial studio photograph of [SUBJECT]..."
-        helperText="Supports bracket tokens like [SUBJECT], [STYLE], [ENVIRONMENT], [LIGHTING], [CAMERA], [ASPECT_RATIO]."
-        suggestedVariables={[
-          "[SUBJECT]",
-          "[STYLE]",
-          "[ENVIRONMENT]",
-          "[LIGHTING]",
-          "[CAMERA]",
-          "[ASPECT_RATIO]",
-          "[COLOR_PALETTE]",
-          "[MOOD]",
-        ]}
-        error={errors?.mainPrompt}
-        minRows={5}
-        highlightCategory="Image Generation"
-      />
+      {/* Dual Prompt Editor: UI Prompt + Context Prompt with Combined View */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActivePromptTab("separate")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                activePromptTab === "separate"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Dual Prompt Editors (UI + Context)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivePromptTab("combined")}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+                activePromptTab === "combined"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Preview Combined Prompt</span>
+            </button>
+          </div>
+
+          <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+            Separates Visual UI from Creative Brief
+          </span>
+        </div>
+
+        {activePromptTab === "separate" ? (
+          <div className="space-y-5">
+            {/* UI Generation Prompt */}
+            <PromptEditor
+              label="UI Generation Prompt (Visual Composition & Camera)"
+              value={uiPromptValue}
+              onChange={(val) => onChange({ uiPrompt: val, prompt: val })}
+              placeholder="A high-end editorial studio photograph of [SUBJECT] on an organic matte podium..."
+              helperText="Specifies interface visual composition, optical setup, lighting, camera lens, textures, and Midjourney parameters."
+              suggestedVariables={[
+                "[SUBJECT]",
+                "[STYLE]",
+                "[ENVIRONMENT]",
+                "[LIGHTING]",
+                "[CAMERA]",
+                "[ASPECT_RATIO]",
+                "[COLOR_PALETTE]",
+                "[MOOD]",
+              ]}
+              error={errors?.uiPrompt || errors?.mainPrompt}
+              minRows={5}
+              highlightCategory="Visual UI & Styling"
+            />
+
+            {/* Context Prompt */}
+            <PromptEditor
+              label="Context Prompt (Creative Brief, Concept & Usage)"
+              value={contextPromptValue}
+              onChange={(val) => onChange({ contextPrompt: val })}
+              placeholder="Creative context: High-end lifestyle campaign targeting design-conscious consumers..."
+              helperText="Explains the brand context, target demographic, artistic concept, and storytelling nuances."
+              suggestedVariables={[
+                "[PROJECT_NAME]",
+                "[BRAND_CONTEXT]",
+                "[TARGET_AUDIENCE]",
+                "[CAMPAIGN_GOAL]",
+                "[MOOD]",
+                "[COLOR_PALETTE]",
+              ]}
+              error={errors?.contextPrompt}
+              minRows={4}
+              highlightCategory="Creative Context & Brief"
+            />
+          </div>
+        ) : (
+          /* Live Combined Prompt View */
+          <div className="p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 space-y-3 font-mono">
+            <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+              <span className="font-bold text-white flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5 text-amber-400" />
+                Live Combined Prompt (Standard AWA Prompt)
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleCopyCombined}
+                className="h-7 text-xs bg-slate-800 border-slate-700 text-slate-200 hover:text-white"
+              >
+                {copiedCombined ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400 mr-1" />
+                    <span className="text-emerald-400 font-bold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 mr-1" />
+                    <span>Copy Full Combined Prompt</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            <pre className="text-xs whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto text-slate-300">
+              {combinedPrompt}
+            </pre>
+          </div>
+        )}
+      </div>
 
       {/* Image Configuration Grid */}
       <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-[#0E1422] border border-slate-200/80 dark:border-slate-800/80 space-y-4">

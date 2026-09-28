@@ -3,7 +3,7 @@
 import React, { memo, useRef, useEffect, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { motion } from "motion/react";
-import { Check, Maximize2, Sparkles } from "lucide-react";
+import { Check, Maximize2, Sparkles, ChevronRight } from "lucide-react";
 import { GuideStep } from "@/lib/types";
 
 export interface GuideStepNodeData extends Record<string, unknown> {
@@ -228,41 +228,52 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
           </div>
         </div>
 
-        {/* Optional Visual Guideline Image */}
-        {step.image && (
+        {/* Optional Visual Guideline Media (Image or Video) */}
+        {(step.videoUrl || step.image) && (
           <div className="mt-3.5 relative rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 group/img">
-            <div className="relative h-28 sm:h-32 w-full overflow-hidden">
-              <img
-                src={step.image}
-                alt={step.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-                <span className="px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-mono text-zinc-200 border border-white/10 truncate max-w-[200px]">
-                  {step.imageCaption || "Visual Guideline"}
-                </span>
-
-                {onImageClick && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onImageClick({
-                        url: step.image!,
-                        title: step.title,
-                        caption: step.imageCaption,
-                      });
-                    }}
-                    className="pointer-events-auto p-1 rounded-md bg-black/70 hover:bg-black text-white transition-colors border border-white/15"
-                    title="Expand guideline benchmark"
-                  >
-                    <Maximize2 className="h-3 w-3 text-cyan-300" />
-                  </button>
-                )}
+            {step.videoUrl ? (
+              <div className="relative w-full overflow-hidden bg-black flex flex-col items-center justify-center">
+                <video
+                  src={step.videoUrl}
+                  controls
+                  className="w-full max-h-40 object-contain bg-black"
+                  onClick={(e) => e.stopPropagation()}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="relative h-28 sm:h-32 w-full overflow-hidden">
+                <img
+                  src={step.image}
+                  alt={step.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                  <span className="px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-mono text-zinc-200 border border-white/10 truncate max-w-[200px]">
+                    {step.imageCaption || "Visual Guideline"}
+                  </span>
+
+                  {onImageClick && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onImageClick({
+                          url: step.image!,
+                          title: step.title,
+                          caption: step.imageCaption,
+                        });
+                      }}
+                      className="pointer-events-auto p-1 rounded-md bg-black/70 hover:bg-black text-white transition-colors border border-white/15"
+                      title="Expand guideline benchmark"
+                    >
+                      <Maximize2 className="h-3 w-3 text-cyan-300" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -274,46 +285,31 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
           </div>
         )}
 
-        {/* Action Bar */}
-        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
-          {isCompleted ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleComplete?.(step.step);
-              }}
-              className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group/btn"
-              title="Click to unmark as done"
-            >
-              <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400" />
-              <span>Done</span>
-            </button>
-          ) : isRevealed ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCompleteAndConnect?.(stepIndex);
-              }}
-              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] group/btn ${
-                isActive
-                  ? "bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-600/25 ring-1 ring-cyan-500/30"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 dark:text-slate-200 dark:border-slate-700 shadow-sm"
-              }`}
-              title={`Mark Step ${step.step} as done`}
-            >
-              <Check className="h-4 w-4 stroke-[2.5]" />
-              <span>Done</span>
-            </button>
-          ) : (
-            <div className="w-full py-2 flex items-center justify-center">
-              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-                Pending Connection
+        {/* Step Status Indicator & Details Link (no Done button required) */}
+        <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5">
+            {isActive ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold text-cyan-600 dark:text-cyan-400">
+                <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse" />
+                Active Step
               </span>
-            </div>
-          )}
+            ) : isRevealed ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                Step {step.step}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+                Upcoming
+              </span>
+            )}
+          </div>
+
+          <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors flex items-center gap-0.5">
+            <span>View Details</span>
+            <ChevronRight className="h-3 w-3" />
+          </span>
         </div>
       </motion.div>
 

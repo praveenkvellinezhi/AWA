@@ -2,22 +2,15 @@
 
 import React, { useState } from "react";
 import {
-  ListOrdered,
   Plus,
   Trash2,
   Copy,
   ChevronUp,
   ChevronDown,
-  ChevronRight,
-  Eye,
-  Check,
-  Sparkles,
-  Tag,
   Image as ImageIcon,
-  Sliders,
-  HelpCircle,
-  Maximize2,
-  Minimize2,
+  Video,
+  UploadCloud,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +31,10 @@ export function WorkflowStepBuilder({
   const [expandedStepId, setExpandedStepId] = useState<string | null>(
     steps[0]?.id || null
   );
+  // Map of step ID to active media editor tab ("image" | "video")
+  const [openMediaDrafts, setOpenMediaDrafts] = useState<
+    Record<string, "image" | "video">
+  >({});
 
   const handleAddStep = () => {
     const nextNumber = steps.length + 1;
@@ -47,13 +44,8 @@ export function WorkflowStepBuilder({
       stepNumber: nextNumber,
       step: nextNumber,
       title: `Step ${nextNumber.toString().padStart(2, "0")} — Action Directive`,
-      shortTitle: `Step ${nextNumber}`,
-      description: "Detailed instructions explaining what action to perform in the tool for this step.",
-      purpose: "Target outcome and objective for this workflow step.",
-      instruction: "Detailed instructions explaining what action to perform in the tool for this step.",
-      instructions: ["Open the tool and configure parameters.", "Execute the action and verify fidelity."],
-      example: { output: "Expected result or benchmark for this step." },
-      tips: ["Pro-tip for optimal execution."],
+      description: "Establish the actionable instructions for completing this step.",
+      instruction: "Establish the actionable instructions for completing this step.",
     };
 
     const nextSteps = [...steps, newStep];
@@ -133,57 +125,120 @@ export function WorkflowStepBuilder({
     const nextSteps = [...steps];
     const current = nextSteps[index];
 
-    // Maintain backward-compat synchronization between canonical and legacy fields
+    // Maintain backward compatibility with legacy fields while preserving untouched metadata
     const synced: Partial<WorkflowStepItem> = { ...updated };
-    if (updated.title) {
+    if (updated.title !== undefined) {
       synced.title = updated.title;
     }
-    if (updated.description) {
+    if (updated.description !== undefined) {
       synced.description = updated.description;
       synced.instruction = updated.description;
-    }
-    if (updated.prompt) {
-      synced.prompt = updated.prompt;
-      synced.examplePrompt = updated.prompt;
-      // Auto-extract [VARIABLE] tokens if variables not explicitly modified
-      if (!updated.variables && !updated.inputVariables) {
-        const matches = updated.prompt.match(/\[[A-Z0-9_\-\s]{2,}\]/g);
-        if (matches) {
-          const unique = Array.from(new Set(matches.map((m) => m.replace(/[\[\]]/g, ""))));
-          synced.variables = unique.map((name) => ({ name }));
-          synced.inputVariables = unique.map((name) => `[${name}]`);
-        }
-      }
-    }
-    if (updated.imageUrl !== undefined) {
-      synced.imageUrl = updated.imageUrl;
-      synced.image = {
-        url: updated.imageUrl,
-        alt: current.title,
-        caption: current.image?.caption || current.imageCaption,
-      };
-    }
-    if (updated.image !== undefined) {
-      synced.image = updated.image;
-      synced.imageUrl = updated.image.url;
-    }
-    if (updated.notes !== undefined) {
-      synced.notes = updated.notes;
-      synced.tips = updated.notes ? [updated.notes] : [];
-      synced.tip = updated.notes;
-    }
-    if (updated.tips !== undefined) {
-      synced.tips = updated.tips;
-      synced.notes = updated.tips[0];
-      synced.tip = updated.tips[0];
-    }
-    if (updated.example !== undefined) {
-      synced.example = updated.example;
-      synced.output = typeof updated.example === "string" ? updated.example : updated.example.output;
     }
 
     nextSteps[index] = { ...current, ...synced };
     onChange(nextSteps);
+  };
+
+  const handleMediaUrlChange = (
+    index: number,
+    type: "image" | "video",
+    url: string
+  ) => {
+    const cleanUrl = url.trim();
+    const current = steps[index];
+    if (type === "image") {
+      handleUpdateStep(index, {
+        imageUrl: cleanUrl || undefined,
+        videoUrl: undefined,
+        mediaType: cleanUrl ? "image" : undefined,
+        image: cleanUrl
+          ? {
+              url: cleanUrl,
+              alt: current.title,
+              caption: current.imageCaption || current.image?.caption || "",
+            }
+          : undefined,
+      });
+    } else {
+      handleUpdateStep(index, {
+        videoUrl: cleanUrl || undefined,
+        imageUrl: undefined,
+        image: undefined,
+        mediaType: cleanUrl ? "video" : undefined,
+      });
+    }
+  };
+
+  const handleFileUpload = (
+    index: number,
+    type: "image" | "video",
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (type === "video" && file.size > 25 * 1024 * 1024) {
+      alert(
+        "Video file exceeds 25MB. For large videos, we recommend pasting an external URL (S3, Cloudinary, Vimeo, YouTube embed, etc.)."
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (!result) return;
+      const current = steps[index];
+      if (type === "image") {
+        handleUpdateStep(index, {
+          imageUrl: result,
+          videoUrl: undefined,
+          mediaType: "image",
+          image: {
+            url: result,
+            alt: current.title,
+            caption: current.imageCaption || current.image?.caption || "",
+          },
+        });
+      } else {
+        handleUpdateStep(index, {
+          videoUrl: result,
+          imageUrl: undefined,
+          image: undefined,
+          mediaType: "video",
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCaptionChange = (index: number, caption: string) => {
+    const current = steps[index];
+    handleUpdateStep(index, {
+      imageCaption: caption,
+      image: current.imageUrl
+        ? {
+            url: current.imageUrl,
+            alt: current.title,
+            caption,
+          }
+        : undefined,
+    });
+  };
+
+  const handleRemoveMedia = (index: number, stepId: string) => {
+    handleUpdateStep(index, {
+      imageUrl: undefined,
+      videoUrl: undefined,
+      mediaType: undefined,
+      image: undefined,
+      imageCaption: undefined,
+    });
+    setOpenMediaDrafts((prev) => {
+      const copy = { ...prev };
+      delete copy[stepId];
+      return copy;
+    });
   };
 
   const toggleAll = () => {
@@ -195,19 +250,19 @@ export function WorkflowStepBuilder({
   };
 
   return (
-    <section className="p-6 rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] shadow-xs space-y-6">
+    <section className="p-4 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-[#131B2A] shadow-xs space-y-4">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3 sm:pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
             03
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Workflow & Step Execution Guide ({steps.length} Steps)
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              Workflow Steps ({steps.length})
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Detailed step-by-step instructions guiding users on how to perform each step to create this asset.
+              Actionable step-by-step instructions for executing this workflow in {categoryName}.
             </p>
           </div>
         </div>
@@ -218,7 +273,7 @@ export function WorkflowStepBuilder({
             variant="outline"
             size="sm"
             onClick={toggleAll}
-            className="text-xs font-medium"
+            className="h-8 text-xs font-medium"
           >
             {expandedStepId ? "Collapse All" : "Expand First"}
           </Button>
@@ -228,76 +283,92 @@ export function WorkflowStepBuilder({
             variant="forest"
             size="sm"
             onClick={handleAddStep}
-            className="text-xs font-bold gap-1.5"
+            className="h-8 text-xs font-bold gap-1.5 shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[3]" />
-            <span>Add Workflow Step</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Add Step</span>
           </Button>
         </div>
       </div>
 
       {/* Step Cards List */}
-      <div className="space-y-3.5">
+      <div className="space-y-2.5">
         {steps.map((step, index) => {
           const isExpanded = expandedStepId === step.id;
+          const stepNumStr = (step.order || step.stepNumber || index + 1)
+            .toString()
+            .padStart(2, "0");
+
           return (
             <div
               key={step.id}
               className={`rounded-xl border transition-all duration-200 overflow-hidden ${
                 isExpanded
-                  ? "border-emerald-500/80 dark:border-emerald-500/80 bg-white dark:bg-[#111726] shadow-md"
-                  : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0E1422] hover:border-slate-300 dark:hover:border-slate-700"
+                  ? "border-emerald-500/80 dark:border-emerald-500/80 bg-white dark:bg-[#111726] shadow-sm"
+                  : "border-slate-200/90 dark:border-slate-800/90 bg-slate-50/40 dark:bg-[#0E1422] hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
-              {/* Step Summary Header Bar */}
+              {/* Compact Card Header */}
               <div
                 onClick={() => setExpandedStepId(isExpanded ? null : step.id)}
-                className="p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none"
+                className="px-3.5 py-2.5 flex items-center justify-between gap-3 cursor-pointer select-none transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/30"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                    {(step.order || step.stepNumber || index + 1).toString().padStart(2, "0")}
+                {/* Step Number + Title + Media Indicator */}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="w-6 h-6 rounded-md bg-emerald-600 text-white font-mono font-bold text-[11px] flex items-center justify-center shrink-0 shadow-2xs">
+                    {stepNumStr}
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                    {step.title || `Step ${stepNumStr}`}
                   </span>
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        {step.title}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                      {step.description || "No description provided"}
-                    </p>
-                  </div>
+                  {/* Media Indicator Badges */}
+                  {step.videoUrl ? (
+                    <span
+                      title="Video attached"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0"
+                    >
+                      <Video className="w-3 h-3" />
+                      <span>VID</span>
+                    </span>
+                  ) : (step.imageUrl || step.image?.url) ? (
+                    <span
+                      title="Image attached"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0"
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>IMG</span>
+                    </span>
+                  ) : null}
                 </div>
 
-                {/* Actions: Up, Down, Duplicate, Delete */}
+                {/* Header Actions: Up, Down, Duplicate, Delete, Chevron */}
                 <div
-                  className="flex items-center gap-1 shrink-0"
+                  className="flex items-center gap-0.5 sm:gap-1 shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     type="button"
                     disabled={index === 0}
                     onClick={() => handleMoveStep(index, "up")}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-25 disabled:hover:bg-transparent transition-colors"
                     title="Move step up"
                   >
-                    <ChevronUp className="w-4 h-4" />
+                    <ChevronUp className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     disabled={index === steps.length - 1}
                     onClick={() => handleMoveStep(index, "down")}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-25 disabled:hover:bg-transparent transition-colors"
                     title="Move step down"
                   >
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDuplicateStep(index)}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     title="Duplicate step"
                   >
                     <Copy className="w-3.5 h-3.5" />
@@ -305,53 +376,53 @@ export function WorkflowStepBuilder({
                   <button
                     type="button"
                     onClick={() => handleDeleteStep(index)}
-                    className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                    className="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     title="Delete step"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
+
+                  <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-800 mx-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => setExpandedStepId(isExpanded ? null : step.id)}
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    title={isExpanded ? "Collapse" : "Expand"}
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
-              {/* Step Expanded Content */}
+              {/* Step Expanded Body: ONLY 2 ESSENTIAL FIELDS + OPTIONAL MEDIA */}
               {isExpanded && (
-                <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#131B2A] space-y-4 animate-in fade-in duration-200">
-                  {/* Step Title, Short Title, Directive, & Purpose */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-1 sm:col-span-2">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Step Title / Primary Directive
-                      </label>
-                      <Input
-                        value={step.title}
-                        onChange={(e) =>
-                          handleUpdateStep(index, { title: e.target.value })
-                        }
-                        placeholder="e.g. Define Concept & Subject"
-                        className="text-xs font-semibold"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Short Title (Canvas / Badge)
-                      </label>
-                      <Input
-                        value={step.shortTitle || ""}
-                        onChange={(e) =>
-                          handleUpdateStep(index, { shortTitle: e.target.value })
-                        }
-                        placeholder="e.g. Concept"
-                        className="text-xs"
-                      />
-                    </div>
+                <div className="p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#131B2A] space-y-3.5 animate-in fade-in duration-150">
+                  {/* Field 1: Step Title */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <span>Step Title</span>
+                      <span className="text-emerald-500">*</span>
+                    </label>
+                    <Input
+                      value={step.title}
+                      onChange={(e) =>
+                        handleUpdateStep(index, { title: e.target.value })
+                      }
+                      placeholder="e.g. Define Image Concept & Subject"
+                      className="h-9 text-xs sm:text-sm font-semibold border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#0E1422] text-slate-900 dark:text-white focus-visible:ring-emerald-500"
+                    />
                   </div>
 
-                  {/* Detailed Step Instructions */}
+                  {/* Field 2: Step Instructions */}
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                      <span>Detailed Step Instructions / How to Perform This Step</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Actionable step-by-step guidance</span>
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <span>Step Instructions</span>
+                      <span className="text-emerald-500">*</span>
                     </label>
                     <Textarea
                       value={step.description || step.instruction || ""}
@@ -361,103 +432,226 @@ export function WorkflowStepBuilder({
                           instruction: e.target.value,
                         })
                       }
-                      placeholder="Write detailed, step-by-step instructions explaining exactly what the user needs to do in the tool for this step..."
-                      rows={4}
-                      className="text-xs leading-relaxed font-normal"
+                      placeholder="Establish the core subject, focal point, composition, and narrative concept for the image."
+                      rows={5}
+                      className="text-xs sm:text-sm leading-relaxed border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#0E1422] text-slate-900 dark:text-white focus-visible:ring-emerald-500 font-normal min-h-[110px]"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                      Strategic Purpose / Objective (Optional)
-                    </label>
-                    <Input
-                      value={step.purpose || ""}
-                      onChange={(e) =>
-                        handleUpdateStep(index, {
-                          purpose: e.target.value,
-                        })
-                      }
-                      placeholder="e.g. Anchor the visual foundation before adding camera and motion parameters..."
-                      className="text-xs"
-                    />
-                  </div>
+                  {/* Field 3: Optional Media Attachment (Image or Video) */}
+                  {(() => {
+                    const stepImg = step.image?.url || step.imageUrl || "";
+                    const stepVideo = step.videoUrl || "";
+                    const hasExistingMedia = Boolean(stepImg || stepVideo);
+                    const draftType = openMediaDrafts[step.id];
+                    const isMediaOpen = hasExistingMedia || Boolean(draftType);
+                    const activeMediaType: "image" | "video" =
+                      step.mediaType || (stepVideo ? "video" : stepImg ? "image" : draftType || "image");
 
-                  {/* Output & Example */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Expected Output / Artifact
-                      </label>
-                      <Input
-                        value={step.output}
-                        onChange={(e) =>
-                          handleUpdateStep(index, { output: e.target.value })
-                        }
-                        placeholder="e.g. Detailed concept breakdown or 4K candidate render"
-                        className="text-xs"
-                      />
-                    </div>
+                    if (!isMediaOpen) {
+                      return (
+                        <div className="pt-1 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenMediaDrafts((prev) => ({ ...prev, [step.id]: "image" }))
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/80 dark:hover:border-emerald-500/80 text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-50/50 dark:bg-[#0E1422]/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition-all duration-150 group"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                            <span>+ Add Image</span>
+                          </button>
 
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                        Output Example / Demonstration
-                      </label>
-                      <Input
-                        value={
-                          typeof step.example === "object"
-                            ? step.example?.output || ""
-                            : step.example || step.output || ""
-                        }
-                        onChange={(e) =>
-                          handleUpdateStep(index, {
-                            example: { output: e.target.value },
-                            output: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. Ceramic espresso cup on volcanic rock"
-                        className="text-xs"
-                      />
-                    </div>
-                  </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenMediaDrafts((prev) => ({ ...prev, [step.id]: "video" }))
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-700/80 hover:border-blue-500/80 dark:hover:border-blue-500/80 text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-50/50 dark:bg-[#0E1422]/50 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 transition-all duration-150 group"
+                          >
+                            <Video className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                            <span>+ Add Video</span>
+                          </button>
+                        </div>
+                      );
+                    }
 
-                  {/* Optional Preview Image & Pro Tip */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                        <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Step Preview / Diagram Image URL (Optional)</span>
-                      </label>
-                      <Input
-                        value={step.imageUrl || ""}
-                        onChange={(e) =>
-                          handleUpdateStep(index, { imageUrl: e.target.value })
-                        }
-                        placeholder="https://images.unsplash.com/..."
-                        className="text-xs font-mono"
-                      />
-                    </div>
+                    const currentMediaUrl = activeMediaType === "video" ? stepVideo : stepImg;
 
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Pro Tip / Best Practice Note (Optional)</span>
-                      </label>
-                      <Input
-                        value={step.notes || ""}
-                        onChange={(e) =>
-                          handleUpdateStep(index, { notes: e.target.value })
-                        }
-                        placeholder="e.g. Keep seed consistent across prompt passes for coherence."
-                        className="text-xs"
-                      />
-                    </div>
-                  </div>
+                    return (
+                      <div className="pt-1.5">
+                        <div className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-[#0E1422] space-y-3">
+                          {/* Media Header: Mode Toggle + Remove */}
+                          <div className="flex items-center justify-between gap-2 border-b border-slate-200/70 dark:border-slate-800/80 pb-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                <span>Step Media</span>
+                                <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                              </span>
+
+                              {/* Segmented Type Toggle: Image vs Video */}
+                              <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-[11px] font-semibold ml-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenMediaDrafts((prev) => ({ ...prev, [step.id]: "image" }));
+                                    if (activeMediaType !== "image") {
+                                      handleUpdateStep(index, {
+                                        mediaType: "image",
+                                        imageUrl: currentMediaUrl || undefined,
+                                        videoUrl: undefined,
+                                        image: currentMediaUrl
+                                          ? {
+                                              url: currentMediaUrl,
+                                              alt: step.title,
+                                              caption: step.imageCaption || step.image?.caption || "",
+                                            }
+                                          : undefined,
+                                      });
+                                    }
+                                  }}
+                                  className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition-all ${
+                                    activeMediaType === "image"
+                                      ? "bg-white dark:bg-[#131B2A] text-emerald-600 dark:text-emerald-400 shadow-2xs font-bold"
+                                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                  }`}
+                                >
+                                  <ImageIcon className="w-3 h-3" />
+                                  <span>Image</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenMediaDrafts((prev) => ({ ...prev, [step.id]: "video" }));
+                                    if (activeMediaType !== "video") {
+                                      handleUpdateStep(index, {
+                                        mediaType: "video",
+                                        videoUrl: currentMediaUrl || undefined,
+                                        imageUrl: undefined,
+                                        image: undefined,
+                                      });
+                                    }
+                                  }}
+                                  className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition-all ${
+                                    activeMediaType === "video"
+                                      ? "bg-white dark:bg-[#131B2A] text-blue-600 dark:text-blue-400 shadow-2xs font-bold"
+                                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                  }`}
+                                >
+                                  <Video className="w-3 h-3" />
+                                  <span>Video</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveMedia(index, step.id)}
+                              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-1 rounded"
+                              title="Remove media from step"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Remove</span>
+                            </button>
+                          </div>
+
+                          {/* Inputs: URL & Upload File */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div className="sm:col-span-2 relative">
+                              <Input
+                                value={currentMediaUrl}
+                                onChange={(e) =>
+                                  handleMediaUrlChange(index, activeMediaType, e.target.value)
+                                }
+                                placeholder={
+                                  activeMediaType === "video"
+                                    ? "Paste video URL (mp4, webm, embed link...)"
+                                    : "Paste image URL (https://...)"
+                                }
+                                className="h-8 text-xs border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#131B2A] text-slate-900 dark:text-white focus-visible:ring-emerald-500 pr-8"
+                              />
+                              {currentMediaUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleMediaUrlChange(index, activeMediaType, "")
+                                  }
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-[#131B2A] hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
+                                <UploadCloud className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="truncate">
+                                  Upload {activeMediaType === "video" ? "Video" : "Image"}
+                                </span>
+                                <input
+                                  type="file"
+                                  accept={activeMediaType === "video" ? "video/*" : "image/*"}
+                                  onChange={(e) => handleFileUpload(index, activeMediaType, e)}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Optional Caption */}
+                          <div className="space-y-1">
+                            <Input
+                              value={step.imageCaption || step.image?.caption || ""}
+                              onChange={(e) => handleCaptionChange(index, e.target.value)}
+                              placeholder="Media caption or guideline note (e.g. 'Reference composition benchmark')"
+                              className="h-7 text-[11px] border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#131B2A] text-slate-900 dark:text-white focus-visible:ring-emerald-500"
+                            />
+                          </div>
+
+                          {/* Live Visual Preview */}
+                          {currentMediaUrl && (
+                            <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700/80 bg-slate-900 p-1">
+                              {activeMediaType === "video" ? (
+                                <video
+                                  src={currentMediaUrl}
+                                  controls
+                                  className="max-h-48 w-full object-contain mx-auto rounded"
+                                />
+                              ) : (
+                                <div className="relative max-h-48 w-full flex items-center justify-center overflow-hidden rounded bg-slate-950/60">
+                                  <img
+                                    src={currentMediaUrl}
+                                    alt={step.title}
+                                    className="max-h-48 w-auto object-contain"
+                                    onError={(e) => {
+                                      // graceful broken image fallback
+                                      (e.target as HTMLElement).style.display = "none";
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
           );
         })}
+
+        {/* Add Step dashed button at end of list */}
+        <button
+          type="button"
+          onClick={handleAddStep}
+          className="w-full py-2.5 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-500/60 dark:hover:border-emerald-500/60 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center justify-center gap-1.5 transition-colors group"
+        >
+          <Plus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span>Add Step {(steps.length + 1).toString().padStart(2, "0")}</span>
+        </button>
       </div>
     </section>
   );
