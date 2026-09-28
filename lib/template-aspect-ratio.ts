@@ -337,3 +337,38 @@ export function filterAndSortTemplates(
 
   return result;
 }
+
+/**
+ * Reusable utility alias: getOrientation(template)
+ */
+export function getOrientation(template: Template): TemplateOrientation {
+  return getTemplateOrientation(template);
+}
+
+/**
+ * Reusable utility alias: calculateAspectRatio(width, height)
+ */
+export function calculateAspectRatio(width: number, height: number): TemplateAspectRatio {
+  if (!width || !height || width === height) return "1:1";
+  const ratio = width / height;
+  if (Math.abs(ratio - 16 / 9) < 0.1) return "16:9";
+  if (Math.abs(ratio - 9 / 16) < 0.1) return "9:16";
+  if (Math.abs(ratio - 4 / 3) < 0.1) return "4:3";
+  if (Math.abs(ratio - 3 / 4) < 0.1) return "3:4";
+  if (Math.abs(ratio - 3 / 2) < 0.1) return "3:2";
+  if (Math.abs(ratio - 2 / 3) < 0.1) return "2:3";
+  if (Math.abs(ratio - 4 / 5) < 0.1) return "4:5";
+  if (Math.abs(ratio - 5 / 4) < 0.1) return "5:4";
+  return ratio > 1 ? "16:9" : "9:16";
+}
+
+/**
+ * Reusable utility alias: parseAspectRatio(aspectRatioStr)
+ */
+export function parseAspectRatio(aspectRatio: string): { width: number; height: number; numeric: number } {
+  const parts = aspectRatio.split(":").map(Number);
+  const width = parts[0] || 16;
+  const height = parts[1] || 9;
+  return { width, height, numeric: width / height };
+}
+

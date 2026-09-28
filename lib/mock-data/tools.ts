@@ -1,6 +1,7 @@
 import { AITool } from "../types";
+import { getToolLogo } from "../tool-logos";
 
-export const initialAITools: AITool[] = [
+const rawTools: AITool[] = [
   {
     id: "tool-midjourney",
     name: "Midjourney",
@@ -408,5 +409,10 @@ export const initialAITools: AITool[] = [
     ],
   },
 ];
+
+export const initialAITools: AITool[] = rawTools.map((t) => ({
+  ...t,
+  imageUrl: t.imageUrl || getToolLogo(t.name, t.category),
+}));
 
 

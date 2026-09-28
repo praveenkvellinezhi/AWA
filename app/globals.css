@@ -444,10 +444,10 @@ html:not(.dark) {
   }
 
   /* Buttons: Ensure solid action buttons maintain white text in Light Mode */
-  button[class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]),
-  button[class*="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]) *,
-  a[class*="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]),
-  a[class*="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]) *,
+  button[class~="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not(header *):not(nav *),
+  button[class~="text-white"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not(header *):not(nav *) *,
+  a[class~="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not(header *):not(nav *),
+  a[class~="text-white"][class*="bg-"]:not([class*="bg-white"]):not([class*="bg-slate-100"]):not([class*="bg-slate-200"]):not(header *):not(nav *) *,
   [class~="bg-[#008235]"],
   [class~="bg-[#008235]"] *,
   [class~="bg-[#006e2c]"],
@@ -477,6 +477,30 @@ html:not(.dark) {
   [class~="bg-black"],
   [class~="bg-black"] * {
     color: #FFFFFF !important;
+  }
+
+  /* Header icon buttons & navigation links in Light Mode */
+  header button:not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-amber"]),
+  header a:not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-amber"]) {
+    color: #334155 !important;
+  }
+
+  header button:not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-amber"]) svg,
+  header a:not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-amber"]) svg {
+    color: #334155 !important;
+    stroke: #334155 !important;
+  }
+
+  header a[href="/collection"] svg,
+  header button[aria-label="Search"] svg {
+    color: #334155 !important;
+    stroke: #334155 !important;
+  }
+
+  header a[href="/collection"]:hover svg,
+  header button[aria-label="Search"]:hover svg {
+    color: #4F46E5 !important;
+    stroke: #4F46E5 !important;
   }
 
   /* Secondary / Dropdown filter buttons in Light Mode (when not marked with text-white) */
@@ -716,3 +740,131 @@ html.dark .demo-controls-console > div {
 .animate-voice-pulse {
   animation: voice-pulse 1.5s infinite ease-in-out;
 }
+
+/* ==========================================================================
+   ADMIN PANEL DESIGN SYSTEM: SHARP ENTERPRISE (border-radius: 0)
+   Scoped strictly to Admin Panel so user-facing pages retain rounded UI.
+   ========================================================================== */
+
+/* Remove border-radius on all admin panel components */
+.admin-scope button,
+.admin-scope input,
+.admin-scope textarea,
+.admin-scope select,
+.admin-scope [role="button"],
+.admin-scope [role="tab"],
+.admin-scope [role="tablist"],
+.admin-scope [role="tabpanel"],
+.admin-scope [role="table"],
+.admin-scope table,
+.admin-scope th,
+.admin-scope td,
+.admin-scope tr,
+.admin-scope [class*="rounded-"]:not(.avatar-circle):not(.status-dot):not([class*="w-2"]):not([class*="h-2"]):not([class*="w-1."]):not([class*="w-3"]):not([class*="h-3"]):not([class*="w-8"]):not([class*="h-8"]),
+.admin-scope [class*="rounded"]:not(.avatar-circle):not(.status-dot):not([class*="w-2"]):not([class*="h-2"]):not([class*="w-1."]):not([class*="w-3"]):not([class*="h-3"]):not([class*="w-8"]):not([class*="h-8"]),
+.admin-scope [class*="Badge"],
+.admin-scope [class*="badge"],
+.admin-scope .card,
+.admin-scope [class*="Card"] {
+  border-radius: 0px !important;
+}
+
+/* Portaled components when admin is active */
+body:has(.admin-scope) [role="dialog"],
+body:has(.admin-scope) [role="dialog"] *,
+body:has(.admin-scope) [role="alertdialog"],
+body:has(.admin-scope) [role="alertdialog"] *,
+body:has(.admin-scope) [role="menu"],
+body:has(.admin-scope) [role="menu"] *,
+body:has(.admin-scope) [role="listbox"],
+body:has(.admin-scope) [role="listbox"] *,
+body:has(.admin-scope) [data-radix-popper-content-wrapper] > *,
+body:has(.admin-scope) [data-radix-popper-content-wrapper] button,
+body:has(.admin-scope) [data-radix-popper-content-wrapper] input,
+body:has(.admin-scope) [data-radix-select-content],
+body:has(.admin-scope) [data-radix-select-viewport] * {
+  border-radius: 0px !important;
+}
+
+/* Preserve circular avatar and indicator dots when explicitly needed */
+.admin-scope img.rounded-full,
+.admin-scope .status-dot {
+  border-radius: 9999px !important;
+}
+
+/* Admin Panel Table & Surface Polish */
+.admin-scope table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+}
+
+html.light .admin-scope table th {
+  color: #475569 !important;
+  background-color: #F8FAFC !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+html.light .admin-scope table td {
+  border-bottom: 1px solid #F1F5F9 !important;
+  color: #1E293B !important;
+}
+
+html.light .admin-scope table tr:hover td {
+  background-color: #F8FAFC !important;
+}
+
+html.dark .admin-scope table th {
+  color: #94A3B8 !important;
+  background-color: #0F172A !important;
+  border-bottom: 1px solid #1E293B !important;
+}
+
+html.dark .admin-scope table td {
+  border-bottom: 1px solid #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+html.dark .admin-scope table tr:hover td {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* Eliminate excessive nested card borders in admin */
+.admin-scope .admin-surface {
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+}
+
+html.dark .admin-scope .admin-surface {
+  border: 1px solid #1E293B;
+  background-color: #131B2A;
+}
+
+/* Inputs in admin panel: crisp borders, clear high-contrast text */
+html.light .admin-scope input:not([type="checkbox"]):not([type="radio"]),
+html.light .admin-scope textarea,
+html.light .admin-scope select {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light .admin-scope input::placeholder,
+html.light .admin-scope textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.dark .admin-scope input:not([type="checkbox"]):not([type="radio"]),
+html.dark .admin-scope textarea,
+html.dark .admin-scope select {
+  background-color: #0B0F17 !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .admin-scope input::placeholder,
+html.dark .admin-scope textarea::placeholder {
+  color: #64748B !important;
+}
+

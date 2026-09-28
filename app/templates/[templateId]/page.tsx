@@ -11,6 +11,8 @@ import { getTemplateSlides } from "@/lib/template-images";
 import { getTemplatePrompts } from "@/lib/prompt-utils";
 import { useLanguages } from "@/lib/hooks/use-translation";
 import { translationService } from "@/lib/services/translation-service";
+import { getStepGuidelineImage } from "@/lib/guide-step-images";
+import { getToolLogo } from "@/lib/tool-logos";
 import {
   ChevronRight,
   Heart,
@@ -107,6 +109,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     toggleLike,
     toggleSave,
     setIsDemoControlsExpanded,
+    aiTools,
   } = useDemo();
 
   const [activeSlide, setActiveSlide] = useState(0);
@@ -587,10 +590,21 @@ export default function TemplatePage({ params }: TemplatePageProps) {
         };
       }
 
+      const categoryFallback = getStepGuidelineImage(
+        template.categoryName || template.categoryId,
+        idx,
+        rawSteps.length,
+        template.imageUrl,
+        template.galleryImages
+      );
+
       return {
         ...canonical,
         order: idx + 1,
         stepNumber: idx + 1,
+        imageUrl: categoryFallback.url,
+        image: { url: categoryFallback.url, caption: categoryFallback.caption },
+        imageCaption: categoryFallback.caption,
       };
     });
   }, [
@@ -1011,26 +1025,53 @@ export default function TemplatePage({ params }: TemplatePageProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
             {displayTools.map((tool, idx) => {
               const url = getToolUrl(tool.toolName);
+              const registered = aiTools?.find(
+                (t) =>
+                  t.name.toLowerCase() === tool.toolName.toLowerCase() ||
+                  t.id.toLowerCase() === tool.toolId.toLowerCase()
+              );
+              const logoSrc =
+                registered?.imageUrl ||
+                registered?.logoUrl ||
+                getToolLogo(tool.toolName, template.categoryName || template.categoryId);
+
               return (
                 <a
                   key={`${tool.toolId}-${idx}`}
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between p-4 sm:px-5 sm:py-4 rounded-2xl bg-white dark:bg-[#121316] border border-slate-200/90 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
+                  className="group flex items-center justify-between p-3.5 sm:px-4 sm:py-3.5 rounded-2xl bg-white dark:bg-[#121316] border border-slate-200/90 dark:border-zinc-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                 >
-                  <div className="min-w-0 pr-3 space-y-0.5">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                      {tool.toolName}
-                    </h3>
-                    {tool.modelName && (
-                      <p className="text-xs text-slate-500 dark:text-zinc-400 truncate font-normal">
-                        {tool.modelName}
-                      </p>
-                    )}
+                  <div className="flex items-center gap-3 min-w-0 pr-2">
+                    {/* Tool Brand Logo Container */}
+                    <div className="w-10 h-10 rounded-xl border border-slate-200 dark:border-zinc-700/80 bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+                      <img
+                        src={logoSrc}
+                        alt={tool.toolName}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = getToolLogo(
+                            tool.toolName,
+                            template.categoryName || template.categoryId
+                          );
+                        }}
+                      />
+                    </div>
+
+                    <div className="min-w-0 space-y-0.5">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                        {tool.toolName}
+                      </h3>
+                      {tool.modelName && (
+                        <p className="text-xs text-slate-500 dark:text-zinc-400 truncate font-normal">
+                          {tool.modelName}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-white group-hover:translate-x-1 transition-all shrink-0">
+                  <div className="text-slate-400 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all shrink-0">
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </a>
@@ -1057,12 +1098,13 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                       <button
                         key={`design-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border flex items-center gap-1.5 ${selectedGuideToolIndex === idx
                           ? "bg-rose-600 text-white border-rose-600 shadow-sm"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
-                        {t.toolName}
+                        <img src={getToolLogo(t.toolName, "poster")} alt="" className="w-3.5 h-3.5 object-contain shrink-0" />
+                        <span>{t.toolName}</span>
                         {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
                       </button>
                     ))}
@@ -1150,12 +1192,13 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                       <button
                         key={`web-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border flex items-center gap-1.5 ${selectedGuideToolIndex === idx
                           ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
-                        {t.toolName}
+                        <img src={getToolLogo(t.toolName, "website")} alt="" className="w-3.5 h-3.5 object-contain shrink-0" />
+                        <span>{t.toolName}</span>
                         {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
                       </button>
                     ))}
@@ -1231,14 +1274,19 @@ export default function TemplatePage({ params }: TemplatePageProps) {
                       <button
                         key={`default-tool-${t.toolId || t.toolName}-${idx}`}
                         onClick={() => setSelectedGuideToolIndex(idx)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${selectedGuideToolIndex === idx
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border flex items-center gap-1.5 ${selectedGuideToolIndex === idx
                           ? isVideoGen
                             ? "bg-purple-600 text-white border-purple-600 shadow-sm"
                             : "bg-amber-600 text-white border-amber-600 shadow-sm"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700"
                           }`}
                       >
-                        {t.toolName}
+                        <img
+                          src={getToolLogo(t.toolName, isVideoGen ? "video" : "image")}
+                          alt=""
+                          className="w-3.5 h-3.5 object-contain shrink-0"
+                        />
+                        <span>{t.toolName}</span>
                         {t.badge && <span className="ml-1 opacity-75 font-mono text-[10px]">★</span>}
                       </button>
                     ))}

@@ -9,6 +9,7 @@ import {
   GuideStep,
 } from "./types";
 import { getTemplateCategoryKey, CategoryKey } from "./category-guide-config";
+import { getStepGuidelineImage } from "./guide-step-images";
 
 /**
  * Normalizes any step data (legacy UsageStep, GuideStep, or Builder item)
@@ -205,6 +206,25 @@ export function getTemplateWorkflowSteps(
  * - Posters: Design Concept -> Content -> Composition -> Visual Direction -> Generate -> Refine
  */
 export function getDefaultWorkflowStepsForCategory(
+  categoryKey: string
+): TemplateStep[] {
+  const rawSteps = getRawDefaultWorkflowStepsForCategory(categoryKey);
+  return rawSteps.map((s, idx) => {
+    if (s.image?.url || (s as any).imageUrl) return s;
+    const fallback = getStepGuidelineImage(categoryKey, idx, rawSteps.length);
+    return {
+      ...s,
+      imageUrl: fallback.url,
+      image: {
+        url: fallback.url,
+        alt: s.title,
+        caption: fallback.caption,
+      },
+    };
+  });
+}
+
+function getRawDefaultWorkflowStepsForCategory(
   categoryKey: string
 ): TemplateStep[] {
   const normKey = (categoryKey || "").toLowerCase();

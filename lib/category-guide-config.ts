@@ -8,6 +8,7 @@ import {
 } from "./types";
 import { normalizeTemplateStep } from "./template-workflow";
 import { buildPresentationPromptSteps } from "./presentation-guide-generator";
+import { getStepGuidelineImage } from "./guide-step-images";
 
 export type CategoryKey =
   | "image-generation"
@@ -1786,9 +1787,32 @@ export function resolveTemplateGuide(
  * Transforms an array of UsageStep or TemplateStep objects into standard GuideStep objects
  * for the animated workflow canvas, strictly preserving ALL prompt directives and metadata.
  */
-export function mapToGuideSteps(steps: (UsageStep | TemplateStep)[]): GuideStep[] {
+export function mapToGuideSteps(
+  steps: (UsageStep | TemplateStep)[],
+  context?: {
+    category?: string;
+    templateThumbnail?: string;
+    prompt?: string;
+    templateGalleryImages?: string[];
+  }
+): GuideStep[] {
   return steps.map((s: any, idx) => {
     const canonical = normalizeTemplateStep(s, idx);
+    const existingImg = canonical.image?.url || canonical.imageUrl;
+    const existingCaption = canonical.image?.caption || canonical.imageCaption;
+
+    // Use existing image or fall back to high-resolution category benchmark image
+    const fallback = getStepGuidelineImage(
+      context?.category,
+      idx,
+      steps.length,
+      context?.templateThumbnail,
+      context?.templateGalleryImages
+    );
+
+    const finalImage = existingImg || fallback.url;
+    const finalCaption = existingCaption || fallback.caption;
+
     return {
       ...canonical,
       id: canonical.id,
@@ -1798,8 +1822,9 @@ export function mapToGuideSteps(steps: (UsageStep | TemplateStep)[]): GuideStep[
       title: canonical.title,
       description: canonical.description || canonical.instruction || "",
       tip: canonical.tips?.[0] || canonical.tip,
-      image: canonical.image?.url || canonical.imageUrl,
-      imageCaption: canonical.image?.caption || canonical.imageCaption,
+      image: finalImage,
+      imageCaption: finalCaption,
+      imageUrl: finalImage,
       videoUrl: canonical.videoUrl,
       mediaType: canonical.mediaType,
       prompt: canonical.prompt,
@@ -1810,3 +1835,4 @@ export function mapToGuideSteps(steps: (UsageStep | TemplateStep)[]): GuideStep[
     };
   });
 }
+

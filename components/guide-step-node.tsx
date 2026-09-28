@@ -245,7 +245,20 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
                 <img
                   src={step.image}
                   alt={step.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105 cursor-pointer"
+                  onClick={(e) => {
+                    if (onImageClick && step.image) {
+                      e.stopPropagation();
+                      onImageClick({
+                        url: step.image,
+                        title: step.title,
+                        caption: step.imageCaption,
+                      });
+                    }
+                  }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "/templates/luxury-product-shoot.webp";
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 

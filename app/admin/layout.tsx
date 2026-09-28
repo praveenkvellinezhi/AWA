@@ -305,7 +305,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
+    <div className="admin-scope h-screen max-h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors">
       {/* Mobile backdrop */}
       {mobileSidebarOpen && (
         <div

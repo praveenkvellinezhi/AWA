@@ -630,6 +630,7 @@ export interface Template {
   designWorkflow?: DesignWorkflowConfig;
   thumbnailGradient: string;
   imageUrl?: string;
+  image?: string;
   galleryImages?: string[];
   presentationPrompts?: PresentationWorkflowPrompts;
   slidePrompts?: SlidePrompt[];
@@ -656,6 +657,8 @@ export interface AITool {
   models: AIToolModel[];
   isRetired: boolean;
   externalUrl?: string;
+  imageUrl?: string;
+  logoUrl?: string;
 }
 
 export interface FeedbackEntry {

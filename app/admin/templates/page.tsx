@@ -1000,24 +1000,11 @@ export default function AdminTemplatesPage() {
                     <td className="py-3.5 px-4 min-w-[240px]">
                       <div className="flex items-center gap-3">
                         <div className="relative h-11 w-11 rounded-lg overflow-hidden shrink-0 border border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 shadow-2xs">
-                          {template.imageUrl ? (
-                            <Image
-                              src={template.imageUrl}
-                              alt={template.name}
-                              fill
-                              sizes="44px"
-                              className="object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div
-                              className={`w-full h-full bg-gradient-to-br ${
-                                template.thumbnailGradient || "from-emerald-800 to-slate-900"
-                              } flex items-center justify-center text-white/50 text-[10px] font-bold`}
-                            >
-                              {template.name.slice(0, 2).toUpperCase()}
-                            </div>
-                          )}
+                          <img
+                            src={getTemplatePrimaryImage(template)}
+                            alt={template.name}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div>
                           <span className="font-bold text-slate-900 dark:text-white block hover:text-[#008235] transition-colors cursor-pointer">

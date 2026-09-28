@@ -123,7 +123,11 @@ export function VisualStepGuide({
       ) : (
         <AnimatedWorkflowGuide
           key={`${tool}-${category}-${steps.length}`}
-          steps={mapToGuideSteps(steps)}
+          steps={mapToGuideSteps(steps, {
+            category: String(category),
+            templateThumbnail,
+            prompt,
+          })}
           category={String(category)}
           tool={tool}
           completedSteps={completedSteps}
