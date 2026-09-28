@@ -156,6 +156,7 @@ export interface TemplateStep {
   notes?: string;
   asset?: VideoAsset | WebsiteAsset | PresentationAsset | DesignAsset;
   examplePrompt?: string;
+  aiWorkflow?: StepAiWorkflowConfig;
   [key: string]: any;
 }
 
@@ -179,6 +180,7 @@ export interface UsageStep {
   slideTitle?: string;
   imageUrl?: string;
   imageCaption?: string;
+  aiWorkflow?: StepAiWorkflowConfig;
   [key: string]: any;
 }
 
@@ -197,7 +199,137 @@ export interface GuideStep {
   promptVariables?: { name: string; description?: string; defaultValue?: string }[];
   slideNumber?: number;
   slideTitle?: string;
+  aiWorkflow?: StepAiWorkflowConfig;
   [key: string]: any;
+}
+
+// ============================================================================
+// DYNAMIC AI WORKFLOW SPECIFICATIONS
+// ============================================================================
+export type StepGenerationType = "normal" | "image" | "video";
+
+export type VideoGenerationMethod =
+  | "text-to-video"
+  | "image-to-video"
+  | "reference-image-to-video"
+  | "multiple-images-to-video"
+  | "video-to-video"
+  | "text-image-to-video"
+  | "text-reference-images-to-video";
+
+export type ImageGenerationMethod =
+  | "text-to-image"
+  | "image-to-image"
+  | "reference-image-to-image"
+  | "multiple-reference-images"
+  | "text-reference-image";
+
+export type AssetSourceType =
+  | "upload"
+  | "previous-step"
+  | "specific-step"
+  | "library"
+  | "user-provided";
+
+export type ReferencePurpose =
+  | "character"
+  | "environment"
+  | "style"
+  | "product"
+  | "composition"
+  | "pose"
+  | "color"
+  | "lighting"
+  | "other";
+
+export type ImageUsageType =
+  | "starting-frame"
+  | "ending-frame"
+  | "character-reference"
+  | "scene-reference"
+  | "composition-reference"
+  | "source-video"
+  | "style-reference"
+  | "other";
+
+export interface StepReferenceImage {
+  id: string;
+  url?: string;
+  label?: string;
+  purpose: ReferencePurpose | string;
+  instruction: string;
+}
+
+export interface StepStoryboardImage {
+  id: string;
+  url?: string;
+  order: number;
+  label?: string;
+  purpose: string;
+  durationSeconds?: string | number;
+  transitionInstruction?: string;
+  motionInstruction?: string;
+}
+
+export interface StepInputAsset {
+  sourceType: AssetSourceType;
+  sourceStepId?: string;
+  sourceStepNumber?: number;
+  sourceStepTitle?: string;
+  assetName?: string;
+  url?: string;
+  usage?: ImageUsageType | string;
+  notes?: string;
+}
+
+export interface StepMotionInstructions {
+  cameraMovement?: string;
+  subjectMovement?: string;
+  objectMovement?: string;
+  environmentalMovement?: string;
+}
+
+export interface StepSettings {
+  duration?: string;
+  aspectRatio?: string;
+  resolution?: string;
+  cameraMovement?: string;
+  motionStrength?: string;
+  style?: string;
+  transformationStrength?: string;
+  quality?: string;
+}
+
+export interface StepOutputConfig {
+  type: "image" | "video";
+  format: "PNG" | "JPG" | "WEBP" | "MP4" | "GIF";
+  name: string;
+  usage: string;
+  nextStepId?: string;
+  nextStepNumber?: number;
+  nextStepTitle?: string;
+}
+
+export interface StepAiWorkflowConfig {
+  generationType: StepGenerationType;
+  videoMethod?: VideoGenerationMethod;
+  imageMethod?: ImageGenerationMethod;
+  aiTool?: string;
+  prompt?: string;
+  negativePrompt?: string;
+  transformationInstructions?: string;
+  inputAsset?: StepInputAsset;
+  styleReferenceImage?: {
+    url?: string;
+    description?: string;
+  };
+  referenceImages?: StepReferenceImage[];
+  storyboardImages?: StepStoryboardImage[];
+  motion?: StepMotionInstructions;
+  settings?: StepSettings;
+  generationInstructions?: string[];
+  output?: StepOutputConfig;
+  expectedOutput?: string;
 }
 
 export type VideoGenerationType =

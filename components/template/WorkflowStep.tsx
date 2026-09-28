@@ -13,8 +13,12 @@ import {
   CheckCircle2,
   Sliders,
   HelpCircle,
+  Film,
+  Camera,
 } from "lucide-react";
 import { TemplateStep } from "@/lib/types";
+import { StepAiWorkflowDisplay } from "./StepAiWorkflowDisplay";
+import { VIDEO_METHODS, IMAGE_METHODS } from "@/components/admin/template-builder/ai-workflow-defaults";
 
 export interface WorkflowStepProps {
   step: TemplateStep;
@@ -127,6 +131,25 @@ export function WorkflowStep({
                 </span>
               )}
 
+              {/* AI Workflow Generation Badges */}
+              {step.aiWorkflow?.generationType === "video" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                  <Film className="w-3 h-3 text-purple-500" />
+                  <span>{VIDEO_METHODS.find((m) => m.id === step.aiWorkflow?.videoMethod)?.badge || "Video Gen"}</span>
+                </span>
+              ) : step.aiWorkflow?.generationType === "image" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <Camera className="w-3 h-3 text-amber-500" />
+                  <span>{IMAGE_METHODS.find((m) => m.id === step.aiWorkflow?.imageMethod)?.badge || "Image Gen"}</span>
+                </span>
+              ) : null}
+
+              {step.aiWorkflow?.aiTool && step.aiWorkflow.generationType !== "normal" && (
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+                  {step.aiWorkflow.aiTool}
+                </span>
+              )}
+
               {isCompleted && (
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                   COMPLETED
@@ -224,70 +247,81 @@ export function WorkflowStep({
             </div>
           )}
 
-          {/* Detailed Step How-to Text */}
-          {step.description && (
-            <div className="p-3.5 rounded-xl bg-white dark:bg-[#141926] border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed font-normal">
-              <div className="text-[10px] font-bold font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-wider mb-1">
-                How to Perform This Step
-              </div>
-              <p className="whitespace-pre-wrap">{step.description}</p>
-            </div>
-          )}
-
-          {/* Instructions checklist */}
-          {step.instructions && step.instructions.length > 0 && (
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-300 font-mono uppercase tracking-wider">
-                Execution Steps:
-              </span>
-              <ul className="space-y-1 pl-1">
-                {step.instructions.map((inst, iIdx) => (
-                  <li
-                    key={`inst-${iIdx}`}
-                    className="text-xs text-slate-600 dark:text-zinc-400 flex items-start gap-2"
-                  >
-                    <span className="text-cyan-500 font-bold shrink-0">•</span>
-                    <span>{inst}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Example Output Box */}
-          {(() => {
-            const exampleOutput =
-              typeof step.example === "object" && step.example !== null
-                ? step.example.output
-                : typeof step.example === "string"
-                ? step.example
-                : step.output;
-            if (!exampleOutput) return null;
-            return (
-              <div className="p-3 rounded-xl bg-white dark:bg-[#141926] border border-slate-200 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300 space-y-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold font-mono text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-                  <span>Expected Result / Benchmark</span>
+          {/* Rich AI Generation Workflow Display if present */}
+          {step.aiWorkflow && step.aiWorkflow.generationType !== "normal" ? (
+            <StepAiWorkflowDisplay
+              aiWorkflow={step.aiWorkflow}
+              stepNumber={orderNum}
+              onImageClick={onImageClick}
+            />
+          ) : (
+            <>
+              {/* Detailed Step How-to Text */}
+              {step.description && (
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#141926] border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed font-normal">
+                  <div className="text-[10px] font-bold font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-wider mb-1">
+                    How to Perform This Step
+                  </div>
+                  <p className="whitespace-pre-wrap">{step.description}</p>
                 </div>
-                <p className="font-mono text-xs text-slate-800 dark:text-zinc-200">
-                  {exampleOutput}
-                </p>
-              </div>
-            );
-          })()}
+              )}
 
-          {/* Tips Box */}
-          {step.tips && step.tips.length > 0 && (
-            <div className="space-y-1.5 pt-1">
-              {step.tips.map((tip, tIdx) => (
-                <div
-                  key={`tip-${tIdx}`}
-                  className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200/90 text-xs flex items-start gap-2"
-                >
-                  <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">{tip}</span>
+              {/* Instructions checklist */}
+              {step.instructions && step.instructions.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-300 font-mono uppercase tracking-wider">
+                    Execution Steps:
+                  </span>
+                  <ul className="space-y-1 pl-1">
+                    {step.instructions.map((inst, iIdx) => (
+                      <li
+                        key={`inst-${iIdx}`}
+                        className="text-xs text-slate-600 dark:text-zinc-400 flex items-start gap-2"
+                      >
+                        <span className="text-cyan-500 font-bold shrink-0">•</span>
+                        <span>{inst}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
-            </div>
+              )}
+
+              {/* Example Output Box */}
+              {(() => {
+                const exampleOutput =
+                  typeof step.example === "object" && step.example !== null
+                    ? step.example.output
+                    : typeof step.example === "string"
+                    ? step.example
+                    : step.output;
+                if (!exampleOutput) return null;
+                return (
+                  <div className="p-3 rounded-xl bg-white dark:bg-[#141926] border border-slate-200 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold font-mono text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                      <span>Expected Result / Benchmark</span>
+                    </div>
+                    <p className="font-mono text-xs text-slate-800 dark:text-zinc-200">
+                      {exampleOutput}
+                    </p>
+                  </div>
+                );
+              })()}
+
+              {/* Tips Box */}
+              {step.tips && step.tips.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  {step.tips.map((tip, tIdx) => (
+                    <div
+                      key={`tip-${tIdx}`}
+                      className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200/90 text-xs flex items-start gap-2"
+                    >
+                      <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

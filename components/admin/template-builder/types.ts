@@ -6,7 +6,36 @@ import {
   PresentationWorkflowConfig,
   DesignWorkflowConfig,
   TemplateStep,
+  StepAiWorkflowConfig,
+  StepGenerationType,
+  VideoGenerationMethod,
+  ImageGenerationMethod,
+  AssetSourceType,
+  ReferencePurpose,
+  ImageUsageType,
+  StepReferenceImage,
+  StepStoryboardImage,
+  StepInputAsset,
+  StepMotionInstructions,
+  StepSettings,
+  StepOutputConfig,
 } from "@/lib/types";
+
+export type {
+  StepAiWorkflowConfig,
+  StepGenerationType,
+  VideoGenerationMethod,
+  ImageGenerationMethod,
+  AssetSourceType,
+  ReferencePurpose,
+  ImageUsageType,
+  StepReferenceImage,
+  StepStoryboardImage,
+  StepInputAsset,
+  StepMotionInstructions,
+  StepSettings,
+  StepOutputConfig,
+};
 
 export type TemplateCategoryKey = "image" | "video" | "website" | "slides" | "poster";
 

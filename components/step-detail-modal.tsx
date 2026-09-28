@@ -11,8 +11,12 @@ import {
   Sparkles,
   BookOpen,
   Video,
+  Film,
+  Camera,
 } from "lucide-react";
 import { GuideStep } from "@/lib/types";
+import { StepAiWorkflowDisplay } from "./template/StepAiWorkflowDisplay";
+import { VIDEO_METHODS, IMAGE_METHODS } from "./admin/template-builder/ai-workflow-defaults";
 
 export interface StepDetailModalProps {
   step: GuideStep | null;
@@ -146,10 +150,39 @@ export function StepDetailModal({
                 <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-semibold">
                   Step {step.step} of {totalSteps}
                 </span>
-                <span className="text-slate-400 dark:text-slate-600">•</span>
-                <span className="text-[10px] font-mono text-cyan-700 dark:text-cyan-400 font-semibold">
-                  {toolName} Pipeline
-                </span>
+                {step.aiWorkflow?.generationType === "video" ? (
+                  <>
+                    <span className="text-slate-400 dark:text-slate-600">•</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-purple-700 dark:text-purple-300 font-bold px-1.5 py-0.2 rounded bg-purple-500/10 border border-purple-500/20">
+                      <Film className="w-3 h-3 text-purple-500" />
+                      <span>{VIDEO_METHODS.find((m) => m.id === step.aiWorkflow?.videoMethod)?.badge || "Video Gen"}</span>
+                    </span>
+                  </>
+                ) : step.aiWorkflow?.generationType === "image" ? (
+                  <>
+                    <span className="text-slate-400 dark:text-slate-600">•</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-700 dark:text-amber-300 font-bold px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20">
+                      <Camera className="w-3 h-3 text-amber-500" />
+                      <span>{IMAGE_METHODS.find((m) => m.id === step.aiWorkflow?.imageMethod)?.badge || "Image Gen"}</span>
+                    </span>
+                  </>
+                ) : null}
+
+                {step.aiWorkflow?.aiTool && step.aiWorkflow.generationType !== "normal" ? (
+                  <>
+                    <span className="text-slate-400 dark:text-slate-600">•</span>
+                    <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                      {step.aiWorkflow.aiTool}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-slate-400 dark:text-slate-600">•</span>
+                    <span className="text-[10px] font-mono text-cyan-700 dark:text-cyan-400 font-semibold">
+                      {toolName} Pipeline
+                    </span>
+                  </>
+                )}
                 {step.promptCategory && (
                   <>
                     <span className="text-slate-400 dark:text-slate-600">•</span>
@@ -180,25 +213,35 @@ export function StepDetailModal({
 
         {/* Modal Body (Scrollable) */}
         <div className="p-5 overflow-y-auto space-y-4">
+          {/* Rich Structured AI Generation Workflow (Sections 14, 15, 16) */}
+          {step.aiWorkflow && step.aiWorkflow.generationType !== "normal" ? (
+            <StepAiWorkflowDisplay
+              aiWorkflow={step.aiWorkflow}
+              stepNumber={step.step}
+              onImageClick={onImageClick}
+            />
+          ) : (
+            <>
+              {/* Detailed Instruction Section */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+                  <BookOpen className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+                  <span className="text-slate-700 dark:text-slate-300 font-bold">Directive & Workflow Objective</span>
+                </div>
 
-          {/* Detailed Instruction Section */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-              <BookOpen className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-              <span className="text-slate-700 dark:text-slate-300 font-bold">Directive & Workflow Objective</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 shadow-xs">
-              <FormattedStepText
-                text={
-                  step.description ||
-                  (step as any).instruction ||
-                  (step as any).promptExcerpt ||
-                  ""
-                }
-              />
-            </div>
-          </div>
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 shadow-xs">
+                  <FormattedStepText
+                    text={
+                      step.description ||
+                      (step as any).instruction ||
+                      (step as any).promptExcerpt ||
+                      ""
+                    }
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Visual Guideline Benchmark Media (Video or Image if available) */}
           {(step.videoUrl || step.image) && (

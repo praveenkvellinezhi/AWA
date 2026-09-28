@@ -35,6 +35,8 @@ import {
   WorkflowStepItem,
 } from "./types";
 import { combinePrompts } from "@/lib/prompt-utils";
+import { StepAiWorkflowDisplay } from "@/components/template/StepAiWorkflowDisplay";
+import { VIDEO_METHODS, IMAGE_METHODS } from "./ai-workflow-defaults";
 
 interface LiveTemplatePreviewProps {
   basicInfo: BuilderBasicInfo;
@@ -436,7 +438,7 @@ export function LiveTemplatePreview({
                   key={step.id}
                   className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131B2A] space-y-1.5"
                 >
-                  <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <div className="flex items-center justify-between gap-1.5 min-w-0 flex-wrap">
                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                       <span className="w-5 h-5 rounded-md bg-emerald-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
                         {step.stepNumber}
@@ -446,46 +448,67 @@ export function LiveTemplatePreview({
                       </span>
                     </div>
 
-                    {stepVideo ? (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-                        <Video className="w-2.5 h-2.5" />
-                        <span>VIDEO</span>
-                      </span>
-                    ) : stepImg ? (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                        <ImageIcon className="w-2.5 h-2.5" />
-                        <span>IMG</span>
-                      </span>
-                    ) : null}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {step.aiWorkflow?.generationType === "video" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                          {VIDEO_METHODS.find((m) => m.id === step.aiWorkflow?.videoMethod)?.badge || "Video Gen"}
+                        </span>
+                      ) : step.aiWorkflow?.generationType === "image" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          {IMAGE_METHODS.find((m) => m.id === step.aiWorkflow?.imageMethod)?.badge || "Image Gen"}
+                        </span>
+                      ) : null}
+
+                      {stepVideo ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                          <Video className="w-2.5 h-2.5" />
+                          <span>VID</span>
+                        </span>
+                      ) : stepImg ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          <ImageIcon className="w-2.5 h-2.5" />
+                          <span>IMG</span>
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    {step.description || step.instruction}
-                  </p>
+                  {step.aiWorkflow && step.aiWorkflow.generationType !== "normal" ? (
+                    <StepAiWorkflowDisplay
+                      aiWorkflow={step.aiWorkflow}
+                      stepNumber={step.stepNumber || 1}
+                    />
+                  ) : (
+                    <>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                        {step.description || step.instruction}
+                      </p>
 
-                  {/* Thumbnail / Video preview if present */}
-                  {stepVideo ? (
-                    <div className="rounded-md overflow-hidden bg-black max-h-32 border border-slate-200 dark:border-slate-800">
-                      <video
-                        src={stepVideo}
-                        controls
-                        className="max-h-32 w-full object-contain"
-                      />
-                    </div>
-                  ) : stepImg ? (
-                    <div className="relative h-24 w-full rounded-md overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-800">
-                      <img
-                        src={stepImg}
-                        alt={step.title}
-                        className="w-full h-full object-cover"
-                      />
-                      {step.imageCaption && (
-                        <span className="absolute bottom-1 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-zinc-300 truncate">
-                          {step.imageCaption}
-                        </span>
-                      )}
-                    </div>
-                  ) : null}
+                      {/* Thumbnail / Video preview if present */}
+                      {stepVideo ? (
+                        <div className="rounded-md overflow-hidden bg-black max-h-32 border border-slate-200 dark:border-slate-800">
+                          <video
+                            src={stepVideo}
+                            controls
+                            className="max-h-32 w-full object-contain"
+                          />
+                        </div>
+                      ) : stepImg ? (
+                        <div className="relative h-24 w-full rounded-md overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-800">
+                          <img
+                            src={stepImg}
+                            alt={step.title}
+                            className="w-full h-full object-cover"
+                          />
+                          {step.imageCaption && (
+                            <span className="absolute bottom-1 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-zinc-300 truncate">
+                              {step.imageCaption}
+                            </span>
+                          )}
+                        </div>
+                      ) : null}
+                    </>
+                  )}
                 </div>
               );
             })}

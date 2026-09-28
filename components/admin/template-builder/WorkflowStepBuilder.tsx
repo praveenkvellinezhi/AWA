@@ -11,11 +11,17 @@ import {
   Video,
   UploadCloud,
   X,
+  Film,
+  Camera,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { WorkflowStepItem } from "./types";
+import { StepAiWorkflowEditor } from "./StepAiWorkflowEditor";
+import { createInitialAiWorkflow, VIDEO_METHODS, IMAGE_METHODS } from "./ai-workflow-defaults";
 
 interface WorkflowStepBuilderProps {
   steps: WorkflowStepItem[];
@@ -38,14 +44,26 @@ export function WorkflowStepBuilder({
 
   const handleAddStep = () => {
     const nextNumber = steps.length + 1;
+    const isVideoCat = (categoryName || "").toLowerCase().includes("video");
+    const isImageCat = (categoryName || "").toLowerCase().includes("image");
+    const defaultGenType = isVideoCat ? "video" : isImageCat ? "image" : "normal";
+    const initialAiWorkflow = createInitialAiWorkflow(defaultGenType, nextNumber);
+
     const newStep: WorkflowStepItem = {
       id: `step-${Date.now()}`,
       order: nextNumber,
       stepNumber: nextNumber,
       step: nextNumber,
-      title: `Step ${nextNumber.toString().padStart(2, "0")} — Action Directive`,
+      title: `Step ${nextNumber.toString().padStart(2, "0")} — ${
+        defaultGenType === "video"
+          ? "Video Generation"
+          : defaultGenType === "image"
+          ? "Image Generation"
+          : "Action Directive"
+      }`,
       description: "Establish the actionable instructions for completing this step.",
       instruction: "Establish the actionable instructions for completing this step.",
+      aiWorkflow: initialAiWorkflow,
     };
 
     const nextSteps = [...steps, newStep];
@@ -313,7 +331,7 @@ export function WorkflowStepBuilder({
                 onClick={() => setExpandedStepId(isExpanded ? null : step.id)}
                 className="px-3.5 py-2.5 flex items-center justify-between gap-3 cursor-pointer select-none transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/30"
               >
-                {/* Step Number + Title + Media Indicator */}
+                {/* Step Number + Title + Generation Type & Method Badges */}
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="w-6 h-6 rounded-md bg-emerald-600 text-white font-mono font-bold text-[11px] flex items-center justify-center shrink-0 shadow-2xs">
                     {stepNumStr}
@@ -321,6 +339,41 @@ export function WorkflowStepBuilder({
                   <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                     {step.title || `Step ${stepNumStr}`}
                   </span>
+
+                  {/* Generation Type & Method Badges */}
+                  {step.aiWorkflow?.generationType === "video" ? (
+                    <span
+                      title="Video Generation Step"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0"
+                    >
+                      <Film className="w-3 h-3 text-purple-500" />
+                      <span>
+                        {VIDEO_METHODS.find((m) => m.id === step.aiWorkflow?.videoMethod)?.badge || "Video"}
+                      </span>
+                    </span>
+                  ) : step.aiWorkflow?.generationType === "image" ? (
+                    <span
+                      title="Image Generation Step"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0"
+                    >
+                      <Camera className="w-3 h-3 text-amber-500" />
+                      <span>
+                        {IMAGE_METHODS.find((m) => m.id === step.aiWorkflow?.imageMethod)?.badge || "Image"}
+                      </span>
+                    </span>
+                  ) : null}
+
+                  {step.aiWorkflow?.aiTool && step.aiWorkflow.generationType !== "normal" && (
+                    <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
+                      {step.aiWorkflow.aiTool}
+                    </span>
+                  )}
+
+                  {step.aiWorkflow?.output?.name && (
+                    <span className="hidden md:inline-flex items-center gap-1 text-[9px] font-mono text-emerald-600 dark:text-emerald-400 opacity-80 shrink-0">
+                      out: {step.aiWorkflow.output.name}
+                    </span>
+                  )}
 
                   {/* Media Indicator Badges */}
                   {step.videoUrl ? (
@@ -399,44 +452,16 @@ export function WorkflowStepBuilder({
                 </div>
               </div>
 
-              {/* Step Expanded Body: ONLY 2 ESSENTIAL FIELDS + OPTIONAL MEDIA */}
+              {/* Step Expanded Body: Dynamic AI Workflow Editor */}
               {isExpanded && (
-                <div className="p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#131B2A] space-y-3.5 animate-in fade-in duration-150">
-                  {/* Field 1: Step Title */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                      <span>Step Title</span>
-                      <span className="text-emerald-500">*</span>
-                    </label>
-                    <Input
-                      value={step.title}
-                      onChange={(e) =>
-                        handleUpdateStep(index, { title: e.target.value })
-                      }
-                      placeholder="e.g. Define Image Concept & Subject"
-                      className="h-9 text-xs sm:text-sm font-semibold border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#0E1422] text-slate-900 dark:text-white focus-visible:ring-emerald-500"
-                    />
-                  </div>
-
-                  {/* Field 2: Step Instructions */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                      <span>Step Instructions</span>
-                      <span className="text-emerald-500">*</span>
-                    </label>
-                    <Textarea
-                      value={step.description || step.instruction || ""}
-                      onChange={(e) =>
-                        handleUpdateStep(index, {
-                          description: e.target.value,
-                          instruction: e.target.value,
-                        })
-                      }
-                      placeholder="Establish the core subject, focal point, composition, and narrative concept for the image."
-                      rows={5}
-                      className="text-xs sm:text-sm leading-relaxed border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#0E1422] text-slate-900 dark:text-white focus-visible:ring-emerald-500 font-normal min-h-[110px]"
-                    />
-                  </div>
+                <div className="p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#131B2A] space-y-4 animate-in fade-in duration-150">
+                  {/* Dynamic Workflow Configuration per Generation Type & Method */}
+                  <StepAiWorkflowEditor
+                    step={step}
+                    stepIndex={index}
+                    allSteps={steps}
+                    onChange={(updated) => handleUpdateStep(index, updated)}
+                  />
 
                   {/* Field 3: Optional Media Attachment (Image or Video) */}
                   {(() => {
