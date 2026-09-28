@@ -10,6 +10,8 @@ interface SelectContextType {
   open: boolean;
   setOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+  itemLabels: Record<string, React.ReactNode>;
+  registerItem: (value: string, label: React.ReactNode) => void;
 }
 
 const SelectContext = React.createContext<SelectContextType | null>(null);
@@ -41,6 +43,7 @@ export function Select({
 }: SelectProps) {
   const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || "");
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const [itemLabels, setItemLabels] = React.useState<Record<string, React.ReactNode>>({});
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   const isValueControlled = controlledValue !== undefined;
@@ -71,6 +74,13 @@ export function Select({
     [isValueControlled, onValueChange, setOpen]
   );
 
+  const registerItem = React.useCallback((val: string, label: React.ReactNode) => {
+    setItemLabels((prev) => {
+      if (prev[val] === label) return prev;
+      return { ...prev, [val]: label };
+    });
+  }, []);
+
   return (
     <SelectContext.Provider
       value={{
@@ -79,12 +89,66 @@ export function Select({
         open,
         setOpen,
         triggerRef,
+        itemLabels,
+        registerItem,
       }}
     >
       <div className="relative inline-block w-full">{children}</div>
     </SelectContext.Provider>
   );
 }
+
+export interface SelectGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+export const SelectGroup = React.forwardRef<HTMLDivElement, SelectGroupProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn("py-1", className)} {...props}>
+        {children}
+      </div>
+    );
+  }
+);
+SelectGroup.displayName = "SelectGroup";
+
+export interface SelectLabelProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+export const SelectLabel = React.forwardRef<HTMLDivElement, SelectLabelProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+SelectLabel.displayName = "SelectLabel";
+
+export interface SelectSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const SelectSeparator = React.forwardRef<HTMLDivElement, SelectSeparatorProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn("-mx-1 my-1 h-px bg-slate-200 dark:bg-zinc-800", className)}
+        {...props}
+      />
+    );
+  }
+);
+SelectSeparator.displayName = "SelectSeparator";
 
 export interface SelectTriggerProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -132,13 +196,18 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
         onClick={handleClick}
         aria-expanded={open}
         className={cn(
-          "flex h-9 w-full items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs ring-offset-background placeholder:text-slate-400 focus:outline-none focus:border-[#008235] focus:ring-1 focus:ring-[#008235] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors",
+          "flex h-9 w-full items-center justify-between gap-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-950 dark:text-white hover:border-slate-400 dark:hover:border-zinc-700 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors",
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200" />
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400 transition-transform duration-200",
+            open && "rotate-180"
+          )}
+        />
       </button>
     );
   }
@@ -148,13 +217,23 @@ SelectTrigger.displayName = "SelectTrigger";
 export interface SelectValueProps {
   placeholder?: string;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export function SelectValue({ placeholder, className }: SelectValueProps) {
-  const { value } = useSelect();
+export function SelectValue({ placeholder, className, children }: SelectValueProps) {
+  const { value, itemLabels } = useSelect();
+  const label = itemLabels[value || ""];
+  const display = children !== undefined ? children : label !== undefined ? label : value || placeholder;
+
   return (
-    <span className={cn("block truncate text-xs", !value && "text-slate-400", className)}>
-      {value || placeholder}
+    <span
+      className={cn(
+        "block truncate text-xs font-semibold text-left",
+        !value && "text-slate-400 dark:text-slate-500 font-normal",
+        className
+      )}
+    >
+      {display}
     </span>
   );
 }
@@ -162,10 +241,11 @@ export function SelectValue({ placeholder, className }: SelectValueProps) {
 export interface SelectContentProps
   extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  align?: "left" | "right";
 }
 
 export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, align = "left", ...props }, ref) => {
     const { open, setOpen, triggerRef } = useSelect();
     const contentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -195,8 +275,6 @@ export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps
       };
     }, [open, setOpen, triggerRef]);
 
-    if (!open) return null;
-
     return (
       <div
         ref={(node) => {
@@ -205,7 +283,9 @@ export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps
           else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
         }}
         className={cn(
-          "absolute left-0 z-50 mt-1 max-h-60 w-full min-w-[8rem] overflow-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 text-slate-900 dark:text-slate-100 shadow-md animate-in fade-in-80 duration-100",
+          "absolute z-50 mt-1 max-h-72 min-w-[12rem] w-full overflow-y-auto overflow-x-hidden rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#111827] p-1 text-slate-900 dark:text-slate-100 shadow-xl [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full animate-in fade-in-80 zoom-in-95 duration-150",
+          align === "right" ? "right-0" : "left-0",
+          !open && "hidden",
           className
         )}
         {...props}
@@ -225,24 +305,34 @@ export interface SelectItemProps
 
 export const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
   ({ className, value: itemValue, children, ...props }, ref) => {
-    const { value, onValueChange } = useSelect();
+    const { value, onValueChange, registerItem } = useSelect();
     const isSelected = value === itemValue;
+
+    // Register label for SelectValue display
+    React.useEffect(() => {
+      registerItem(itemValue, children);
+    }, [itemValue, children, registerItem]);
 
     return (
       <div
         ref={ref}
-        onClick={() => onValueChange?.(itemValue)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onValueChange?.(itemValue);
+        }}
         className={cn(
-          "relative flex w-full cursor-pointer select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-xs outline-none hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors",
-          isSelected && "bg-emerald-50/60 dark:bg-emerald-950/40 text-[#008235] dark:text-emerald-400 font-semibold",
+          "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 px-3 pr-8 text-xs font-medium outline-none transition-colors",
+          isSelected
+            ? "bg-[#EAF5ED] dark:bg-emerald-950/60 text-[#008235] dark:text-emerald-300 font-semibold"
+            : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white",
           className
         )}
         {...props}
       >
-        <span className="truncate">{children}</span>
+        <span className="truncate flex items-center gap-2">{children}</span>
         {isSelected && (
-          <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-            <Check className="h-4 w-4 text-[#008235] dark:text-emerald-400" />
+          <span className="absolute right-2.5 flex h-4 w-4 items-center justify-center">
+            <Check className="h-4 w-4 text-[#008235] dark:text-emerald-400 stroke-[2.5]" />
           </span>
         )}
       </div>
@@ -261,14 +351,14 @@ export const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProp
         <select
           ref={ref}
           className={cn(
-            "w-full h-9 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 pr-8 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#008235] focus:ring-1 focus:ring-[#008235] transition-colors appearance-none cursor-pointer shadow-xs disabled:cursor-not-allowed disabled:opacity-50",
+            "w-full h-9 bg-white dark:bg-slate-950 border border-slate-300 dark:border-zinc-800 rounded-xl px-3 py-1.5 pr-8 text-xs text-slate-950 dark:text-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors appearance-none cursor-pointer shadow-2xs disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}
         >
           {children}
         </select>
-        <ChevronDown className="h-4 w-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <ChevronDown className="h-4 w-4 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
       </div>
     );
   }

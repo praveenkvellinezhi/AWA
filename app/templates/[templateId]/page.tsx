@@ -959,7 +959,7 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               href="/mcp"
               className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition-colors self-start sm:self-auto"
             >
-        
+              <span>Explore all AI models &rarr;</span>
             </Link>
           </div>
 

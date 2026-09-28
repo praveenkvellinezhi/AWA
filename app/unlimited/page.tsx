@@ -93,14 +93,14 @@ export default function UnlimitedPage() {
             </div>
 
             <div className="space-y-4">
-              <span className="text-xs font-mono font-bold uppercase text-rose-600 dark:text-rose-300">Unlimited Annual</span>
+              <span className="text-xs font-mono font-bold uppercase text-rose-600 dark:text-rose-300">Unlimited Monthly</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-slate-900 dark:text-white">₹199</span>
-                <span className="text-xs text-slate-600 dark:text-zinc-400">/ year</span>
-                <span className="text-[11px] text-slate-400 dark:text-zinc-500 line-through ml-1.5">₹999</span>
+                <span className="text-3xl font-black text-slate-900 dark:text-white">₹49</span>
+                <span className="text-xs text-slate-600 dark:text-zinc-400">/ month</span>
+                <span className="text-[11px] text-slate-400 dark:text-zinc-500 line-through ml-1.5">₹199</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-zinc-300">
-                Complete unrestricted access for designers, indie builders, and prompt engineers.
+                Complete unrestricted access for designers, indie builders, and prompt engineers with monthly flexibility.
               </p>
 
               <ul className="space-y-2.5 text-xs text-slate-800 dark:text-zinc-200 pt-2 border-t border-slate-200 dark:border-zinc-800">
@@ -135,16 +135,16 @@ export default function UnlimitedPage() {
               </ul>
             </div>
 
-            {isSubscriber && subscriptionPlan === "yearly" ? (
+            {isSubscriber && (subscriptionPlan === "monthly" || subscriptionPlan === "yearly") ? (
               <div className="w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-600 dark:text-emerald-300 font-bold text-xs text-center">
                 Current Active Plan
               </div>
             ) : (
               <Link
-                href="/payment?plan=yearly"
+                href="/payment?plan=monthly"
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white hover:from-orange-600 hover:to-rose-700 font-bold text-xs transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group"
               >
-                <span>Upgrade to Annual (₹199)</span>
+                <span>Upgrade to Monthly (₹49)</span>
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
             )}

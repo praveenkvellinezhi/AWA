@@ -287,14 +287,14 @@ export function DemoControls() {
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
                   <button
-                    onClick={() => setSubscriptionPlan("yearly")}
+                    onClick={() => setSubscriptionPlan("monthly")}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                      subscriptionPlan === "yearly"
+                      subscriptionPlan === "monthly" || subscriptionPlan === "yearly"
                         ? "bg-emerald-950/80 border-emerald-400 text-emerald-300"
                         : "bg-slate-950/40 border-slate-800 text-slate-400 hover:text-white"
                     }`}
                   >
-                    ₹199 / Year
+                    ₹49 / Month
                   </button>
                   <button
                     onClick={() => setSubscriptionPlan("lifetime")}

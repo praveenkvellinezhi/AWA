@@ -1,6 +1,55 @@
 export type UserRole = "public" | "authenticated" | "subscriber" | "admin";
 
-export type SubscriptionPlan = "yearly" | "lifetime" | null;
+export type SubscriptionPlan = "monthly" | "yearly" | "lifetime" | null;
+
+export type PlanStatus = "active" | "inactive" | "draft";
+export type BillingPeriod = "monthly" | "lifetime" | "yearly" | "quarterly" | "custom";
+
+export interface PlanFeature {
+  id: string;
+  name: string;
+  description?: string;
+  value?: string; // e.g. "100 / month", "Unlimited", "Included", "5 Seats", "10 GB"
+  enabled: boolean;
+}
+
+export interface CountryPricing {
+  id: string;
+  country: string; // e.g. "India", "UAE", "Saudi Arabia"
+  countryCode: string; // e.g. "IN", "AE", "SA"
+  currency: string; // e.g. "INR", "AED", "SAR"
+  currencySymbol: string; // e.g. "₹", "AED ", "SAR "
+  price: number;
+  discountedPrice?: number;
+  tax?: string; // e.g. "18% GST Included", "5% VAT Included"
+  billingPeriod?: BillingPeriod;
+  status: "active" | "inactive";
+}
+
+export interface SubscriptionPlanItem {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  badge?: string; // e.g. "Most Popular", "Enterprise", "Save 20%"
+  billingPeriod: BillingPeriod;
+  status: PlanStatus;
+  features: PlanFeature[];
+  countryPricing: CountryPricing[];
+  subscribersCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CountryConfig {
+  code: string;
+  name: string;
+  flag: string;
+  currency: string;
+  currencySymbol: string;
+  defaultTax?: string;
+  region: "gcc" | "asia" | "americas" | "europe" | "other";
+}
 
 export interface UserProfile {
   id: string;

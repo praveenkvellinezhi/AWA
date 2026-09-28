@@ -28,7 +28,7 @@ interface DemoContextType {
   // Subscription
   subscriptionPlan: SubscriptionPlan;
   setSubscriptionPlan: (plan: SubscriptionPlan) => void;
-  subscribeUser: (plan: "yearly" | "lifetime") => Promise<boolean>;
+  subscribeUser: (plan: "monthly" | "yearly" | "lifetime") => Promise<boolean>;
   cancelSubscription: () => void;
 
   // Credits
@@ -239,7 +239,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     } else if (newRole === "subscriber") {
       setUser(defaultUser);
       if (!subscriptionPlan) {
-        setSubscriptionPlanState("yearly");
+        setSubscriptionPlanState("monthly");
       }
       if (credits <= 0) {
         setCreditsState(adminConfig.freeCreditsAllotment);
@@ -268,7 +268,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const subscribeUser = async (plan: "yearly" | "lifetime"): Promise<boolean> => {
+  const subscribeUser = async (plan: "monthly" | "yearly" | "lifetime"): Promise<boolean> => {
     if (simulatePaymentFailure) {
       return false;
     }

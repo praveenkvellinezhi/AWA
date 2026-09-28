@@ -19,7 +19,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-type PlanType = "yearly" | "lifetime";
+type PlanType = "monthly" | "lifetime" | "yearly";
 type PaymentMethod = "upi" | "card" | "netbanking";
 
 interface PlanDetails {
@@ -34,13 +34,13 @@ interface PlanDetails {
 }
 
 const PLANS: Record<PlanType, PlanDetails> = {
-  yearly: {
-    id: "yearly",
-    name: "AWA Unlimited Annual",
-    badge: "Most Popular",
-    price: 199,
-    originalPrice: 999,
-    billingPeriod: "Billed annually • ₹16.58 / mo",
+  monthly: {
+    id: "monthly",
+    name: "AWA Unlimited Monthly",
+    badge: "Flexible",
+    price: 49,
+    originalPrice: 199,
+    billingPeriod: "Billed monthly • ₹49 / mo",
     description: "Complete unrestricted access for designers, indie builders, and prompt engineers.",
     features: [
       "100% Unmasked Prompts & Shaders across all 5 Disciplines",
@@ -60,12 +60,29 @@ const PLANS: Record<PlanType, PlanDetails> = {
     billingPeriod: "One-time payment • Never pay again",
     description: "Pay once and own all future prompts, categories, and masterclasses forever.",
     features: [
-      "Everything in Unlimited Annual included forever",
+      "Everything in Unlimited Monthly included forever",
       "Lifetime updates with 0 future renewal fees",
       "Design Rocket Academy VIP Masterclass access",
       "Priority Discord & dedicated email support channel",
       "Commercial rights for client production deployments",
       "5 simultaneous device sessions",
+    ],
+  },
+  yearly: {
+    id: "yearly",
+    name: "AWA Unlimited Monthly",
+    badge: "Flexible",
+    price: 49,
+    originalPrice: 199,
+    billingPeriod: "Billed monthly • ₹49 / mo",
+    description: "Complete unrestricted access for designers, indie builders, and prompt engineers.",
+    features: [
+      "100% Unmasked Prompts & Shaders across all 5 Disciplines",
+      "One-click copy for Midjourney, v0, ChatGPT & Figma",
+      "Private MCP server access token with unlimited calls",
+      "WebGL & CSS Canvas Backgrounds code export",
+      "3 simultaneous device sessions",
+      "Weekly template drops & changelog",
     ],
   },
 };
@@ -92,17 +109,17 @@ function PaymentContent() {
     user,
   } = useDemo();
 
-  // Selected Plan state (defaults to yearly unless 'lifetime' is explicitly requested)
+  // Selected Plan state (defaults to monthly unless 'lifetime' is explicitly requested)
   const [selectedPlan, setSelectedPlan] = useState<PlanType>(
-    initialPlanParam === "lifetime" ? "lifetime" : "yearly"
+    initialPlanParam === "lifetime" ? "lifetime" : "monthly"
   );
 
   // Sync with searchParams when changed externally
   useEffect(() => {
     if (initialPlanParam === "lifetime") {
       setSelectedPlan("lifetime");
-    } else if (initialPlanParam === "yearly") {
-      setSelectedPlan("yearly");
+    } else {
+      setSelectedPlan("monthly");
     }
   }, [initialPlanParam]);
 
@@ -656,9 +673,9 @@ function PaymentContent() {
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedPlan("yearly")}
+                  onClick={() => setSelectedPlan("monthly")}
                   className={`w-full p-4 rounded-2xl border text-left transition-all relative ${
-                    selectedPlan === "yearly"
+                    selectedPlan === "monthly" || selectedPlan === "yearly"
                       ? "bg-gradient-to-r from-rose-950/40 to-orange-950/30 border-rose-500/80 shadow-md shadow-rose-950/30"
                       : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
                   }`}
@@ -666,16 +683,16 @@ function PaymentContent() {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <span>Unlimited Annual</span>
+                        <span>Unlimited Monthly</span>
                         <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono">
-                          Popular
+                          Flexible
                         </span>
                       </span>
-                      <p className="text-[11px] text-zinc-400">₹16.58 / month • Billed annually</p>
+                      <p className="text-[11px] text-zinc-400">Billed monthly • Cancel anytime</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-lg font-black text-white">₹199</span>
-                      <span className="text-[11px] text-zinc-500 line-through block">₹999</span>
+                      <span className="text-lg font-black text-white">₹49</span>
+                      <span className="text-[11px] text-zinc-500 line-through block">₹199</span>
                     </div>
                   </div>
                 </button>
