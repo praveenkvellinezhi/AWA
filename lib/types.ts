@@ -635,6 +635,8 @@ export interface Template {
   slidePrompts?: SlidePrompt[];
   likesCount: number;
   savesCount: number;
+  aspectRatio?: string;
+  orientation?: "landscape" | "portrait" | "square";
   isPublished: boolean;
   createdAt: string;
 }

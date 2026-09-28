@@ -33,12 +33,12 @@ export function LandingHero({ onExploreClick }: LandingHeroProps) {
   };
 
   return (
-    <section className="relative w-full overflow-hidden pt-8 sm:pt-12 pb-16 lg:pb-24 px-4 sm:px-6 lg:px-8">
+    <section className="relative w-full overflow-hidden pt-8 sm:pt-12 pb-16 lg:pb-24 px-4 sm:px-6 lg:px-8 xl:px-12">
       {/* Background Ambient Glows */}
       <div className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-[130px] pointer-events-none -z-10" />
       <div className="absolute top-20 right-1/4 w-[600px] h-[500px] bg-purple-500/10 dark:bg-purple-600/15 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
         {/* ============================================================ */}
         {/* LEFT COLUMN: Main Value Proposition & Actions               */}
         {/* ============================================================ */}
