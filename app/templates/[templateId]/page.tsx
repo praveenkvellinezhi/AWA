@@ -9,6 +9,8 @@ import { CustomizePanel } from "@/components/customize-panel";
 import { FeedbackWidget } from "@/components/feedback-widget";
 import { getTemplateSlides } from "@/lib/template-images";
 import { getTemplatePrompts } from "@/lib/prompt-utils";
+import { useLanguages } from "@/lib/hooks/use-translation";
+import { translationService } from "@/lib/services/translation-service";
 import {
   ChevronRight,
   Heart,
@@ -130,9 +132,20 @@ export default function TemplatePage({ params }: TemplatePageProps) {
     notFound();
   }
 
+  const { enabledLanguages } = useLanguages();
+  const [selectedUserLanguage, setSelectedUserLanguage] = useState<string>("en");
+
   const templatePrompts = useMemo(() => {
-    return getTemplatePrompts(template);
-  }, [template]);
+    const base = getTemplatePrompts(template);
+    if (!selectedUserLanguage || selectedUserLanguage === "en") {
+      return base;
+    }
+    const resolved = translationService.getResolvedTemplatePrompts(template, selectedUserLanguage);
+    return {
+      uiPrompt: resolved.uiPrompt || base.uiPrompt,
+      contextPrompt: resolved.contextPrompt || base.contextPrompt,
+    };
+  }, [template, selectedUserLanguage]);
 
   const fullCanonicalPrompt = useMemo(() => {
     return combineFullTemplatePrompt(template);
@@ -899,6 +912,38 @@ export default function TemplatePage({ params }: TemplatePageProps) {
               </div>
             ) : (
               <div className="space-y-4">
+                {/* User Language Selector with Fallback */}
+                {enabledLanguages.length > 1 && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-white dark:bg-[#131B2A] border border-slate-200/90 dark:border-zinc-800 shadow-xs">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Prompt Language:</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+                      {enabledLanguages.map((lang) => {
+                        const isSelected =
+                          lang.code.toLowerCase() === selectedUserLanguage.toLowerCase();
+                        return (
+                          <button
+                            key={lang.code}
+                            type="button"
+                            onClick={() => setSelectedUserLanguage(lang.code)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-medium transition-all ${
+                              isSelected
+                                ? "bg-emerald-600 text-white shadow-xs font-semibold"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                            }`}
+                          >
+                            <span>{lang.flag}</span>
+                            <span>{lang.nativeName || lang.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <PromptPanel
                   templateId={template.id}
                   uiPrompt={templatePrompts.uiPrompt}

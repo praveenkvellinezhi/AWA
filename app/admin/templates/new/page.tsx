@@ -28,6 +28,9 @@ import { SlidesBuilder } from "@/components/admin/template-builder/SlidesBuilder
 import { PosterBuilder } from "@/components/admin/template-builder/PosterBuilder";
 import { WorkflowStepBuilder } from "@/components/admin/template-builder/WorkflowStepBuilder";
 import { LiveTemplatePreview } from "@/components/admin/template-builder/LiveTemplatePreview";
+import { TemplateTranslateTab } from "@/components/admin/templates/TemplateTranslateTab";
+import { translationService } from "@/lib/services/translation-service";
+import { Globe } from "lucide-react";
 import {
   BuilderBasicInfo,
   CategoryOption,
@@ -83,6 +86,7 @@ function TemplateBuilderContent() {
     slug: string;
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeBuilderTab, setActiveBuilderTab] = useState<"builder" | "translate">("builder");
 
   // Load existing template if editing
   useEffect(() => {
@@ -447,6 +451,9 @@ function TemplateBuilderContent() {
       addTemplate(payload);
     }
 
+    // Automatically queue localization for all enabled languages
+    translationService.handleNewTemplatePublished(payload);
+
     setTimeout(() => {
       setIsSaving(false);
       setSuccessNotice({
@@ -600,6 +607,52 @@ function TemplateBuilderContent() {
               Create reusable, production-ready AI templates for modern creators. The builder dynamically adapts its fields, prompt structures, and parameters based on your selected category.
             </p>
           </div>
+
+          {/* Builder Navigation Tabs */}
+          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#131B2A] border border-slate-200 dark:border-zinc-800 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setActiveBuilderTab("builder")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeBuilderTab === "builder"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Basic Information & Prompts</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveBuilderTab("translate")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeBuilderTab === "translate"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <Globe className="w-4 h-4" />
+              <span>Translate</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                FEAT-034
+              </span>
+            </button>
+          </div>
+
+          {activeBuilderTab === "translate" ? (
+            <TemplateTranslateTab
+              template={buildTemplatePayload(false)}
+              onSavedNotice={(msg) =>
+                setSuccessNotice({
+                  message: msg,
+                  templateId: editId || "template-new",
+                  slug: basicInfo.name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+                })
+              }
+            />
+          ) : (
+            <>
             {/* Step 01: Basic Information */}
             <BasicInfoSection
               basicInfo={basicInfo}
@@ -714,6 +767,8 @@ function TemplateBuilderContent() {
                 </Button>
               </div>
             </div>
+            </>
+          )}
         </div>
 
         {/* Right Column: FIXED LIVE PREVIEW PANEL (Does NOT scroll with left column) */}

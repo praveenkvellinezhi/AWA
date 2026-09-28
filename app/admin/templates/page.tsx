@@ -51,7 +51,9 @@ import {
   BarChart2,
   Check,
   ExternalLink,
+  Globe,
 } from "lucide-react";
+import { TemplateTranslateModal } from "@/components/admin/templates/TemplateTranslateModal";
 
 export default function AdminTemplatesPage() {
   const { templates, categories, addTemplate, updateTemplate, deleteTemplate } = useDemo();
@@ -59,6 +61,7 @@ export default function AdminTemplatesPage() {
   // Primary toggle: Form only visible when button is clicked!
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+  const [translatingTemplate, setTranslatingTemplate] = useState<Template | null>(null);
 
   // Filter & Search states
   const [activeTab, setActiveTab] = useState<"all" | "my" | "published" | "drafts" | "archived">("all");
@@ -1115,6 +1118,16 @@ export default function AdminTemplatesPage() {
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setTranslatingTemplate(template)}
+                          className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          title="Translate Prompts"
+                        >
+                          <Globe className="h-3.5 w-3.5" />
+                        </Button>
+
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -1126,16 +1139,23 @@ export default function AdminTemplatesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="right">
+                            <DropdownMenuItem
+                              onClick={() => setTranslatingTemplate(template)}
+                              className="cursor-pointer text-xs"
+                            >
+                              <Globe className="h-3.5 w-3.5 mr-2 text-emerald-600" />
+                              <span>Translate Prompts</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link
                                 href={`/admin/templates/new?edit=${template.id}`}
-                                className="flex items-center cursor-pointer"
+                                className="flex items-center cursor-pointer text-xs"
                               >
                                 <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-500" />
                                 <span>Edit in Visual Builder</span>
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openEditEditor(template)}>
+                            <DropdownMenuItem onClick={() => openEditEditor(template)} className="text-xs">
                               <Pencil className="h-3.5 w-3.5 mr-2 text-slate-400" />
                               <span>Quick Edit Form</span>
                             </DropdownMenuItem>
@@ -1333,6 +1353,16 @@ export default function AdminTemplatesPage() {
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
 
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setTranslatingTemplate(template)}
+                      className="h-7 w-7 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      title="Translate Prompts"
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                    </Button>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -1344,10 +1374,17 @@ export default function AdminTemplatesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="right">
+                        <DropdownMenuItem
+                          onClick={() => setTranslatingTemplate(template)}
+                          className="cursor-pointer text-xs"
+                        >
+                          <Globe className="h-3.5 w-3.5 mr-2 text-emerald-600" />
+                          <span>Translate Prompts</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link
                             href={`/admin/templates/new?edit=${template.id}`}
-                            className="flex items-center cursor-pointer"
+                            className="flex items-center cursor-pointer text-xs"
                           >
                             <Sparkles className="h-3.5 w-3.5 mr-2 text-emerald-500" />
                             <span>Edit in Visual Builder</span>
@@ -1406,6 +1443,15 @@ export default function AdminTemplatesPage() {
         </div>
       </div>
     )}
+
+      {/* Template Translate Modal */}
+      <TemplateTranslateModal
+        template={translatingTemplate}
+        open={Boolean(translatingTemplate)}
+        onOpenChange={(open) => {
+          if (!open) setTranslatingTemplate(null);
+        }}
+      />
     </div>
   );
 }
