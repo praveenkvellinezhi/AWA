@@ -23,6 +23,7 @@ html.dark {
   --header-border: rgba(39, 39, 42, 0.8);
   --input-bg: rgba(0, 0, 0, 0.6);
   --input-border: #3f3f46;
+  --border: 217.2 32.6% 17.5%;
   color-scheme: dark;
 }
 
@@ -39,6 +40,7 @@ html:not(.dark) {
   --header-border: rgba(226, 232, 240, 0.9);
   --input-bg: #FFFFFF;
   --input-border: #CBD5E1;
+  --border: 214.3 31.8% 91.4%;
   color-scheme: light;
 }
 

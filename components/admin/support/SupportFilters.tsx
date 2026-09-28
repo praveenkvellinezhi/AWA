@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, X, RotateCcw, Filter } from "lucide-react";
+import { Search, X, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,11 +31,11 @@ interface SupportFiltersProps {
 const CATEGORIES: { label: string; value: SupportCategory | "all" }[] = [
   { label: "All Categories", value: "all" },
   { label: "AI Generation", value: "AI Generation" },
-  { label: "Template / Guide", value: "Template / Guide" },
   { label: "Billing", value: "Billing" },
   { label: "Subscription", value: "Subscription" },
   { label: "Technical", value: "Technical" },
   { label: "Account", value: "Account" },
+  { label: "Template / Guide", value: "Template / Guide" },
   { label: "Bug Report", value: "Bug Report" },
   { label: "Feature Request", value: "Feature Request" },
   { label: "General", value: "General" },
@@ -44,17 +44,17 @@ const CATEGORIES: { label: string; value: SupportCategory | "all" }[] = [
 
 const PRIORITIES: { label: string; value: SupportPriority | "all" }[] = [
   { label: "All Priorities", value: "all" },
-  { label: "Low", value: "low" },
-  { label: "Medium", value: "medium" },
   { label: "High", value: "high" },
+  { label: "Medium", value: "medium" },
+  { label: "Low", value: "low" },
   { label: "Urgent", value: "urgent" },
 ];
 
 const STATUSES: { label: string; value: SupportStatus | "all" }[] = [
   { label: "All Statuses", value: "all" },
   { label: "Open", value: "open" },
-  { label: "In Progress", value: "in-progress" },
   { label: "Pending", value: "pending" },
+  { label: "In Progress", value: "in-progress" },
   { label: "Resolved", value: "resolved" },
   { label: "Closed", value: "closed" },
 ];
@@ -63,8 +63,8 @@ const ASSIGNEES = [
   { label: "All Assignees", value: "all" },
   { label: "Unassigned", value: "unassigned" },
   { label: "Praveen (Lead Admin)", value: "adm-1" },
-  { label: "Alex (Engineering Lead)", value: "adm-2" },
-  { label: "Sarah (Support Specialist)", value: "adm-3" },
+  { label: "Amina", value: "adm-2" },
+  { label: "Rohit", value: "adm-3" },
 ];
 
 export function SupportFilters({
@@ -98,16 +98,16 @@ export function SupportFilters({
     filters.assignedTo !== "all";
 
   return (
-    <div className="space-y-3 p-3 sm:p-4 rounded-2xl border border-border/80 dark:border-zinc-800 bg-card shadow-xs">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+    <div className="space-y-3 w-full">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 w-full">
         {/* Search Input (Debounced) */}
         <div className="relative flex-1 min-w-[260px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500 pointer-events-none" />
           <Input
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             placeholder="Search support requests (ID, user, email, subject, text)..."
-            className="pl-9 pr-8 h-9 text-xs sm:text-sm bg-background border-border/90"
+            className="pl-10 pr-8 h-10 sm:h-11 text-xs sm:text-sm bg-white dark:bg-[#131418] border-slate-200/90 dark:border-zinc-800 rounded-xl shadow-2xs placeholder:text-slate-400 dark:placeholder:text-zinc-500"
           />
           {localSearch && (
             <button
@@ -116,14 +116,14 @@ export function SupportFilters({
                 setLocalSearch("");
                 onChange({ searchQuery: "" });
               }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white p-0.5 rounded"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
-        {/* Dropdown Filters */}
+        {/* Dropdown Filters in same row */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Status Select */}
           <div className="w-[130px] sm:w-[140px]">
@@ -131,10 +131,10 @@ export function SupportFilters({
               value={filters.status}
               onValueChange={(val) => onChange({ status: val as SupportStatus | "all" })}
             >
-              <SelectTrigger className="h-9 text-xs font-medium bg-background border-border/90">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="h-10 sm:h-11 text-xs font-medium bg-white dark:bg-[#131418] border-slate-200/90 dark:border-zinc-800 rounded-xl shadow-2xs">
+                <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                 {STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value} className="text-xs">
                     {s.label}
@@ -150,10 +150,10 @@ export function SupportFilters({
               value={filters.category}
               onValueChange={(val) => onChange({ category: val as SupportCategory | "all" })}
             >
-              <SelectTrigger className="h-9 text-xs font-medium bg-background border-border/90">
-                <SelectValue placeholder="Category" />
+              <SelectTrigger className="h-10 sm:h-11 text-xs font-medium bg-white dark:bg-[#131418] border-slate-200/90 dark:border-zinc-800 rounded-xl shadow-2xs">
+                <SelectValue placeholder="All Categories" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                 {CATEGORIES.map((c) => (
                   <SelectItem key={c.value} value={c.value} className="text-xs">
                     {c.label}
@@ -169,10 +169,10 @@ export function SupportFilters({
               value={filters.priority}
               onValueChange={(val) => onChange({ priority: val as SupportPriority | "all" })}
             >
-              <SelectTrigger className="h-9 text-xs font-medium bg-background border-border/90">
-                <SelectValue placeholder="Priority" />
+              <SelectTrigger className="h-10 sm:h-11 text-xs font-medium bg-white dark:bg-[#131418] border-slate-200/90 dark:border-zinc-800 rounded-xl shadow-2xs">
+                <SelectValue placeholder="All Priorities" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                 {PRIORITIES.map((p) => (
                   <SelectItem key={p.value} value={p.value} className="text-xs">
                     {p.label}
@@ -183,15 +183,15 @@ export function SupportFilters({
           </div>
 
           {/* Assigned To Select */}
-          <div className="w-[150px] sm:w-[170px]">
+          <div className="w-[140px] sm:w-[155px]">
             <Select
               value={filters.assignedTo}
               onValueChange={(val) => onChange({ assignedTo: val })}
             >
-              <SelectTrigger className="h-9 text-xs font-medium bg-background border-border/90">
-                <SelectValue placeholder="Assigned To" />
+              <SelectTrigger className="h-10 sm:h-11 text-xs font-medium bg-white dark:bg-[#131418] border-slate-200/90 dark:border-zinc-800 rounded-xl shadow-2xs">
+                <SelectValue placeholder="All Assignees" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                 {ASSIGNEES.map((a) => (
                   <SelectItem key={a.value} value={a.value} className="text-xs">
                     {a.label}
@@ -208,25 +208,18 @@ export function SupportFilters({
               variant="outline"
               size="sm"
               onClick={onClear}
-              className="h-9 text-xs gap-1.5 border-border hover:bg-muted font-medium text-muted-foreground hover:text-foreground"
+              className="h-10 sm:h-11 text-xs gap-1.5 border-slate-200 dark:border-zinc-800 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 font-medium text-slate-600 dark:text-zinc-300"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>Clear Filters</span>
+              <span>Clear</span>
             </Button>
           )}
         </div>
       </div>
 
-      {/* Filter status indicator count */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
-        <span className="font-mono text-[11px]">
-          Showing <strong>{totalFiltered}</strong> matching support requests
-        </span>
-        {hasActiveFilters && (
-          <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-            • Filtered results active
-          </span>
-        )}
+      {/* Matching Count text exactly like screenshot */}
+      <div className="text-xs text-slate-500 dark:text-zinc-400">
+        <span>Showing <strong className="font-bold text-slate-900 dark:text-white">{totalFiltered}</strong> matching support requests</span>
       </div>
     </div>
   );

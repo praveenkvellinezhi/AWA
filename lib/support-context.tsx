@@ -44,7 +44,7 @@ interface SupportContextType {
   resetSupportData: () => void;
 }
 
-const SUPPORT_STORAGE_KEY = "awa_support_requests_v2";
+const SUPPORT_STORAGE_KEY = "awa_support_requests_v3";
 
 const SupportContext = createContext<SupportContextType | undefined>(undefined);
 

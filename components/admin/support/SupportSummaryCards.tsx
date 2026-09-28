@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Card } from "@/components/ui/card";
 import { SupportRequest, SupportStatus } from "@/lib/types";
 import {
   Inbox,
@@ -9,6 +8,7 @@ import {
   Clock,
   PlayCircle,
   CheckCircle2,
+  BarChart2,
 } from "lucide-react";
 
 interface SupportSummaryCardsProps {
@@ -30,87 +30,97 @@ export function SupportSummaryCards({
 
   const cards = [
     {
-      id: "all",
+      id: "all" as const,
       label: "Total Requests",
       count: totalCount,
-      icon: <Inbox className="h-4 w-4" />,
-      color: "text-slate-700 dark:text-zinc-300",
-      activeBorder: "border-slate-500/80 dark:border-slate-400/80 bg-slate-50/80 dark:bg-slate-800/40",
-      badgeColor: "bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200",
+      icon: <Inbox className="h-5 w-5" />,
+      rightIcon: <BarChart2 className="h-4 w-4 text-emerald-500/70" />,
+      bg: "bg-[#F2FBF7] dark:bg-emerald-950/30",
+      activeRing: "ring-2 ring-emerald-500/50",
+      iconBg: "bg-emerald-100/80 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400",
+      textColor: "text-slate-900 dark:text-white",
     },
     {
-      id: "open",
+      id: "open" as const,
       label: "Open",
       count: openCount,
-      icon: <AlertCircle className="h-4 w-4 text-rose-500" />,
-      color: "text-rose-600 dark:text-rose-400",
-      activeBorder: "border-rose-500/80 dark:border-rose-500/80 bg-rose-50/50 dark:bg-rose-950/20",
-      badgeColor: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20",
+      icon: <AlertCircle className="h-5 w-5" />,
+      bg: "bg-[#FEF2F2] dark:bg-rose-950/30",
+      activeRing: "ring-2 ring-rose-500/50",
+      iconBg: "bg-rose-100/80 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400",
+      textColor: "text-rose-600 dark:text-rose-400",
     },
     {
-      id: "pending",
+      id: "pending" as const,
       label: "Pending",
       count: pendingCount,
-      icon: <Clock className="h-4 w-4 text-amber-500" />,
-      color: "text-amber-600 dark:text-amber-400",
-      activeBorder: "border-amber-500/80 dark:border-amber-500/80 bg-amber-50/50 dark:bg-amber-950/20",
-      badgeColor: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+      icon: <Clock className="h-5 w-5" />,
+      bg: "bg-[#FFFBEB] dark:bg-amber-950/30",
+      activeRing: "ring-2 ring-amber-500/50",
+      iconBg: "bg-amber-100/80 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400",
+      textColor: "text-amber-600 dark:text-amber-400",
     },
     {
-      id: "in-progress",
+      id: "in-progress" as const,
       label: "In Progress",
       count: inProgressCount,
-      icon: <PlayCircle className="h-4 w-4 text-blue-500" />,
-      color: "text-blue-600 dark:text-blue-400",
-      activeBorder: "border-blue-500/80 dark:border-blue-500/80 bg-blue-50/50 dark:bg-blue-950/20",
-      badgeColor: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+      icon: <PlayCircle className="h-5 w-5" />,
+      bg: "bg-[#EFF6FF] dark:bg-blue-950/30",
+      activeRing: "ring-2 ring-blue-500/50",
+      iconBg: "bg-blue-100/80 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
+      textColor: "text-blue-600 dark:text-blue-400",
     },
     {
-      id: "resolved",
+      id: "resolved" as const,
       label: "Resolved",
       count: resolvedCount,
-      icon: <CheckCircle2 className="h-4 w-4 text-emerald-500" />,
-      color: "text-emerald-600 dark:text-emerald-400",
-      activeBorder: "border-emerald-500/80 dark:border-emerald-500/80 bg-emerald-50/50 dark:bg-emerald-950/20",
-      badgeColor: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
+      icon: <CheckCircle2 className="h-5 w-5" />,
+      bg: "bg-[#F0FDF4] dark:bg-emerald-950/30",
+      activeRing: "ring-2 ring-emerald-500/50",
+      iconBg: "bg-emerald-100/80 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400",
+      textColor: "text-emerald-600 dark:text-emerald-400",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      {cards.map((c) => {
-        const isSelected = selectedStatus === c.id;
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 w-full">
+      {cards.map((card) => {
+        const isSelected = selectedStatus === card.id;
 
         return (
-          <Card
-            key={c.id}
-            onClick={() => onSelectStatus(c.id as SupportStatus | "all")}
-            className={`p-3 sm:p-3.5 cursor-pointer transition-all duration-150 select-none border rounded-xl hover:shadow-xs ${
-              isSelected
-                ? `${c.activeBorder} shadow-2xs ring-1 ring-border/50`
-                : "border-border/70 dark:border-zinc-800/80 bg-card hover:bg-accent/40"
-            }`}
+          <div
+            key={card.id}
+            onClick={() => onSelectStatus(card.id)}
+            className={`rounded-2xl p-4 sm:p-4.5 flex items-center justify-between gap-3 cursor-pointer transition-all border-0 shadow-2xs hover:shadow-xs active:scale-[0.99] ${
+              card.bg
+            } ${isSelected ? card.activeRing : ""}`}
           >
-            <div className="flex items-center justify-between gap-1">
-              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider font-mono">
-                {c.label}
-              </span>
-              <div className="p-1 rounded-md bg-muted/60 dark:bg-zinc-800">
-                {c.icon}
+            <div className="flex items-center gap-3.5 min-w-0">
+              {/* Left Icon Container */}
+              <div
+                className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${card.iconBg}`}
+              >
+                {card.icon}
+              </div>
+
+              {/* Text: Label & Number */}
+              <div className="min-w-0">
+                <span className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-zinc-400 block truncate">
+                  {card.label}
+                </span>
+                <span className={`text-2xl font-black tracking-tight leading-none mt-1 block ${card.textColor}`}>
+                  {card.count}
+                </span>
               </div>
             </div>
 
-            <div className="mt-2 flex items-baseline justify-between">
-              <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${c.color}`}>
-                {c.count}
-              </span>
-              {isSelected && (
-                <span className="text-[10px] font-mono font-semibold text-muted-foreground">
-                  Active Filter
-                </span>
-              )}
-            </div>
-          </Card>
+            {/* Optional Right Action/Indicator */}
+            {card.rightIcon && (
+              <div className="shrink-0 self-start mt-0.5">
+                {card.rightIcon}
+              </div>
+            )}
+          </div>
         );
       })}
     </div>

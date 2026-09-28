@@ -1,5 +1,4 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
 import { SupportPriority, SupportStatus, SupportCategory } from "@/lib/types";
 import {
   AlertCircle,
@@ -8,7 +7,6 @@ import {
   CheckCircle2,
   XCircle,
   Flame,
-  AlertTriangle,
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
@@ -17,56 +15,45 @@ export function SupportStatusBadge({ status }: { status: SupportStatus }) {
   switch (status) {
     case "open":
       return (
-        <Badge
-          variant="outline"
-          className="bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
-          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FEF2F2] dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/90 dark:border-rose-800/60 shadow-2xs">
+          <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>Open</span>
-        </Badge>
+        </span>
       );
     case "in-progress":
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
-          <PlayCircle className="w-3 h-3 text-blue-500 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#EFF6FF] dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200/90 dark:border-blue-800/60 shadow-2xs">
+          <PlayCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
           <span>In Progress</span>
-        </Badge>
+        </span>
       );
     case "pending":
       return (
-        <Badge
-          variant="outline"
-          className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
-          <Clock className="w-3 h-3 text-amber-500 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FFFBEB] dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-200/90 dark:border-amber-800/60 shadow-2xs">
+          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>Pending</span>
-        </Badge>
+        </span>
       );
     case "resolved":
       return (
-        <Badge
-          variant="outline"
-          className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
-          <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F0FDF4] dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-800/60 shadow-2xs">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>Resolved</span>
-        </Badge>
+        </span>
       );
     case "closed":
       return (
-        <Badge
-          variant="outline"
-          className="bg-slate-500/10 text-slate-700 dark:text-zinc-300 border-slate-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
-          <XCircle className="w-3 h-3 text-slate-400 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 shadow-2xs">
+          <XCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <span>Closed</span>
-        </Badge>
+        </span>
       );
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-border bg-muted text-muted-foreground">
+          {status}
+        </span>
+      );
   }
 }
 
@@ -74,55 +61,44 @@ export function SupportPriorityBadge({ priority }: { priority: SupportPriority }
   switch (priority) {
     case "urgent":
       return (
-        <Badge
-          variant="outline"
-          className="bg-rose-600/15 text-rose-800 dark:text-rose-300 border-rose-600/40 gap-1 text-[11px] font-mono font-bold uppercase tracking-wider"
-        >
-          <Flame className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
-          <span>Urgent</span>
-        </Badge>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FEF2F2] dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/90 dark:border-rose-800/60 shadow-2xs uppercase tracking-wider">
+          <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20 shrink-0" />
+          <span>URGENT</span>
+        </span>
       );
     case "high":
       return (
-        <Badge
-          variant="outline"
-          className="bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/40 gap-1 text-[11px] font-mono font-bold"
-        >
-          <ArrowUp className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-semibold bg-[#FFFBEB] dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-200/90 dark:border-amber-800/60 shadow-2xs">
+          <span className="text-amber-600 dark:text-amber-400 font-bold">↑</span>
           <span>High</span>
-        </Badge>
+        </span>
       );
     case "medium":
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-500/10 text-blue-800 dark:text-blue-300 border-blue-500/30 gap-1 text-[11px] font-mono font-bold"
-        >
+        <span className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-[#EFF6FF] dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/50 shadow-2xs">
           <span>Medium</span>
-        </Badge>
+        </span>
       );
     case "low":
       return (
-        <Badge
-          variant="outline"
-          className="bg-slate-200/60 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 border-slate-300 dark:border-zinc-700 gap-1 text-[11px] font-mono font-medium"
-        >
-          <ArrowDown className="w-3 h-3 text-slate-400 shrink-0" />
+        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-medium bg-[#F0FDF4] dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-800/60 shadow-2xs">
+          <span className="text-emerald-600 dark:text-emerald-400 font-bold">↓</span>
           <span>Low</span>
-        </Badge>
+        </span>
       );
     default:
-      return <Badge variant="outline">{priority}</Badge>;
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-border bg-muted text-muted-foreground">
+          {priority}
+        </span>
+      );
   }
 }
 
-export function SupportCategoryBadge({ category }: { category: SupportCategory }) {
+export function SupportCategoryBadge({ category }: { category: SupportCategory | string }) {
   return (
-    <Badge
-      variant="outline"
-      className="bg-muted/60 text-foreground border-border/80 text-[10px] font-mono font-medium"
-    >
+    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200/90 dark:border-zinc-700 shadow-2xs">
       {category}
-    </Badge>
+    </span>
   );
 }

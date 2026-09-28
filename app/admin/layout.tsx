@@ -51,6 +51,8 @@ import {
   Bell,
   ExternalLink,
   Headphones,
+  Layers,
+  TrendingUp,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -261,6 +263,8 @@ export default function AdminLayout({
     { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="h-4 w-4" /> },
     { label: "Categories", href: "/admin/categories", icon: <FolderTree className="h-4 w-4" /> },
     { label: "Templates & Prompts", href: "/admin/templates", icon: <FileText className="h-4 w-4" /> },
+    { label: "Template Engagement", href: "/admin/engagement", icon: <TrendingUp className="h-4 w-4" /> },
+    { label: "Collections", href: "/admin/collections", icon: <Layers className="h-4 w-4" /> },
     { label: "AI Tools Master", href: "/admin/tools", icon: <Cpu className="h-4 w-4" /> },
     { label: "Reports & Analytics", href: "/admin/reports", icon: <BarChart3 className="h-4 w-4" /> },
     { label: "AI Rewriter Prompt", href: "/admin/ai-instruction", icon: <Terminal className="h-4 w-4" /> },
@@ -550,11 +554,14 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Admin Main Workspace Content - On template builder, allow full-bleed height without outer scroll */}
+        {/* Admin Main Workspace Content - On template builder, support, or collections, allow full-bleed height without outer scroll */}
         <main
-          className={`flex-1 min-w-0 w-full ${
-            pathname?.startsWith("/admin/templates/new")
-              ? "p-0 overflow-hidden flex flex-col"
+          className={`flex-1 min-w-0 w-full min-h-0 ${
+            pathname?.startsWith("/admin/templates/new") ||
+            pathname?.startsWith("/admin/support") ||
+            pathname?.startsWith("/admin/collections") ||
+            pathname?.startsWith("/admin/engagement")
+              ? "p-0 overflow-hidden flex flex-col h-full"
               : "p-4 sm:p-8 overflow-y-auto"
           }`}
         >
