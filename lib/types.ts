@@ -739,3 +739,76 @@ export interface AnimatedBackground {
   previewType: "gradient" | "canvas" | "mesh";
 }
 
+/* ==========================================================================
+   SUPPORT & CONTACT MANAGEMENT (SECTION 32)
+   ========================================================================== */
+
+export type SupportStatus = "open" | "pending" | "in-progress" | "resolved" | "closed";
+
+export type SupportPriority = "low" | "medium" | "high" | "urgent";
+
+export type SupportCategory =
+  | "General"
+  | "Technical"
+  | "Account"
+  | "Billing"
+  | "Subscription"
+  | "AI Generation"
+  | "Template / Guide"
+  | "Bug Report"
+  | "Feature Request"
+  | "Other";
+
+export interface SupportAttachment {
+  id: string;
+  name: string;
+  url: string;
+  type: string; // e.g. "image/png", "application/pdf"
+  sizeFormatted?: string;
+  sizeBytes?: number;
+}
+
+export interface SupportMessage {
+  id: string;
+  sender: string;
+  senderType: "user" | "admin" | "system";
+  message: string;
+  attachments?: SupportAttachment[];
+  createdAt: string;
+}
+
+export interface SupportInternalNote {
+  id: string;
+  author: string;
+  note: string;
+  createdAt: string;
+}
+
+export interface SupportRequest {
+  id: string; // Format: SUP-000124
+  subject: string;
+  category: SupportCategory;
+  priority: SupportPriority;
+  status: SupportStatus;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string;
+    plan?: string;
+    country?: string;
+    deviceLimit?: number;
+  };
+  assignedTo?: string; // Admin ID or "unassigned" or "team"
+  assignedAdminName?: string; // Display name
+  messages: SupportMessage[];
+  internalNotes: SupportInternalNote[]; // Strictly admin-only (not visible to users)
+  attachments?: SupportAttachment[];
+  resolutionSummary?: string;
+  resolvedAt?: string;
+  closedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+

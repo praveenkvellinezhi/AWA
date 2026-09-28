@@ -50,6 +50,7 @@ import {
   Search,
   Bell,
   ExternalLink,
+  Headphones,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -267,6 +268,7 @@ export default function AdminLayout({
     { label: "Payment Gateways", href: "/admin/payments", icon: <CreditCard className="h-4 w-4" /> },
     { label: "Paywall Mode", href: "/admin/visibility", icon: <Eye className="h-4 w-4" /> },
     { label: "Users & Feedback", href: "/admin/feedback", icon: <MessageSquare className="h-4 w-4" /> },
+    { label: "Contact & Support", href: "/admin/support", icon: <Headphones className="h-4 w-4" /> },
     { label: "Languages & i18n", href: "/admin/languages", icon: <Languages className="h-4 w-4" /> },
   ];
 

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { DemoProvider } from "@/lib/demo-context";
+import { SupportProvider } from "@/lib/support-context";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { DemoControls } from "@/components/demo-controls";
@@ -70,10 +71,12 @@ export default function RootLayout({
       <body className={`${inter.variable} min-h-screen flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-200`}>
         <ThemeProvider>
           <DemoProvider>
-            <Navbar />
-            <main className="flex-1 w-full">{children}</main>
-            <Footer />
-            <DemoControls />
+            <SupportProvider>
+              <Navbar />
+              <main className="flex-1 w-full">{children}</main>
+              <Footer />
+              <DemoControls />
+            </SupportProvider>
           </DemoProvider>
         </ThemeProvider>
       </body>
