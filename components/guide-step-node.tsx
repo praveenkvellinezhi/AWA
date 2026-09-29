@@ -230,7 +230,10 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
 
         {/* Optional Visual Guideline Media (Image or Video) */}
         {(step.videoUrl || step.image) && (
-          <div className="mt-3.5 relative rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 group/img">
+          <div
+            data-media-overlay
+            className="mt-3.5 relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-800/80 group/img dark-media-overlay"
+          >
             {step.videoUrl ? (
               <div className="relative w-full overflow-hidden bg-black flex flex-col items-center justify-center">
                 <video
@@ -241,7 +244,10 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
                 />
               </div>
             ) : (
-              <div className="relative h-28 sm:h-32 w-full overflow-hidden">
+              <div
+                data-media-overlay
+                className="relative h-28 sm:h-32 w-full overflow-hidden dark-media-overlay"
+              >
                 <img
                   src={step.image}
                   alt={step.title}
@@ -260,10 +266,14 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
                     (e.currentTarget as HTMLImageElement).src = "/templates/luxury-product-shoot.webp";
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
 
                 <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-                  <span className="px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-mono text-zinc-200 border border-white/10 truncate max-w-[200px]">
+                  <span
+                    data-overlay-badge
+                    style={{ color: "#FFFFFF" }}
+                    className="px-2 py-0.5 rounded-md bg-black/85 backdrop-blur-md text-[9px] font-mono !text-white text-white font-bold border border-white/20 truncate max-w-[200px] shadow-sm"
+                  >
                     {step.imageCaption || "Visual Guideline"}
                   </span>
 

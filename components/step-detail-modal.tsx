@@ -280,6 +280,18 @@ export function StepDetailModal({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
 
+                    {step.imageCaption && (
+                      <div className="absolute bottom-2.5 left-2.5 pointer-events-none">
+                        <span
+                          data-overlay-badge
+                          style={{ color: "#FFFFFF" }}
+                          className="px-2.5 py-1 rounded-md bg-black/85 backdrop-blur-md text-[10px] font-mono !text-white text-white font-bold border border-white/20 truncate max-w-[220px] shadow-sm"
+                        >
+                          {step.imageCaption}
+                        </span>
+                      </div>
+                    )}
+
                     {onImageClick && (
                       <button
                         type="button"

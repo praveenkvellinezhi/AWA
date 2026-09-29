@@ -626,7 +626,10 @@ export function LiveTemplatePreview({
                             className="w-full h-full object-cover"
                           />
                           {step.imageCaption && (
-                            <span className="absolute bottom-1 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-zinc-300 truncate">
+                            <span
+                              data-overlay-badge
+                              className="absolute bottom-1 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/85 backdrop-blur-xs text-[9px] font-mono !text-white text-white font-bold border border-white/20 truncate"
+                            >
                               {step.imageCaption}
                             </span>
                           )}

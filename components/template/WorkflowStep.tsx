@@ -212,16 +212,23 @@ export function WorkflowStep({
                   )}
                 </div>
               ) : imgUrl ? (
-                <div className="relative h-44 sm:h-52 w-full overflow-hidden flex items-center justify-center">
+                <div
+                  data-media-overlay
+                  className="relative h-44 sm:h-52 w-full overflow-hidden flex items-center justify-center dark-media-overlay"
+                >
                   <img
                     src={imgUrl}
                     alt={step.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
 
                   <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none">
-                    <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono text-zinc-200 border border-white/10 truncate max-w-md">
+                    <span
+                      data-overlay-badge
+                      style={{ color: "#FFFFFF" }}
+                      className="px-2.5 py-1 rounded-md bg-black/85 backdrop-blur-md text-[10px] font-mono text-white !text-white font-bold border border-white/20 truncate max-w-md shadow-sm"
+                    >
                       {mediaCaption}
                     </span>
 

@@ -159,7 +159,10 @@ export function WebsiteGenerationGuide({
                     <FileCode className="h-6 w-6 text-slate-400 dark:text-zinc-500" />
                   )}
                   {asset.role && (
-                    <span className="absolute bottom-0 inset-x-0 bg-black/75 text-[9px] text-white font-mono text-center truncate py-0.5 px-1">
+                    <span
+                      data-overlay-badge
+                      className="absolute bottom-0 inset-x-0 bg-black/85 !text-white text-white font-bold text-[9px] font-mono text-center truncate py-0.5 px-1 border-t border-white/10"
+                    >
                       {asset.role}
                     </span>
                   )}

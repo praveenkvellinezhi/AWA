@@ -270,16 +270,16 @@ html:not(.dark) {
     color: #0F172A;
   }
 
-  /* Text hierarchy on light canvas (excluding buttons and links so their dedicated text/icon colors are preserved) */
-  [class*="text-slate-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
-  [class*="text-slate-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
-  [class*="text-zinc-100"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
-  [class*="text-zinc-200"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
+  /* Text hierarchy on light canvas (excluding buttons, links, media overlays, and overlay badges) */
+  [class*="text-slate-100"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-slate-200"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-100"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-200"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #0F172A !important;
   }
 
-  [class*="text-slate-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
-  [class*="text-zinc-300"]:not(.category-card-overlay *):not([data-media-overlay] *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
+  [class*="text-slate-300"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *),
+  [class*="text-zinc-300"]:not(.category-card-overlay *):not([data-media-overlay]):not([data-media-overlay] *):not(.dark-media-overlay *):not([data-overlay-badge]):not([data-overlay-badge] *):not([class*="bg-black/"]):not([class*="bg-black/"] *):not(.group\/img *):not(.group\/modalimg *):not(.dark-surface *):not(.demo-controls-console *):not(button *):not(a *) {
     color: #1E293B !important;
   }
 
@@ -514,14 +514,20 @@ html:not(.dark) {
 
   /* Overlays on images (badges & labels directly positioned over dark scrims, strictly excluding modal dialogs and light surfaces) */
   .category-card-overlay span,
-  [data-media-overlay] span,
-  .dark-media-overlay span,
+  [data-media-overlay],
+  [data-media-overlay] *,
+  .dark-media-overlay,
+  .dark-media-overlay *,
   [data-overlay-badge],
   [data-overlay-badge] *,
-  .group\/img [class*="bg-black"] span,
-  .group\/modalimg [class*="bg-black"] span,
+  .group\/img [class*="bg-black"],
+  .group\/img [class*="bg-black"] *,
+  .group\/modalimg [class*="bg-black"],
+  .group\/modalimg [class*="bg-black"] *,
   [class*="from-black"]:not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *):not(.fixed *) [class*="text-white"],
   [class*="from-black"]:not([class*="bg-white"] *):not([class*="bg-slate-"] *):not(.modal-dialog-surface *):not(.fixed *) [class*="text-zinc-"],
+  [class*="bg-black/"],
+  [class*="bg-black/"] *,
   [class*="bg-black/"][class*="text-white"],
   [class*="bg-black/"] [class*="text-white"],
   [class*="bg-black/"][class*="text-zinc-"],
