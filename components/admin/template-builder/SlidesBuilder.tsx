@@ -18,6 +18,9 @@ import {
   MessageSquare,
   HelpCircle,
   Code2,
+  Upload,
+  Image as ImageIcon,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,6 +71,16 @@ const LAYOUT_OPTIONS = [
   "Closing CTA & Contact",
 ];
 
+export const SLIDE_IMAGE_PRESETS = [
+  { label: "Cover & Title Deck", url: "/templates/slides-seed-pitch.webp" },
+  { label: "Problem & Analysis", url: "/templates/slides-qbr.webp" },
+  { label: "Product & Architecture", url: "/templates/slides-keynote-launch.webp" },
+  { label: "Traction & Market", url: "/templates/slides-vc-series-a.webp" },
+  { label: "AI Tech & Copilot", url: "/templates/slides-data-copilot.webp" },
+  { label: "Document & Outline", url: "/templates/slides-doc-to-deck.webp" },
+  { label: "Brand Guidelines Deck", url: "/templates/slides-branded-canva.webp" },
+];
+
 export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
   const [expandedSlideId, setExpandedSlideId] = useState<string | null>(
     data.slides[0]?.id || null
@@ -91,14 +104,34 @@ export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
     }
   };
 
+  const handleSlideImageUpload = (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image file (PNG, JPG, WebP).");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        handleUpdateSlide(index, { imageUrl: dataUrl });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddSlide = () => {
     const nextNumber = data.slides.length + 1;
+    const defaultImg =
+      SLIDE_IMAGE_PRESETS[(nextNumber - 1) % SLIDE_IMAGE_PRESETS.length]?.url ||
+      "/templates/slides-keynote-launch.webp";
+
     const newSlide: BuilderSlideItem = {
       id: `slide-${Date.now()}`,
       slideNumber: nextNumber,
       title: `Slide ${nextNumber.toString().padStart(2, "0")} Title`,
       purpose: "Define the specific outcome and message for this slide.",
       layout: "3-Card Value Pillar",
+      imageUrl: defaultImg,
       prompt: `Generate Slide ${nextNumber} content for [TOPIC]. Focus on clear visual hierarchy, concise bullet points, and data credibility.`,
       visualDirection: "Clean minimalist layout with high contrast typography and brand accent container cards.",
       contentRequirements: "Max 3 concise bullet points with 1 highlighted callout metric.",
@@ -476,6 +509,15 @@ export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
                       {slide.slideNumber.toString().padStart(2, "0")}
                     </span>
 
+                    {/* Slide Mini Thumbnail Preview */}
+                    <div className="w-12 h-8 rounded-md overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-700 shrink-0 relative hidden sm:block">
+                      <img
+                        src={slide.imageUrl || SLIDE_IMAGE_PRESETS[index % SLIDE_IMAGE_PRESETS.length].url}
+                        alt={slide.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
@@ -589,6 +631,102 @@ export function SlidesBuilder({ data, onChange, errors }: SlidesBuilderProps) {
                           placeholder="What decision or takeaway must this slide achieve?"
                           className="text-xs"
                         />
+                      </div>
+                    </div>
+
+                    {/* Slide Image Preview & Mockup Asset */}
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0E1422] border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                          <ImageIcon className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Slide Image Preview & Mockup</span>
+                        </label>
+                        {slide.imageUrl && (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
+                            Preview Active
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center">
+                        {/* Slide Image Mockup Preview */}
+                        <div className="sm:col-span-4 relative aspect-video rounded-lg overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 group shadow-xs">
+                          {slide.imageUrl || SLIDE_IMAGE_PRESETS[index % SLIDE_IMAGE_PRESETS.length].url ? (
+                            <img
+                              src={slide.imageUrl || SLIDE_IMAGE_PRESETS[index % SLIDE_IMAGE_PRESETS.length].url}
+                              alt={slide.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-[10px]">
+                              <Camera className="w-5 h-5 mb-1 opacity-40" />
+                              <span>No slide image</span>
+                            </div>
+                          )}
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/75 text-white">
+                            Slide {slide.slideNumber}
+                          </span>
+                        </div>
+
+                        {/* Slide Image Controls & Presets */}
+                        <div className="sm:col-span-8 space-y-2.5">
+                          {/* URL input and upload button */}
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={slide.imageUrl || ""}
+                              onChange={(e) =>
+                                handleUpdateSlide(index, { imageUrl: e.target.value })
+                              }
+                              placeholder="Image URL or choose preset below..."
+                              className="text-xs h-8"
+                            />
+                            <label className="cursor-pointer shrink-0">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleSlideImageUpload(index, file);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-xs gap-1.5 shrink-0 pointer-events-none"
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>Upload</span>
+                              </Button>
+                            </label>
+                          </div>
+
+                          {/* Curated Slide Presets Pills */}
+                          <div className="space-y-1">
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                              1-Click Presets:
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {SLIDE_IMAGE_PRESETS.map((preset) => (
+                                <button
+                                  key={preset.label}
+                                  type="button"
+                                  onClick={() =>
+                                    handleUpdateSlide(index, { imageUrl: preset.url })
+                                  }
+                                  className={`text-[10px] font-medium px-2 py-0.5 rounded-md border transition-all ${
+                                    slide.imageUrl === preset.url
+                                      ? "bg-emerald-600 text-white border-emerald-600 font-bold"
+                                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60"
+                                  }`}
+                                >
+                                  {preset.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 

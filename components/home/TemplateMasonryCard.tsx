@@ -48,7 +48,8 @@ export function TemplateMasonryCard({ template, priority = false }: TemplateMaso
       >
         {/* Visual Preview Container with Exact Natural Aspect Ratio */}
         <div
-          className="relative w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-900/90 shadow-xs hover:shadow-xl transition-all duration-300"
+          data-media-overlay
+          className="relative w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-900/90 shadow-xs hover:shadow-xl transition-all duration-300 dark-media-overlay"
           style={{ aspectRatio: cssAspectRatio }}
         >
           {/* Skeleton placeholder while loading image */}
@@ -72,7 +73,10 @@ export function TemplateMasonryCard({ template, priority = false }: TemplateMaso
 
           {/* Top-Left Subtle Aspect Ratio Tag */}
           <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold tracking-wider bg-black/60 backdrop-blur-md text-white/90 border border-white/10 shadow-xs">
+            <span
+              data-overlay-badge
+              className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold tracking-wider bg-black/60 backdrop-blur-md text-white !text-white border border-white/10 shadow-xs"
+            >
               {aspectRatio}
             </span>
           </div>

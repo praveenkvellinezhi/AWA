@@ -15,6 +15,7 @@ import {
   Layers,
   Code2,
   ExternalLink,
+  ChevronLeft,
   ChevronRight,
   Maximize2,
   Lock,
@@ -119,7 +120,45 @@ export function LiveTemplatePreview({
     setTimeout(() => setCopiedStepIndex(null), 2000);
   };
 
-  const currentSlide = slidesData.slides[selectedSlideIndex] || slidesData.slides[0];
+  const DEFAULT_SLIDE_IMAGES = [
+    "/templates/slides-seed-pitch.webp",
+    "/templates/slides-qbr.webp",
+    "/templates/slides-keynote-launch.webp",
+    "/templates/slides-vc-series-a.webp",
+    "/templates/slides-data-copilot.webp",
+    "/templates/slides-doc-to-deck.webp",
+    "/templates/slides-branded-canva.webp",
+  ];
+
+  const isSlidesCategory = basicInfo.categoryKey === "slides";
+  const slidesList = slidesData.slides || [];
+  const currentSlide = slidesList[selectedSlideIndex] || slidesList[0];
+
+  const getSlideImageUrl = (slide: typeof slidesList[0] | undefined, idx: number) => {
+    if (slide?.imageUrl) return slide.imageUrl;
+    if (idx === 0 && basicInfo.thumbnailUrl) return basicInfo.thumbnailUrl;
+    return (
+      DEFAULT_SLIDE_IMAGES[idx % DEFAULT_SLIDE_IMAGES.length] ||
+      basicInfo.thumbnailUrl ||
+      "/templates/slides-seed-pitch.webp"
+    );
+  };
+
+  const activeDisplayImageUrl = isSlidesCategory
+    ? getSlideImageUrl(currentSlide, selectedSlideIndex)
+    : basicInfo.thumbnailUrl;
+
+  const handlePrevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (slidesList.length <= 1) return;
+    setSelectedSlideIndex((prev) => (prev > 0 ? prev - 1 : slidesList.length - 1));
+  };
+
+  const handleNextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (slidesList.length <= 1) return;
+    setSelectedSlideIndex((prev) => (prev < slidesList.length - 1 ? prev + 1 : 0));
+  };
 
   return (
     <div className="h-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#111726] shadow-md overflow-hidden flex flex-col">
@@ -141,15 +180,13 @@ export function LiveTemplatePreview({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Thumbnail Preview Card */}
+        {/* Main Preview Card with Multi-Slide Support */}
         <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-800 group shadow-xs">
-          {basicInfo.thumbnailUrl ? (
-            <Image
-              src={basicInfo.thumbnailUrl}
-              alt={basicInfo.name || "Template Preview"}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              unoptimized={basicInfo.thumbnailUrl.startsWith("data:")}
+          {activeDisplayImageUrl ? (
+            <img
+              src={activeDisplayImageUrl}
+              alt={currentSlide?.title || basicInfo.name || "Template Preview"}
+              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1.5">
@@ -159,20 +196,108 @@ export function LiveTemplatePreview({
           )}
 
           {/* Floating Badges */}
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-xs text-white border border-white/20">
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-xs text-white border border-white/20">
               {basicInfo.categoryName}
             </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600/90 backdrop-blur-xs text-white">
-              {basicInfo.difficulty}
-            </span>
+            {isSlidesCategory && slidesList.length > 0 ? (
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-600/90 backdrop-blur-xs text-white shadow-xs">
+                Slide {selectedSlideIndex + 1} of {slidesList.length}
+              </span>
+            ) : (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600/90 backdrop-blur-xs text-white">
+                {basicInfo.difficulty}
+              </span>
+            )}
           </div>
 
-          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-xs px-2 py-1 rounded-md text-white text-[10px] font-mono">
+          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/75 backdrop-blur-xs px-2 py-1 rounded-md text-white text-[10px] font-mono z-10">
             <Sparkles className="w-3 h-3 text-amber-400" />
             <span>{basicInfo.recommendedModel || "AI Optimized"}</span>
           </div>
+
+          {/* Slides Carousel Navigation Arrows Overlay */}
+          {isSlidesCategory && slidesList.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrevSlide}
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 z-10"
+                title="Previous Slide"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextSlide}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 z-10"
+                title="Next Slide"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
+
+          {/* Slide Caption Bottom Banner (Slides Only) */}
+          {isSlidesCategory && currentSlide && (
+            <div className="absolute bottom-0 inset-x-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-center justify-between text-xs font-mono pointer-events-none">
+              <span className="text-[11px] font-bold text-white truncate max-w-[210px]">
+                {currentSlide.title}
+              </span>
+              <span className="text-[10px] text-emerald-300 font-semibold px-1.5 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">
+                {currentSlide.layout}
+              </span>
+            </div>
+          )}
         </div>
+
+        {/* Multi-Slide Interactive Thumbnail Carousel Strip (When category is Slides) */}
+        {isSlidesCategory && slidesList.length > 0 && (
+          <div className="space-y-1.5 rounded-xl p-2.5 bg-slate-50 dark:bg-[#0E1422] border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Presentation className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Multi-Slide Gallery ({slidesList.length} Slides)</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                Click slide to preview
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+              {slidesList.map((slide, idx) => {
+                const isCurrent = selectedSlideIndex === idx;
+                const slideImg = getSlideImageUrl(slide, idx);
+                return (
+                  <button
+                    key={slide.id || idx}
+                    type="button"
+                    onClick={() => setSelectedSlideIndex(idx)}
+                    className={`group relative h-14 w-20 rounded-lg overflow-hidden border-2 transition-all shrink-0 bg-slate-900 ${
+                      isCurrent
+                        ? "border-emerald-500 ring-2 ring-emerald-500/50 shadow-md scale-105"
+                        : "border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100 hover:border-slate-400 dark:hover:border-slate-500"
+                    }`}
+                    title={`Slide ${idx + 1}: ${slide.title}`}
+                  >
+                    <img
+                      src={slideImg}
+                      alt={slide.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute bottom-1 left-1.5 text-[9px] font-bold font-mono text-white truncate max-w-[65px]">
+                      Slide {idx + 1}
+                    </span>
+                    {isCurrent && (
+                      <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-white" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Template Title & Metadata */}
         <div>

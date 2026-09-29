@@ -181,6 +181,10 @@ function TemplateBuilderContent() {
           visualDirection: sp.visualDirection || "",
           contentRequirements: "",
           speakerNotes: "",
+          imageUrl:
+            existing.galleryImages?.[idx] ||
+            (idx === 0 ? existing.imageUrl : undefined) ||
+            INITIAL_SLIDES_DATA.slides[idx % INITIAL_SLIDES_DATA.slides.length]?.imageUrl,
         })),
         numberOfSlides: existing.slidePrompts!.length,
       }));
@@ -400,8 +404,17 @@ function TemplateBuilderContent() {
       workflow: workflowPayload,
       usageSteps: usageStepsPayload,
       slidePrompts: slidePromptsPayload.length > 0 ? slidePromptsPayload : undefined,
+      galleryImages:
+        basicInfo.categoryKey === "slides" && slidesData.slides.length > 0
+          ? slidesData.slides
+              .map((s, idx) => s.imageUrl || (idx === 0 ? basicInfo.thumbnailUrl : undefined))
+              .filter(Boolean) as string[]
+          : undefined,
       thumbnailGradient: "from-slate-900 via-emerald-950 to-slate-900",
-      imageUrl: basicInfo.thumbnailUrl,
+      imageUrl:
+        basicInfo.thumbnailUrl ||
+        (basicInfo.categoryKey === "slides" ? slidesData.slides[0]?.imageUrl : undefined) ||
+        "",
       likesCount: 1420,
       savesCount: 890,
       isPublished,

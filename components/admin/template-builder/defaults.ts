@@ -184,6 +184,7 @@ export const INITIAL_SLIDES_DATA: SlidesBuilderData = {
       title: "Cover & Mission",
       purpose: "Hook investors immediately with a definitive category-defining thesis.",
       layout: "Hero Title & Visual",
+      imageUrl: "/templates/slides-seed-pitch.webp",
       prompt: `Generate Slide 1 (Cover Slide) for AWA Seed Pitch Deck.
 Headline: "The Intelligent Workflow Engine for Generative AI"
 Sub-headline: "Empowering 100K+ creators to build production-grade assets in seconds."
@@ -199,6 +200,7 @@ Include presenter info: Founders, Date: Q3 2026, Confidential.`,
       title: "The Problem: Creation Friction",
       purpose: "Demonstrate the deep pain creators face when using raw generative AI models.",
       layout: "Split 2-Column Problem vs Reality",
+      imageUrl: "/templates/slides-qbr.webp",
       prompt: `Generate Slide 2 (The Problem) for AWA Pitch Deck.
 Headline: "Generative AI is Powerful, But Inaccessible and Inconsistent."
 Column 1: 85% of creator time is wasted on trial-and-error prompt engineering.
@@ -214,6 +216,7 @@ Include metric callout: "$4.2B estimated annual developer hours lost in prompt i
       title: "The Solution: AWA Engine",
       purpose: "Present our standardized template & workflow architecture as the definitive answer.",
       layout: "3-Card Value Pillar",
+      imageUrl: "/templates/slides-keynote-launch.webp",
       prompt: `Generate Slide 3 (Solution) for AWA Pitch Deck.
 Headline: "One Unified Pipeline for Every Creative Medium."
 Card 1 - Curated Battle-Tested Templates: Verified prompt models for Image, Video, Web, and Slides.
@@ -229,6 +232,7 @@ Card 3 - 1-Click Production Handoff: Instant parameter export to Midjourney, Run
       title: "Traction & Market Size",
       purpose: "Validate product-market fit with accelerating exponential metrics.",
       layout: "Big Metric & Data Highlight",
+      imageUrl: "/templates/slides-vc-series-a.webp",
       prompt: `Generate Slide 4 (Market & Traction) for AWA Pitch Deck.
 Headline: "Hyper-Growth Powered by Organic Creator Word-of-Mouth."
 Stat 1: 120,000+ Active Monthly Creators (14% weekly compounding)
@@ -244,6 +248,7 @@ Stat 3: 4.8 / 5 Community Satisfaction Across 50,000 Prompt Runs`,
       title: "The Ask & Roadmap",
       purpose: "Present the funding target, deployment breakdown, and next milestones.",
       layout: "Timeline & Closing CTA",
+      imageUrl: "/templates/slides-data-copilot.webp",
       prompt: `Generate Slide 5 (The Ask) for AWA Pitch Deck.
 Headline: "Raising $2.5M Seed to Scale the Global Template Network."
 Fund Allocation: 55% Core AI Engineering, 25% Community & Creator Fund, 20% Enterprise Security.

@@ -159,6 +159,7 @@ export interface BuilderSlideItem {
   visualDirection: string;
   contentRequirements: string;
   speakerNotes: string;
+  imageUrl?: string;
 }
 
 export interface SlidesBuilderData {
