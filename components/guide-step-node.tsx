@@ -5,6 +5,7 @@ import { Handle, Position, NodeProps, Node } from "@xyflow/react";
 import { motion } from "motion/react";
 import { Check, Maximize2, Sparkles, ChevronRight } from "lucide-react";
 import { GuideStep } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
 export interface GuideStepNodeData extends Record<string, unknown> {
   step: GuideStep;
@@ -278,8 +279,10 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
                   </span>
 
                   {onImageClick && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onImageClick({
@@ -288,11 +291,11 @@ function GuideStepNodeComponent({ data }: NodeProps<GuideStepNodeType>) {
                           caption: step.imageCaption,
                         });
                       }}
-                      className="pointer-events-auto p-1 rounded-md bg-black/70 hover:bg-black text-white transition-colors border border-white/15"
+                      className="pointer-events-auto h-6 w-6 rounded-md bg-black/70 hover:bg-black text-white hover:text-white transition-colors border border-white/15 p-0"
                       title="Expand guideline benchmark"
                     >
                       <Maximize2 className="h-3 w-3 text-cyan-300" />
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
