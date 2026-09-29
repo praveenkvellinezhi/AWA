@@ -257,13 +257,7 @@ export function Navbar() {
           >
             Blog
           </Link>
-          <Link
-            href="/admin"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 transition-colors border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold"
-            title="AWA Administrator Console"
-          >
-         
-          </Link>
+
         </nav>
 
         {/* 3. Right Actions: Search + Collection + Theme + Sign In / Get Started */}
